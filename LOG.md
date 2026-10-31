@@ -83,3 +83,67 @@ iiSurf added two needs. Speaking out loud is often not an option (public transpo
 - The sound model has not been run anywhere yet. Its size comes from its model page, not from a download.
 - Nobody has an answer yet on whether a smaller sound model exists.
 - The teammate has not seen the new split.
+
+## 2026-10-30 (Friday, night): GitHub rules, and ten theme drafts
+
+### Plan
+
+iiSurf turned on the GitHub rules for `main`, with one change from the plan: 0 required approvals instead of 1, so neither of us waits on the other to merge. Then: rough drafts of the look. iiSurf wants the colors to follow the learner's home country, starting with Ukraine, and asked for ten to choose from.
+
+### Changed
+
+- `PLAN.md`:
+  - Merging now matches GitHub: whoever opened a pull request merges it once the tests pass. Changes to `PLAN.md` or the handshake still wait for the other person's OK, because that file is our agreement.
+  - "Colors from home" joins how it works. One Ukraine theme is a Must, and choosing between themes is a Stretch.
+  - `design/` joins iiSurf's part.
+- `CLAUDE.md`: "your person merges" instead of "iiSurf merges". Agents still never merge.
+- New: `design/themes.html`, ten themes on the same screen (Out loud, after saying "weather"):
+  - 1 Sky over wheat, 2 Golden domes, 3 Vyshyvanka, 4 Petrykivka (dark), 5 Pysanka
+  - 6 Sunflower field, 7 Carpathians, 8 Black Sea, 9 Kalyna, 10 Night flag (dark)
+
+  The four grade colors stay the same in every theme, each with its own mark (✓, ≈, !, ✕). The page uses no outside requests.
+- New: `tools/shot.mjs` takes a screenshot at an exact width. Plain headless Chrome can't make a window narrower than about 500 pixels, so the first 390-wide shot was wrong. Chrome's profile goes in `.tmp/` and is deleted afterwards.
+
+### Verified
+
+- The drafts at 360, 390, and 1280 wide, in headless Chrome: no sideways scrolling, and the phones line up in rows at 1280.
+- Fixed after the first look: the Ukrainian з looked like the digit 3, so the tip now says "the з in зуб".
+- iiSurf saw only text at first. The app's preview shows a local page as a still snapshot without running its JavaScript, and the page drew its phones with JavaScript. The ten phones are now drawn into the page ahead of time (the script redraws the same thing). Checked with the script removed: all ten phones and the key still show.
+- `tools/shot.mjs` can now save parts of a page as separate pictures. It was used to send iiSurf sharp pictures of each row of drafts.
+
+## 2026-10-30 (Friday, late): seven looks, and changing between them
+
+### Plan
+
+iiSurf picked seven of the ten themes and wants all of them in the app, with a way to change between them:
+
+- 1 Sky over wheat, 3 Vyshyvanka, 4 Petrykivka, 5 Pysanka
+- 6 Sunflower field, 9 Kalyna, 10 Night flag
+
+### Decisions
+
+- **Your colors** opens from the "UA → EN" tag in the band. It holds the first language (Ukrainian) and the looks that come with it, so a learner from another country would get their own set.
+- The learner picks a **day look** (five light ones) and a **night look** (the two dark ones), and the app switches when the phone goes dark. It starts with Sky over wheat and Night flag, both from the flag.
+- Seven looks with a picker is now a Must; the old Stretch, "choose between a few themes", is folded into it.
+
+### Changed
+
+- `design/themes.html`, round two: Your colors drawn twice (daytime with the starting choices, and night with Vyshyvanka and Petrykivka chosen). Round one is still below it, with the seven marked "Picked" and the other three faded.
+- New: `tools/bake.mjs` saves what a draft page's script draws into the page itself, so the page shows in the app's preview, which doesn't run JavaScript. A second bake now changes nothing (Chrome added a blank line each time, so the tool tidies it).
+- `PLAN.md`: how it works item 5, and the Must list.
+
+### Verified
+
+- At 360, 390, and 1280 wide, in headless Chrome: no sideways scrolling, and the Your colors screen fits.
+- Fixed after the first look: the check mark sat on top of the flower in the Petrykivka tile and was hard to see on the blue Sky over wheat tile, so it moved to the tile's name row. "Ukrainian · українська" broke onto two lines in the middle, so the Ukrainian name now sits on its own line.
+
+### Not verified
+
+- Not seen on a real phone.
+- Switching with the phone's dark mode is only drawn, not built.
+
+### Not verified
+
+- Not seen on a real Samsung phone.
+- The drafts use the phone's own font, not a chosen one.
+- Only the Out loud screen is drawn. At 360 wide, "Say it again" wraps inside the drawn phone frame, which is narrower than a real phone screen.

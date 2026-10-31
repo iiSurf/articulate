@@ -18,7 +18,7 @@ Check the branch (`git branch --show-current`):
 
 ## Rules for every agent
 
-- Work only on your person's branch. Never commit to `main`, push to `main`, force-push, or merge a pull request. iiSurf merges, on GitHub.
+- Work only on your person's branch. Never commit to `main`, push to `main`, force-push, or merge a pull request. Your person merges, on GitHub.
 - Change only the files your person owns ("Who owns what" in PLAN.md). If something in the other person's files needs to change, say so in the pull request instead of changing it.
 - Before starting work, bring the branch up to date with `main` (`git fetch origin`, then `git merge origin/main`). If that stops with a conflict in the other person's file, stop and tell your person.
 - Ask your person before every push.

@@ -1,6 +1,6 @@
 # The team plan
 
-Both of us, and both of our Claude Code agents, work from this file. Change it only through a pull request that the other person approves.
+Both of us, and both of our Claude Code agents, work from this file. Change it only through a pull request that the other person approves. GitHub doesn't require approvals here, but this file is our agreement, so changes to it wait for the other person's OK.
 
 Status: proposed by iiSurf on October 30, 2026. The teammate agrees by approving the pull request that brings this file into `main`.
 
@@ -20,6 +20,7 @@ How it works:
    - **Headphones:** listen, but no speaking. Hear each word at normal speed and slowly, and play "which word did you hear?" with sound-alike pairs.
    - **Out loud:** say the word and see each part of it colored by how close it was (below).
 4. **Tips** that compare each hard English sound to a Ukrainian sound they already know.
+5. **Colors from home.** The app's colors come from the learner's first language, Ukrainian first. Ukraine has seven looks (drafts in [design/themes.html](design/themes.html)). The "UA → EN" tag in the band opens Your colors, where the learner picks one look for the day and one for night, and the app switches when the phone goes dark.
 
 ### Quiet: practice in your head
 
@@ -52,6 +53,7 @@ How it colors: a free speech model that recognizes English sounds runs in the br
 - Headphones: normal and slow, and "which word did you hear?"
 - Out loud: record, play yours and the model back to back, colored letters (or the beat, if the scoring test fails), fix this part, and back to your word.
 - Works in Chrome on an Android phone and on a computer.
+- The seven Ukraine looks and Your colors: Sky over wheat, Vyshyvanka, Pysanka, Sunflower field, and Kalyna for the day, and Petrykivka and Night flag for night. It starts with Sky over wheat and Night flag. The four grade colors stay the same in every look.
 
 **Stretch:**
 
@@ -97,7 +99,7 @@ The owner of a file is the only one who changes it. If you need a change in the 
 
 | Part | Owner | Files |
 | --- | --- | --- |
-| The app shell: the page, the look, moving between screens | iiSurf | `index.html`, `css/`, `js/app.js` |
+| The app shell: the page, the look and the themes, moving between screens | iiSurf | `index.html`, `css/`, `js/app.js`, `design/` |
 | Words: my words, the dictionary, letters and sounds, suggestions, word pages, Ukrainian tips | iiSurf | `js/words/`, `data/words/`, `tools/words/`, `tests/words/` |
 | Scoring: the sound model and the color of each part | iiSurf | `js/score/`, `tools/score/`, `tests/score/` |
 | Practice: the Quiet puzzles, Headphones, the Out loud screen (record, play back, show the colors, fix this part), and the voice clips | the teammate | `js/practice/`, `data/voice/`, `tools/voice/`, `tests/practice/` |
@@ -147,7 +149,7 @@ Practice finds its own voice clip for a word (`data/voice/`). Changing any of th
 
 - `main` is what GitHub Pages puts live. Nobody pushes to it directly.
 - Each of us works on our own branch: iiSurf on `nicks-branch`, the teammate on theirs (they add its name here).
-- Merge into `main` often, every day or two, through a pull request. The other person approves it (a quick read is enough), the tests pass, and iiSurf merges it with **Create a merge commit**. Not squash: our branches live on after each merge, and a squash merge makes the next pull request from the same branch conflict.
+- Merge into `main` often, every day or two, through a pull request. Once the tests pass, whoever opened it merges it with **Create a merge commit**. GitHub requires no approval, so neither of us waits on the other. Changes to this file or to the handshake are the exception: they wait for the other person's OK. Not squash: our branches live on after each merge, and a squash merge makes the next pull request from the same branch conflict.
 - After anything merges into `main`, bring your branch up to date (the pull request's "Update branch" button, or `git merge origin/main`) before more work.
 - If a merge stops with a conflict, the person who owns the file decides how it ends up. An agent never settles a conflict in someone else's file.
 
@@ -155,10 +157,10 @@ Practice finds its own voice clip for a word (`data/voice/`). Changing any of th
 
 1. Settings, Collaborators: add the teammate.
 2. Settings, General, Pull Requests: allow merge commits only (turn off squash merging and rebase merging).
-3. Settings, Rules, Rulesets, New branch ruleset, aimed at `main`: require a pull request with 1 approval, and block force pushes. Add "Repository admin" to its bypass list. Once the test check exists, also require it to pass.
+3. Settings, Rules, Rulesets, New branch ruleset, aimed at `main`: require a pull request (0 approvals, so neither of us waits on the other), restrict deletions, and block force pushes. Add "Repository admin" to its bypass list. Once the test check exists, also require it to pass. (Done October 30.)
 4. Settings, Pages: deploy from `main`, folder `/` (root), once there is a page to show.
 
-If one of us is stuck waiting for an approval, iiSurf can skip the rule as the admin (that is what the bypass list is for), and says why in their log.
+If a rule ever gets in the way, iiSurf can skip it as the admin (that is what the bypass list is for), and says why in their log.
 
 ## Logs
 
