@@ -8,6 +8,16 @@ This is TCSS 490 Artifact 4 ("For Someone Else"), built by a team of two. Each o
 
 [PLAN.md](PLAN.md) is the team's plan: what we are building, who owns which files, how we merge, and the timeline. Follow it. If a task goes against it, stop and ask your person instead of working around it.
 
+## Setup (both of us)
+
+A fresh clone has everything except two things git ignores: `node_modules/` (`npm install`) and the 355 MB sound model in `.models/` (`npm run get-model`). README.md, "Getting started", has the commands. If a task needs the model and it isn't there, run `npm run get-model` (ask your person first: it's a big download). Don't work around a missing setup step.
+
+- `npm start` serves the repository at http://localhost:8000. Use it, not `file://`: the app loads modules and data with fetch.
+- `npm test` runs every test, with nothing downloaded.
+- `vendor/` holds the browser engine for the sound model, copied from npm by `npm run vendor`. Never edit it by hand.
+- Never commit `.models/`, `node_modules/`, or `.tmp/`.
+- `npm run score-test` only runs on a Mac (it records with the Mac's voices). Everything else runs on a Mac, Windows, or Linux.
+
 ## Who you are working for
 
 Check the branch (`git branch --show-current`):
@@ -24,7 +34,7 @@ Check the branch (`git branch --show-current`):
 - Ask your person before every push.
 - After each meaningful change, add a dated entry to your person's log, and only theirs: what was planned, what changed, what was checked, and what was not.
 - Plan before building anything large. Keep changes small and commit after each working step, with a clear message.
-- Run `npm test` before committing changes to `js/` (once there are tests).
+- Run `npm test` before committing changes to `js/`.
 - Check anything visible in a browser at 360, 390, and 1280 wide before calling it done, and say what was not checked.
 
 ## The app's own rules
@@ -42,4 +52,4 @@ Check the branch (`git branch --show-current`):
 
 ## On iiSurf's Mac
 
-Claude works only inside `~/Documents/claude-workspace`: never in Downloads, the Desktop, iCloud Drive, or the system's temporary folder. Scratch files go in `.tmp/` in this repository, which git ignores.
+Claude works only inside `~/Documents/claude-workspace`: never in Downloads, the Desktop, iCloud Drive, or the system's temporary folder. Scratch files go in `.tmp/` in this repository, which git ignores. npm keeps its cache in the home folder unless told otherwise, so on this Mac install with `npm install --cache .tmp/npm-cache`. Node is at `/Users/nick/.nvm/versions/node/v22.18.0/bin`.

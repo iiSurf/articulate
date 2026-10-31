@@ -1,0 +1,20 @@
+{
+  "name": "articulate",
+  "private": true,
+  "type": "module",
+  "description": "Pronunciation practice for one learner. The app is plain HTML, CSS, and JavaScript; npm is only for the tests and the tools.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "get-model": "node tools/get-model.mjs",
+    "vendor": "node tools/vendor.mjs",
+    "score-test": "node tools/score/run.mjs",
+    "score-speed": "node tools/score/speed.mjs"
+  },
+  "devDependencies": {
+    "onnxruntime-web": "1.31.1"
+  }
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scoring speed</title>
+<!-- Loaded by tools/score/speed.mjs: times the scoring model in Chrome, loaded the way the app loads it. -->
+</head>
+<body>
+<script type="module">
+  import { loadModel } from "/js/score/model.js";
+  import { targets } from "/js/score/phones.js";
+  import { logSoftmax, prepare, readVocab, scoreWord } from "/js/score/gop.js";
+
+  let model, v;
+  window.loadModel = async () => {
+    const t0 = performance.now();
+    model = await loadModel();
+    v = readVocab(model.vocab);
+    return { ms: performance.now() - t0, from: model.from };
+  };
+
+  // Times one recording: the model, then the scoring. phones are the word's dictionary sounds. The speed doesn't
+  // depend on what is said, only on how long the recording is, so it can be quiet noise of that length.
+  window.timeRecording = async (seconds, phones) => {
+    let seed = 1;
+    const samples = Float32Array.from({ length: Math.round(seconds * 16000) }, () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648 - 0.5) * 0.1);
+    const t0 = performance.now();
+    const raw = await model.run(samples);
+    const t1 = performance.now();
+    scoreWord(prepare(logSoftmax(raw), v), targets(phones), v);
+    return { seconds: samples.length / 16000, modelMs: t1 - t0, scoreMs: performance.now() - t1 };
+  };
+  window.ready = true;
+</script>
+</body>
+</html>

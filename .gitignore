@@ -6,3 +6,6 @@ CLAUDE.local.md
 
 node_modules/
 .DS_Store
+
+# Downloaded models for the scoring test (too big for the repository)
+.models/

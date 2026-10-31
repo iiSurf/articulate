@@ -142,6 +142,130 @@ iiSurf picked seven of the ten themes and wants all of them in the app, with a w
 - Not seen on a real phone.
 - Switching with the phone's dark mode is only drawn, not built.
 
+## 2026-10-31 (Saturday): the Portfolio checkpoint card
+
+### Plan
+
+By Sunday, November 1, the Portfolio's Artifact 4 card has to show where Articulate is.
+
+### Changed
+
+- In the Portfolio repository (`cards.js`, pushed as 539f4ae):
+  - The Artifact 4 card is now "Articulate". It stays an idea card, because the app is in progress.
+  - Its button, "See the plan and drafts", opens this repository on `nicks-branch`.
+  - The text covers what the app is, how two people and two agents share one repository, what is done, and what is next.
+  - Scripts and styles are at `?v=20261030`, and the Portfolio's own log has an entry.
+- `README.md` here now lists the theme drafts and the two screenshot tools, since the card's button lands on it (386b3f1).
+
+### Verified
+
+- Live, after GitHub Pages published it: https://iisurf.github.io/Portfolio/#artifact-4 at 390 and 1280 wide shows the new title, the button, and the text. Nothing scrolls sideways.
+- The button's address (the `nicks-branch` page on GitHub) answers.
+
+### Not verified
+
+- A real phone, Safari, or Firefox.
+- The Portfolio's own log still says the live check is to come. It gets updated with the next Portfolio change, so no change is left waiting in that repository.
+- Once the plan is merged into `main`, the card's link should point at the repository itself.
+
+## 2026-10-31 (Saturday): the scoring test
+
+### Plan
+
+Answer PLAN.md's question before building Out loud: can a free speech model, running in the browser, color each sound of a word right, and fast enough for a phone?
+
+### Changed
+
+- New, the scoring code:
+  - `js/score/phones.js`: the dictionary's sounds mapped to the model's.
+  - `js/score/gop.js`: the scoring.
+  - `js/score/audio.js`: reading and scaling audio.
+- New, the tests: `tests/score/`, 13 of them, with made-up model output.
+- New, the test tools:
+  - `tools/score/run.mjs`: colors, on word pairs said by the Mac's voices.
+  - `tools/score/speed.mjs` and `tools/score/speed.html`: Chrome at full speed and slowed down.
+  - `tools/score/model.mjs`: the model in Node.
+- New: `package.json`, so `npm test` runs the tests. It lists onnxruntime-web 1.31.1 as a tool for development.
+- `tools/chrome.mjs` now holds the headless Chrome code that `tools/shot.mjs` had, so the speed test can share it.
+- New: `docs/scoring-test.md`, the results.
+- `PLAN.md`: the result, the decision, and two new Must details: cut the silence off before scoring, and keep the weak vowels at yellow at most.
+- `README.md`: the scoring files, and how to run the tests and the scoring test.
+- Downloads, with iiSurf's OK, into folders git ignores:
+  - the model, 355 MB, into `.models/`. Its checksum matched Hugging Face's.
+  - onnxruntime-web, into `node_modules/`, with npm's cache in `.tmp/`.
+  - the CMU dictionary, into `.models/`.
+
+### Result
+
+**Passed, on the Mac's own voices.** The color cuts were picked on three voices (Eddy, Flo, Sandy) and checked on three others (Samantha, Reed, Shelley):
+
+- Swapped sounds caught (orange or red): 163 of 183, or 89%. The rule asks for 80%.
+- Right sounds turned red: 25 of 915, or 3%. The rule allows 10%.
+- Right sounds green: 86%.
+- "Sounded like" named the swap: 81%.
+- th mistakes were caught 35 of 36 times.
+- Weak spots: bad/bed was caught 8 of 15 times, and fool/full 5 of 9.
+- Speed in Chrome, one thread: 0.45 s per short word at full speed, 1.84 s slowed down 4 times, and 2.77 s slowed down 6 times. Scoring adds 2 to 10 ms.
+
+### Verified
+
+- `npm test`: 13 of 13 pass.
+- Both test tools ran from start to finish.
+- The screenshot tool still works after moving its Chrome code into `tools/chrome.mjs`.
+
+### Not verified
+
+- Real voices. Every recording came from the Mac's voices, and every mistake was a whole swapped sound, never an in-between one like a real accent makes.
+- A real Android phone. Chrome slowed down is only a stand-in.
+- The 355 MB download on a phone.
+- A smaller model. None was tried.
+
+## 2026-10-31 (Saturday, later): everything works from a fresh clone
+
+### Plan
+
+iiSurf asked whether the teammate can use what was downloaded. They couldn't: the model, the browser engine, and the dictionary were only on this Mac, in folders git ignores. The teammate needs everything working on their side too, on whatever computer they have.
+
+### Changed
+
+- **The dictionary is in the repository:** `data/words/cmudict.dict`, unchanged, with its BSD license and a note on where it came from (commit 0f8072f).
+- **The browser engine is in the repository:** `vendor/onnxruntime-web/` (15 MB), copied from npm by `npm run vendor`, with its MIT license. The app loads it from there, so it works on GitHub Pages and from a fresh clone without npm.
+- **The app gets the model itself:**
+  - New: `js/score/source.js`. It pins the model to one version on Hugging Face, with its size and checksum, and it keeps the model's vocabulary in the app so that doesn't need fetching.
+  - The app looks for the model in order: the local copy, then the browser's saved copy, then a download, which it then saves.
+  - New: `js/score/model.js` loads it in the browser.
+- **One command for the local copy:** `npm run get-model` (`tools/get-model.mjs`) downloads the model on a Mac, Windows, or Linux, and checks its checksum. If the copy is already there and checks out, it does nothing.
+- **A local server:** `npm start` (`tools/serve.mjs`), localhost only, no caching, and nothing outside the folder. The speed test uses it too.
+- **Tools that work on other computers:**
+  - `tools/chrome.mjs` finds Chrome on a Mac, Windows, or Linux. The screenshot, bake, and speed tools all use it.
+  - The speed test no longer needs the Mac's voices, since speed depends only on how long a recording is.
+  - The scoring test says plainly that it needs a Mac.
+- `package.json` has scripts for all of this and asks for Node 22 or newer.
+- New tests: `tests/score/source.test.js`, 8 of them, on where the app finds the model, with stand-ins for fetch and the browser's storage.
+- Docs:
+  - `README.md`: a "Getting started" section.
+  - `CLAUDE.md`: a "Setup" section for both agents, plus the npm cache rule for this Mac.
+  - `PLAN.md`: where the data and the engine come from, and a row for the shared tools.
+  - `docs/scoring-test.md`: speed by recording length.
+
+### Verified
+
+- **A fresh copy:** only the files a clone would get (18 MB, with no model and no `node_modules`), in `.tmp/fresh`:
+  - `npm install` and `npm test` (21 of 21) passed.
+  - `npm start` served the drafts, the engine (`application/wasm`), the scoring code, and the dictionary.
+  - The server refused a path that tried to leave the folder.
+  - `npm run get-model` recognized a good copy.
+  - `npm run score-speed` loaded the model through the app's own loader and the vendored engine in Chrome, and ran it.
+- **Hugging Face** allows the download from https://iisurf.github.io and from http://localhost:8000. Checked with a request header, not by downloading again.
+- The app's kept vocabulary matches the model's vocab.json exactly.
+- **Speed by length:** a 0.6 s word takes 2.5 s with Chrome slowed down 6 times, and a 2 s recording takes 8.3 s. So cutting the silence is a Must.
+- **The scoring test, rerun** with the dictionary in its new place: the same results (89% caught, 3% right sounds red, 86% green).
+
+### Not verified
+
+- The browser downloading the full model from Hugging Face. Only the permission header was checked, to avoid another 355 MB download, and the download logic is covered by the tests.
+- Windows and Linux themselves. The tools look for Chrome in the usual places there, but neither was tried.
+
 ### Not verified
 
 - Not seen on a real Samsung phone.
