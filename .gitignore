@@ -1,0 +1,8 @@
+# Scratch files (CLAUDE.md: never the system's temporary folder)
+.tmp/
+
+# Personal notes for your own Claude Code, not shared
+CLAUDE.local.md
+
+node_modules/
+.DS_Store
