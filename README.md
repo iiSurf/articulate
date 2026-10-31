@@ -8,7 +8,7 @@ A pronunciation practice app for one person: a friend who grew up speaking Ukrai
 
 Built by a team of two with Claude Code for TCSS 490, Artifact 4 ("For Someone Else").
 
-**Status (October 30, 2026):** planning. There is no app code yet.
+**Status (October 30, 2026):** planning and design drafts. There is no app code yet.
 
 ## Where things are
 
@@ -16,6 +16,9 @@ Built by a team of two with Claude Code for TCSS 490, Artifact 4 ("For Someone E
 - [docs/needs.md](docs/needs.md): what we know about the person it is for, and what each answer means for the app.
 - [CLAUDE.md](CLAUDE.md): the rules every Claude Code agent on this repository follows.
 - [LOG.md](LOG.md): iiSurf's log. The teammate keeps their own log next to it, `LOG-<their GitHub name>.md`. Together they are the record of what we planned and what changed.
+- [design/themes.html](design/themes.html): drafts of the look, to open in a browser. It shows the seven Ukrainian color themes picked from ten, and Your colors, the screen for choosing a look for the day and one for night.
+- [tools/shot.mjs](tools/shot.mjs): takes a screenshot of a page at an exact width (360, 390, or 1280), with headless Chrome. This is how screens get checked at phone and desktop sizes.
+- [tools/bake.mjs](tools/bake.mjs): saves what a draft page's script draws into the page itself, so it also shows in previews that don't run JavaScript.
 - `.github/pull_request_template.md`: the checklist every pull request starts with.
 
 ## Privacy
