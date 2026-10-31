@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articulate theme drafts</title>
+<!--
+  Rough drafts of Articulate's looks. Round one: ten Ukraine themes on the same screen (Out loud, after saying
+  "weather"). Round two: the seven iiSurf picked, and the screen for changing between them.
+  Self-contained on purpose: no fonts, scripts, or images from anywhere else.
+  The grade colors (good, close, a little off, needs work) are the same in every theme.
+  The script draws everything. After changing it, run `node tools/bake.mjs design/themes.html` so the drawn
+  page is saved into this file too, for previews that don't run JavaScript.
+-->
+<style>
+  :root { --page: #E9E9E6; --page-ink: #1D1D1F; --page-muted: #55555A; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--page-ink);
+    font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+
+  .intro, .section-head { max-width: 1232px; margin: 0 auto; padding: 32px 24px 8px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 10px; }
+  .section-head h2 { font-size: 26px; line-height: 1.2; margin: 0 0 8px; }
+  .intro p, .section-head p { margin: 0 0 10px; max-width: 780px; color: var(--page-muted); }
+  .intro p b, .section-head p b { color: var(--page-ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 16px 0 0; padding: 0; list-style: none; font-weight: 700; }
+  .legend li { display: flex; align-items: center; gap: 8px; }
+
+  .grid { max-width: 1232px; margin: 0 auto; padding: 20px 24px 56px; display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(372px, 100%), 1fr)); gap: 48px 28px; }
+  .option { display: flex; flex-direction: column; align-items: center; }
+  .option.out { opacity: .45; }
+  .option-head, .watch { width: 100%; max-width: 360px; }
+  .option h3 { margin: 0; font-size: 22px; line-height: 1.2; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .num { display: inline-grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%;
+    background: var(--page-ink); color: #fff; font-size: 17px; }
+  .picked { font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+    background: #1B7A35; color: #fff; border-radius: 999px; padding: 3px 10px; }
+  .from { margin: 8px 0 10px; color: var(--page-muted); font-size: 16px; min-height: 2.9em; }
+  .swatches { display: flex; gap: 6px; margin: 0 0 14px; }
+  .swatches span { width: 26px; height: 26px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.14); }
+  .watch { margin: 14px 0 0; font-size: 16px; color: var(--page-muted); }
+  .watch b { color: var(--page-ink); }
+
+  /* The phone */
+  .phone { width: 100%; max-width: 360px; border-radius: 36px; padding: 10px; background: #1B1B1D;
+    box-shadow: 0 18px 40px rgba(0,0,0,.18); }
+  .screen { border-radius: 27px; overflow: hidden; background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; }
+  .band { position: relative; background: var(--band); color: var(--band-ink); }
+  .band-top { position: relative; display: flex; align-items: center; gap: 10px; padding: 20px 16px 18px; min-height: 76px; }
+  .brand { font-weight: 800; font-size: 23px; letter-spacing: .2px; position: relative; z-index: 1; }
+  .back { font-weight: 800; font-size: 30px; line-height: 1; margin: -4px 0 0; position: relative; z-index: 1; }
+  .pair { position: relative; z-index: 1; font-weight: 800; font-size: 13px; letter-spacing: .06em;
+    background: var(--pair-bg); color: var(--pair-ink); border-radius: 999px; padding: 4px 9px; }
+  .icon { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); height: 60px; width: auto; }
+  .strip { display: block; width: 100%; }
+
+  .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 12px; }
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;
+    background: var(--mode-bg); border-radius: 15px; }
+  .modes span { text-align: center; padding: 9px 2px; border-radius: 11px; font-weight: 800; font-size: 15px; color: var(--chip-ink); }
+  .modes .on { background: var(--mode-on); color: var(--mode-on-ink); }
+
+  .card { background: var(--surface); border-radius: 18px; padding: 14px 14px 16px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 6px 18px rgba(0,0,0,.07); }
+  .dark .card { box-shadow: none; }
+  .label { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+
+  .word { display: flex; justify-content: center; gap: 5px; margin: 12px 0 0; }
+  .part { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .part .l { font-size: 52px; font-weight: 800; line-height: 1; color: var(--g); }
+  .part .m { width: 100%; min-width: 36px; height: 24px; border-radius: 12px; background: var(--gb); color: var(--gm);
+    display: grid; place-items: center; }
+  .part .m svg { width: 17px; height: 17px; }
+  .respell { text-align: center; font-weight: 800; color: var(--muted); letter-spacing: .05em; margin: 10px 0 0; }
+  .heard { margin: 10px 0 0; font-size: 16px; }
+  .heard b, .tip b { color: var(--ink); }
+
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .btn { flex: 1; border-radius: 14px; padding: 12px 10px; font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.secondary { background: var(--chip-bg); color: var(--chip-ink); }
+
+  .tip p { margin: 6px 0 10px; font-size: 16px; }
+  .uk { font-weight: 800; font-size: 18px; }
+  .sub { font-size: 14px; font-weight: 700; color: var(--muted); margin: 0 0 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip { background: var(--chip-bg); color: var(--chip-ink); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 15px; }
+  .chip.on { background: var(--accent); color: var(--accent-ink); }
+  .mine .chips { margin: 8px 0 0; }
+
+  /* Your colors: the screen for changing the look */
+  .lang-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+  .lang-name { font-weight: 800; font-size: 19px; }
+  .lang-name span { display: block; font-weight: 700; font-size: 16px; color: var(--muted); }
+  .hint { margin: 8px 0 0; font-size: 15px; color: var(--muted); }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; margin-top: 10px; }
+  .tile { position: relative; border-radius: 14px; overflow: hidden; background: var(--chip-bg); }
+  .tile.on { outline: 3px solid var(--tab-on); outline-offset: 2px; }
+  .mini-band { position: relative; height: 50px; background: var(--tb); color: var(--ti); display: flex; align-items: center; padding: 0 10px; }
+  .mini-band .aa { position: relative; z-index: 1; }
+  .mini-band .icon { height: 34px; right: 4px; }
+  .mini-band .strip { position: absolute; left: 0; bottom: 0; }
+  .tile-name { padding: 8px 34px 10px 10px; font-weight: 800; font-size: 14px; line-height: 1.25; color: var(--chip-ink); }
+  .tick { position: absolute; z-index: 2; bottom: 7px; right: 7px; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--tab-on); color: var(--surface); display: grid; place-items: center; }
+  .tick svg { width: 15px; height: 15px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px;
+    font-weight: 700; font-size: 16px; }
+  .switch { flex: none; position: relative; width: 54px; height: 32px; border-radius: 16px; background: var(--tab-on); }
+  .switch i { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); }
+
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); padding: 9px 6px 13px; margin-top: auto; }
+  .tabs span { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 800; color: var(--muted); }
+  .tabs .on { color: var(--tab-on); }
+  .tabs svg { width: 24px; height: 24px; }
+  .aa { font-size: 19px; line-height: 24px; font-weight: 900; }
+
+  .foot { max-width: 1232px; margin: 0 auto; padding: 0 24px 48px; color: var(--page-muted); }
+  .foot p { max-width: 780px; margin: 0 0 8px; }
+
+  @media (max-width: 520px) {
+    .intro, .section-head { padding: 24px 16px 4px; }
+    h1 { font-size: 26px; }
+    .grid { padding: 16px 16px 48px; }
+    .foot { padding: 0 16px 40px; }
+    .from { min-height: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>Articulate: Ukraine themes</h1>
+  <p><b>Round two.</b> iiSurf picked seven of the ten: 1, 3, 4, 5, 6, 9, and 10. All seven go into the app, and changing between them is one tap.</p>
+  <p><b>How changing works:</b> the "UA → EN" tag in the band opens Your colors. It sets your first language (Ukrainian), and the colors come with it, so a learner from another country would get their own set. You choose a look for the day and one for night, and Articulate switches when your phone switches to dark mode. To start with, the day look is Sky over wheat and the night look is Night flag.</p>
+  <p><b>The four grade colors are the same in every theme,</b> so they always mean the same thing. Each also has its own mark:</p>
+  <ul class="legend" id="legend"><li><span class="part" style="--gb:#23843F;--gm:#FFFFFF"><span class="m" style="min-width:44px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span>good</li><li><span class="part" style="--gb:#F2C200;--gm:#2B2100"><span class="m" style="min-width:44px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span>close</li><li><span class="part" style="--gb:#F07A1E;--gm:#2B1300"><span class="m" style="min-width:44px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span>a little off</li><li><span class="part" style="--gb:#D92D2D;--gm:#FFFFFF"><span class="m" style="min-width:44px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span>needs work</li></ul>
+</header>
+
+<section class="section-head">
+  <h2>Your colors</h2>
+  <p>The same screen twice. On the left it is daytime with Sky over wheat. On the right someone chose Vyshyvanka for the day and Petrykivka for night, and it is night.</p>
+</section>
+<main class="grid" id="switch"><article class="option">
+      <div class="option-head"><h3>Daytime</h3><p class="from">Day look: Sky over wheat. Night look: Night flag. These are the starting choices.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="back" aria-hidden="true">‹</span><span class="brand">Your colors</span></div>
+        <svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg>
+      </div>
+      <div class="body">
+        <section class="card">
+          <div class="label">First language</div>
+          <div class="lang-row"><span class="lang-name">Ukrainian<span lang="uk">українська</span></span><span class="chip">Change</span></div>
+          <p class="hint">Your colors come from home. Ukraine has seven.</p>
+        </section>
+        <section class="card">
+          <div class="label">Day look</div>
+          <div class="tiles"><div class="tile on" style="--tb:#0057B7;--ti:#FFFFFF">
+        <span class="tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+        <div class="mini-band"><span class="aa">Aa</span><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="tile-name">Sky over wheat</div></div><div class="tile" style="--tb:#F8F4EC;--ti:#1B1B1B">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="strip" viewBox="0 0 360 22" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><pattern id="stitch-1" width="22" height="22" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="0" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="2" y="10" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="4" y="8" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="12" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="6" y="6" width="2" height="2" fill="#C8102E"></rect><rect x="6" y="14" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="8" y="4" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="8" y="16" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="2" width="2" height="2" fill="#C8102E"></rect><rect x="10" y="8" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="12" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="18" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="12" y="4" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="12" y="16" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="14" y="6" width="2" height="2" fill="#C8102E"></rect><rect x="14" y="14" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="16" y="8" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="12" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="18" y="10" width="2" height="2" fill="#C8102E"></rect><rect x="20" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="20" y="20" width="2" height="2" fill="#1B1B1B"></rect></pattern></defs>
+      <rect width="360" height="22" fill="url(#stitch-1)"></rect></svg></div>
+        <div class="tile-name">Vyshyvanka</div></div><div class="tile" style="--tb:#6E0F1E;--ti:#FFF1DC">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 60 60" aria-hidden="true">
+      <rect x="17" y="17" width="26" height="26" fill="#E39B12"></rect><rect x="17" y="17" width="26" height="26" fill="#E39B12" transform="rotate(45 30 30)"></rect>
+      <circle cx="30" cy="30" r="6" fill="#6E0F1E"></circle></svg><svg class="strip" viewBox="0 0 360 16" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="16" fill="#1E0F0B"></rect><polygon points="0,16 8,3 16,16" fill="#E39B12"></polygon><polygon points="16,16 24,3 32,16" fill="#E39B12"></polygon><polygon points="32,16 40,3 48,16" fill="#E39B12"></polygon><polygon points="48,16 56,3 64,16" fill="#E39B12"></polygon><polygon points="64,16 72,3 80,16" fill="#E39B12"></polygon><polygon points="80,16 88,3 96,16" fill="#E39B12"></polygon><polygon points="96,16 104,3 112,16" fill="#E39B12"></polygon><polygon points="112,16 120,3 128,16" fill="#E39B12"></polygon><polygon points="128,16 136,3 144,16" fill="#E39B12"></polygon><polygon points="144,16 152,3 160,16" fill="#E39B12"></polygon><polygon points="160,16 168,3 176,16" fill="#E39B12"></polygon><polygon points="176,16 184,3 192,16" fill="#E39B12"></polygon><polygon points="192,16 200,3 208,16" fill="#E39B12"></polygon><polygon points="208,16 216,3 224,16" fill="#E39B12"></polygon><polygon points="224,16 232,3 240,16" fill="#E39B12"></polygon><polygon points="240,16 248,3 256,16" fill="#E39B12"></polygon><polygon points="256,16 264,3 272,16" fill="#E39B12"></polygon><polygon points="272,16 280,3 288,16" fill="#E39B12"></polygon><polygon points="288,16 296,3 304,16" fill="#E39B12"></polygon><polygon points="304,16 312,3 320,16" fill="#E39B12"></polygon><polygon points="320,16 328,3 336,16" fill="#E39B12"></polygon><polygon points="336,16 344,3 352,16" fill="#E39B12"></polygon><polygon points="352,16 360,3 368,16" fill="#E39B12"></polygon></svg></div>
+        <div class="tile-name">Pysanka</div></div><div class="tile" style="--tb:#F6C324;--ti:#2E2110">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 74 62" aria-hidden="true"><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(0 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(30 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(60 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(90 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(120 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(150 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(180 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(210 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(240 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(270 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(300 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(330 36 31)"></ellipse><circle cx="36" cy="31" r="11" fill="#3E2C14"></circle><circle cx="32" cy="27" r="1.3" fill="#7A5527"></circle><circle cx="36" cy="26" r="1.3" fill="#7A5527"></circle><circle cx="40" cy="27" r="1.3" fill="#7A5527"></circle><circle cx="30" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="34" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="38" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="42" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="32" cy="35" r="1.3" fill="#7A5527"></circle><circle cx="36" cy="36" r="1.3" fill="#7A5527"></circle><circle cx="40" cy="35" r="1.3" fill="#7A5527"></circle></svg></div>
+        <div class="tile-name">Sunflower field</div></div><div class="tile" style="--tb:#9B1B30;--ti:#FFF3F0">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 96 62" aria-hidden="true">
+        <ellipse cx="28" cy="30" rx="8" ry="17" fill="#3E8A4B" transform="rotate(-50 28 30)"></ellipse>
+        <ellipse cx="34" cy="46" rx="6" ry="12" fill="#2F6B3A" transform="rotate(-95 34 46)"></ellipse><circle cx="52" cy="24" r="6.5" fill="#FF4B57"></circle><circle cx="50" cy="21.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="64" cy="20" r="6.5" fill="#FF4B57"></circle><circle cx="62" cy="17.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="76" cy="24" r="6.5" fill="#FF4B57"></circle><circle cx="74" cy="21.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="58" cy="34" r="6.5" fill="#FF4B57"></circle><circle cx="56" cy="31.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="70" cy="33" r="6.5" fill="#FF4B57"></circle><circle cx="68" cy="30.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="64" cy="45" r="6.5" fill="#FF4B57"></circle><circle cx="62" cy="42.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="82" cy="37" r="6.5" fill="#FF4B57"></circle><circle cx="80" cy="34.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle></svg></div>
+        <div class="tile-name">Kalyna</div></div></div>
+        </section>
+        <section class="card">
+          <div class="label">Night look</div>
+          <div class="tiles"><div class="tile" style="--tb:#16110E;--ti:#F7EFE4">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 100 62" aria-hidden="true">
+        <ellipse cx="34" cy="40" rx="6" ry="16" fill="#4C9A2A" transform="rotate(-55 34 40)"></ellipse>
+        <ellipse cx="44" cy="50" rx="5" ry="12" fill="#6DB33F" transform="rotate(-80 44 50)"></ellipse>
+        <ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(0 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(72 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(144 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(216 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(288 66 31)"></ellipse><circle cx="66" cy="31" r="7" fill="#F5C518"></circle>
+        <ellipse cx="92" cy="48" rx="4.5" ry="9" fill="#F5C518" transform="rotate(35 92 48)"></ellipse></svg></div>
+        <div class="tile-name">Petrykivka</div></div><div class="tile on" style="--tb:#0B1526;--ti:#EAF1FB">
+        <span class="tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+        <div class="mini-band"><span class="aa">Aa</span><svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="glow-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"></stop><stop offset="1" stop-color="#FFD500" stop-opacity=".35"></stop></linearGradient></defs>
+        <rect width="360" height="10" fill="url(#glow-2)"></rect><rect y="10" width="360" height="4" fill="#FFD500"></rect></svg></div>
+        <div class="tile-name">Night flag</div></div></div>
+          <div class="toggle-row"><span>Switch when my phone goes dark</span><span class="switch" aria-hidden="true"><i></i></span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class=""><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+    </article><article class="option">
+      <div class="option-head"><h3>Night, with other choices</h3><p class="from">Day look: Vyshyvanka. Night look: Petrykivka. The phone is in dark mode, so Petrykivka is showing.</p></div>
+      <div class="phone dark"><div class="screen" style="--bg:#16110E;--surface:#241C17;--ink:#F7EFE4;--muted:#C9B8A6;--band:#16110E;--band-ink:#F7EFE4;--accent:#F2B705;--accent-ink:#16110E;--chip-bg:#33281F;--chip-ink:#F7D9A8;--mode-bg:#2A211A;--mode-on:#F2B705;--mode-on-ink:#16110E;--tab-on:#F2B705;--pair-bg:#33281F;--pair-ink:#F7D9A8;--good:#74E08F;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#FFD95A;--close-bar:#F2C200;--close-mark:#2B2100;--off:#FFA061;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#FF7D7D;--work-bar:#E5484D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="back" aria-hidden="true">‹</span><span class="brand">Your colors</span><svg class="icon" viewBox="0 0 100 62" aria-hidden="true">
+        <ellipse cx="34" cy="40" rx="6" ry="16" fill="#4C9A2A" transform="rotate(-55 34 40)"></ellipse>
+        <ellipse cx="44" cy="50" rx="5" ry="12" fill="#6DB33F" transform="rotate(-80 44 50)"></ellipse>
+        <ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(0 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(72 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(144 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(216 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(288 66 31)"></ellipse><circle cx="66" cy="31" r="7" fill="#F5C518"></circle>
+        <ellipse cx="92" cy="48" rx="4.5" ry="9" fill="#F5C518" transform="rotate(35 92 48)"></ellipse></svg></div>
+        
+      </div>
+      <div class="body">
+        <section class="card">
+          <div class="label">First language</div>
+          <div class="lang-row"><span class="lang-name">Ukrainian<span lang="uk">українська</span></span><span class="chip">Change</span></div>
+          <p class="hint">Your colors come from home. Ukraine has seven.</p>
+        </section>
+        <section class="card">
+          <div class="label">Day look</div>
+          <div class="tiles"><div class="tile" style="--tb:#0057B7;--ti:#FFFFFF">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="tile-name">Sky over wheat</div></div><div class="tile on" style="--tb:#F8F4EC;--ti:#1B1B1B">
+        <span class="tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+        <div class="mini-band"><span class="aa">Aa</span><svg class="strip" viewBox="0 0 360 22" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><pattern id="stitch-3" width="22" height="22" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="0" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="2" y="10" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="4" y="8" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="12" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="6" y="6" width="2" height="2" fill="#C8102E"></rect><rect x="6" y="14" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="8" y="4" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="8" y="16" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="2" width="2" height="2" fill="#C8102E"></rect><rect x="10" y="8" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="12" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="18" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="12" y="4" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="12" y="16" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="14" y="6" width="2" height="2" fill="#C8102E"></rect><rect x="14" y="14" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="16" y="8" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="12" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="18" y="10" width="2" height="2" fill="#C8102E"></rect><rect x="20" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="20" y="20" width="2" height="2" fill="#1B1B1B"></rect></pattern></defs>
+      <rect width="360" height="22" fill="url(#stitch-3)"></rect></svg></div>
+        <div class="tile-name">Vyshyvanka</div></div><div class="tile" style="--tb:#6E0F1E;--ti:#FFF1DC">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 60 60" aria-hidden="true">
+      <rect x="17" y="17" width="26" height="26" fill="#E39B12"></rect><rect x="17" y="17" width="26" height="26" fill="#E39B12" transform="rotate(45 30 30)"></rect>
+      <circle cx="30" cy="30" r="6" fill="#6E0F1E"></circle></svg><svg class="strip" viewBox="0 0 360 16" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="16" fill="#1E0F0B"></rect><polygon points="0,16 8,3 16,16" fill="#E39B12"></polygon><polygon points="16,16 24,3 32,16" fill="#E39B12"></polygon><polygon points="32,16 40,3 48,16" fill="#E39B12"></polygon><polygon points="48,16 56,3 64,16" fill="#E39B12"></polygon><polygon points="64,16 72,3 80,16" fill="#E39B12"></polygon><polygon points="80,16 88,3 96,16" fill="#E39B12"></polygon><polygon points="96,16 104,3 112,16" fill="#E39B12"></polygon><polygon points="112,16 120,3 128,16" fill="#E39B12"></polygon><polygon points="128,16 136,3 144,16" fill="#E39B12"></polygon><polygon points="144,16 152,3 160,16" fill="#E39B12"></polygon><polygon points="160,16 168,3 176,16" fill="#E39B12"></polygon><polygon points="176,16 184,3 192,16" fill="#E39B12"></polygon><polygon points="192,16 200,3 208,16" fill="#E39B12"></polygon><polygon points="208,16 216,3 224,16" fill="#E39B12"></polygon><polygon points="224,16 232,3 240,16" fill="#E39B12"></polygon><polygon points="240,16 248,3 256,16" fill="#E39B12"></polygon><polygon points="256,16 264,3 272,16" fill="#E39B12"></polygon><polygon points="272,16 280,3 288,16" fill="#E39B12"></polygon><polygon points="288,16 296,3 304,16" fill="#E39B12"></polygon><polygon points="304,16 312,3 320,16" fill="#E39B12"></polygon><polygon points="320,16 328,3 336,16" fill="#E39B12"></polygon><polygon points="336,16 344,3 352,16" fill="#E39B12"></polygon><polygon points="352,16 360,3 368,16" fill="#E39B12"></polygon></svg></div>
+        <div class="tile-name">Pysanka</div></div><div class="tile" style="--tb:#F6C324;--ti:#2E2110">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 74 62" aria-hidden="true"><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(0 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(30 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(60 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(90 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(120 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(150 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(180 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(210 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(240 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(270 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(300 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(330 36 31)"></ellipse><circle cx="36" cy="31" r="11" fill="#3E2C14"></circle><circle cx="32" cy="27" r="1.3" fill="#7A5527"></circle><circle cx="36" cy="26" r="1.3" fill="#7A5527"></circle><circle cx="40" cy="27" r="1.3" fill="#7A5527"></circle><circle cx="30" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="34" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="38" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="42" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="32" cy="35" r="1.3" fill="#7A5527"></circle><circle cx="36" cy="36" r="1.3" fill="#7A5527"></circle><circle cx="40" cy="35" r="1.3" fill="#7A5527"></circle></svg></div>
+        <div class="tile-name">Sunflower field</div></div><div class="tile" style="--tb:#9B1B30;--ti:#FFF3F0">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 96 62" aria-hidden="true">
+        <ellipse cx="28" cy="30" rx="8" ry="17" fill="#3E8A4B" transform="rotate(-50 28 30)"></ellipse>
+        <ellipse cx="34" cy="46" rx="6" ry="12" fill="#2F6B3A" transform="rotate(-95 34 46)"></ellipse><circle cx="52" cy="24" r="6.5" fill="#FF4B57"></circle><circle cx="50" cy="21.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="64" cy="20" r="6.5" fill="#FF4B57"></circle><circle cx="62" cy="17.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="76" cy="24" r="6.5" fill="#FF4B57"></circle><circle cx="74" cy="21.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="58" cy="34" r="6.5" fill="#FF4B57"></circle><circle cx="56" cy="31.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="70" cy="33" r="6.5" fill="#FF4B57"></circle><circle cx="68" cy="30.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="64" cy="45" r="6.5" fill="#FF4B57"></circle><circle cx="62" cy="42.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="82" cy="37" r="6.5" fill="#FF4B57"></circle><circle cx="80" cy="34.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle></svg></div>
+        <div class="tile-name">Kalyna</div></div></div>
+        </section>
+        <section class="card">
+          <div class="label">Night look</div>
+          <div class="tiles"><div class="tile on" style="--tb:#16110E;--ti:#F7EFE4">
+        <span class="tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+        <div class="mini-band"><span class="aa">Aa</span><svg class="icon" viewBox="0 0 100 62" aria-hidden="true">
+        <ellipse cx="34" cy="40" rx="6" ry="16" fill="#4C9A2A" transform="rotate(-55 34 40)"></ellipse>
+        <ellipse cx="44" cy="50" rx="5" ry="12" fill="#6DB33F" transform="rotate(-80 44 50)"></ellipse>
+        <ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(0 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(72 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(144 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(216 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(288 66 31)"></ellipse><circle cx="66" cy="31" r="7" fill="#F5C518"></circle>
+        <ellipse cx="92" cy="48" rx="4.5" ry="9" fill="#F5C518" transform="rotate(35 92 48)"></ellipse></svg></div>
+        <div class="tile-name">Petrykivka</div></div><div class="tile" style="--tb:#0B1526;--ti:#EAF1FB">
+        
+        <div class="mini-band"><span class="aa">Aa</span><svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="glow-4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"></stop><stop offset="1" stop-color="#FFD500" stop-opacity=".35"></stop></linearGradient></defs>
+        <rect width="360" height="10" fill="url(#glow-4)"></rect><rect y="10" width="360" height="4" fill="#FFD500"></rect></svg></div>
+        <div class="tile-name">Night flag</div></div></div>
+          <div class="toggle-row"><span>Switch when my phone goes dark</span><span class="switch" aria-hidden="true"><i></i></span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class=""><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+    </article></main>
+
+<section class="section-head">
+  <h2>Round one: all ten</h2>
+  <p>The same screen in each theme: <b>Out loud</b>, right after saying the word "weather". The th came out like a d, and the w leaned toward a v. The seven picked ones are marked; the other three are faded.</p>
+</section>
+<main class="grid" id="grid"><article class="option">
+      <div class="option-head"><h3><span class="num">1</span>Sky over wheat<span class="picked">Picked</span></h3><p class="from">The flag: blue sky over a yellow wheat field.</p><div class="swatches"><span style="background:#0057B7" title="#0057B7"></span><span style="background:#F3F6FB" title="#F3F6FB"></span><span style="background:#FFD500" title="#FFD500"></span><span style="background:#E3ECF8" title="#E3ECF8"></span><span style="background:#0E1E36" title="#0E1E36"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div>
+        <svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg>
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> yellow buttons sit near the yellow "close" grade. The grade keeps its own mark, and the button never sits under the word.</p>
+    </article><article class="option out">
+      <div class="option-head"><h3><span class="num">2</span>Golden domes</h3><p class="from">St. Michael's in Kyiv: sky-blue walls, gold domes, white trim.</p><div class="swatches"><span style="background:#2F7FBF" title="#2F7FBF"></span><span style="background:#EEF5FB" title="#EEF5FB"></span><span style="background:#C99A2E" title="#C99A2E"></span><span style="background:#E2EEF8" title="#E2EEF8"></span><span style="background:#12304E" title="#12304E"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#EEF5FB;--surface:#FFFFFF;--ink:#12304E;--muted:#4C6680;--band:#2F7FBF;--band-ink:#FFFFFF;--accent:#C99A2E;--accent-ink:#1F1708;--chip-bg:#E2EEF8;--chip-ink:#1D5C8E;--mode-bg:#E2EEF8;--mode-on:#12304E;--mode-on-ink:#FFFFFF;--tab-on:#2F7FBF;--pair-bg:#FFFFFF;--pair-ink:#1D5C8E;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span><svg class="icon" viewBox="0 0 92 60" aria-hidden="true">
+      <rect x="13" y="41" width="14" height="17" fill="#F4F8FB"></rect><rect x="36" y="37" width="20" height="21" fill="#F4F8FB"></rect><rect x="65" y="41" width="14" height="17" fill="#F4F8FB"></rect>
+      <path d="M11 42c0-8 5-12 9-20 4 8 9 12 9 20z" fill="#E8BE4B"></path><rect x="19.3" y="13" width="1.4" height="9" fill="#E8BE4B"></rect>
+      <path d="M34 38c0-10 7-15 12-26 5 11 12 16 12 26z" fill="#E8BE4B"></path><rect x="45.2" y="2" width="1.6" height="11" fill="#E8BE4B"></rect>
+      <path d="M63 42c0-8 5-12 9-20 4 8 9 12 9 20z" fill="#E8BE4B"></path><rect x="71.3" y="13" width="1.4" height="9" fill="#E8BE4B"></rect></svg></div>
+        
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> softer than the flag. Gold is calmer than yellow next to the grades.</p>
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">3</span>Vyshyvanka<span class="picked">Picked</span></h3><p class="from">The embroidered shirt: red and black cross-stitch on white linen.</p><div class="swatches"><span style="background:#F8F4EC" title="#F8F4EC"></span><span style="background:#F8F4EC" title="#F8F4EC"></span><span style="background:#1B1B1B" title="#1B1B1B"></span><span style="background:#F0E6D8" title="#F0E6D8"></span><span style="background:#1B1B1B" title="#1B1B1B"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#F8F4EC;--surface:#FFFFFF;--ink:#1B1B1B;--muted:#5B5550;--band:#F8F4EC;--band-ink:#1B1B1B;--accent:#1B1B1B;--accent-ink:#FFFFFF;--chip-bg:#F0E6D8;--chip-ink:#7E1A1A;--mode-bg:#F0E6D8;--mode-on:#1B1B1B;--mode-on-ink:#FFFFFF;--tab-on:#1B1B1B;--pair-bg:#1B1B1B;--pair-ink:#FFFFFF;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div>
+        <svg class="strip" viewBox="0 0 360 22" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><pattern id="stitch-5" width="22" height="22" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="0" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="2" y="10" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="4" y="8" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="12" width="2" height="2" fill="#C8102E"></rect><rect x="4" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="6" y="6" width="2" height="2" fill="#C8102E"></rect><rect x="6" y="14" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="8" y="4" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="8" y="16" width="2" height="2" fill="#C8102E"></rect><rect x="8" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="2" width="2" height="2" fill="#C8102E"></rect><rect x="10" y="8" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="12" width="2" height="2" fill="#1B1B1B"></rect><rect x="10" y="18" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="12" y="4" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="10" width="2" height="2" fill="#1B1B1B"></rect><rect x="12" y="16" width="2" height="2" fill="#C8102E"></rect><rect x="12" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="14" y="6" width="2" height="2" fill="#C8102E"></rect><rect x="14" y="14" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="16" y="8" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="12" width="2" height="2" fill="#C8102E"></rect><rect x="16" y="20" width="2" height="2" fill="#1B1B1B"></rect><rect x="18" y="10" width="2" height="2" fill="#C8102E"></rect><rect x="20" y="0" width="2" height="2" fill="#1B1B1B"></rect><rect x="20" y="20" width="2" height="2" fill="#1B1B1B"></rect></pattern></defs>
+      <rect width="360" height="22" fill="url(#stitch-5)"></rect></svg>
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> red is also "needs work", so the red stays in the embroidery and the buttons are black.</p>
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">4</span>Petrykivka<span class="picked">Picked</span></h3><p class="from">Petrykivka painting: bright brush-stroke flowers on black.</p><div class="swatches"><span style="background:#16110E" title="#16110E"></span><span style="background:#16110E" title="#16110E"></span><span style="background:#F2B705" title="#F2B705"></span><span style="background:#33281F" title="#33281F"></span><span style="background:#F7EFE4" title="#F7EFE4"></span></div></div>
+      <div class="phone dark"><div class="screen" style="--bg:#16110E;--surface:#241C17;--ink:#F7EFE4;--muted:#C9B8A6;--band:#16110E;--band-ink:#F7EFE4;--accent:#F2B705;--accent-ink:#16110E;--chip-bg:#33281F;--chip-ink:#F7D9A8;--mode-bg:#2A211A;--mode-on:#F2B705;--mode-on-ink:#16110E;--tab-on:#F2B705;--pair-bg:#33281F;--pair-ink:#F7D9A8;--good:#74E08F;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#FFD95A;--close-bar:#F2C200;--close-mark:#2B2100;--off:#FFA061;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#FF7D7D;--work-bar:#E5484D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span><svg class="icon" viewBox="0 0 100 62" aria-hidden="true">
+        <ellipse cx="34" cy="40" rx="6" ry="16" fill="#4C9A2A" transform="rotate(-55 34 40)"></ellipse>
+        <ellipse cx="44" cy="50" rx="5" ry="12" fill="#6DB33F" transform="rotate(-80 44 50)"></ellipse>
+        <ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(0 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(72 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(144 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#F28C28" transform="rotate(216 66 31)"></ellipse><ellipse cx="66" cy="16" rx="7.5" ry="13" fill="#E2412B" transform="rotate(288 66 31)"></ellipse><circle cx="66" cy="31" r="7" fill="#F5C518"></circle>
+        <ellipse cx="92" cy="48" rx="4.5" ry="9" fill="#F5C518" transform="rotate(35 92 48)"></ellipse></svg></div>
+        
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> a dark theme, easy on the eyes at night. The flower's colors are close to the grades, so it stays small.</p>
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">5</span>Pysanka<span class="picked">Picked</span></h3><p class="from">Pysanky, the dyed Easter eggs: deep red, black, and saffron in geometric bands.</p><div class="swatches"><span style="background:#6E0F1E" title="#6E0F1E"></span><span style="background:#FFF7EA" title="#FFF7EA"></span><span style="background:#E39B12" title="#E39B12"></span><span style="background:#F7E6CC" title="#F7E6CC"></span><span style="background:#1E0F0B" title="#1E0F0B"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#FFF7EA;--surface:#FFFFFF;--ink:#1E0F0B;--muted:#6A4E3F;--band:#6E0F1E;--band-ink:#FFF1DC;--accent:#E39B12;--accent-ink:#1E0F0B;--chip-bg:#F7E6CC;--chip-ink:#6E0F1E;--mode-bg:#F7E6CC;--mode-on:#1E0F0B;--mode-on-ink:#FFF1DC;--tab-on:#6E0F1E;--pair-bg:#E39B12;--pair-ink:#1E0F0B;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span><svg class="icon" viewBox="0 0 60 60" aria-hidden="true">
+      <rect x="17" y="17" width="26" height="26" fill="#E39B12"></rect><rect x="17" y="17" width="26" height="26" fill="#E39B12" transform="rotate(45 30 30)"></rect>
+      <circle cx="30" cy="30" r="6" fill="#6E0F1E"></circle></svg></div>
+        <svg class="strip" viewBox="0 0 360 16" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="16" fill="#1E0F0B"></rect><polygon points="0,16 8,3 16,16" fill="#E39B12"></polygon><polygon points="16,16 24,3 32,16" fill="#E39B12"></polygon><polygon points="32,16 40,3 48,16" fill="#E39B12"></polygon><polygon points="48,16 56,3 64,16" fill="#E39B12"></polygon><polygon points="64,16 72,3 80,16" fill="#E39B12"></polygon><polygon points="80,16 88,3 96,16" fill="#E39B12"></polygon><polygon points="96,16 104,3 112,16" fill="#E39B12"></polygon><polygon points="112,16 120,3 128,16" fill="#E39B12"></polygon><polygon points="128,16 136,3 144,16" fill="#E39B12"></polygon><polygon points="144,16 152,3 160,16" fill="#E39B12"></polygon><polygon points="160,16 168,3 176,16" fill="#E39B12"></polygon><polygon points="176,16 184,3 192,16" fill="#E39B12"></polygon><polygon points="192,16 200,3 208,16" fill="#E39B12"></polygon><polygon points="208,16 216,3 224,16" fill="#E39B12"></polygon><polygon points="224,16 232,3 240,16" fill="#E39B12"></polygon><polygon points="240,16 248,3 256,16" fill="#E39B12"></polygon><polygon points="256,16 264,3 272,16" fill="#E39B12"></polygon><polygon points="272,16 280,3 288,16" fill="#E39B12"></polygon><polygon points="288,16 296,3 304,16" fill="#E39B12"></polygon><polygon points="304,16 312,3 320,16" fill="#E39B12"></polygon><polygon points="320,16 328,3 336,16" fill="#E39B12"></polygon><polygon points="336,16 344,3 352,16" fill="#E39B12"></polygon><polygon points="352,16 360,3 368,16" fill="#E39B12"></polygon></svg>
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> rich and warm. The deep red band is far darker than the "needs work" red, but it is worth seeing on the phone.</p>
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">6</span>Sunflower field<span class="picked">Picked</span></h3><p class="from">Ukraine's national flower: yellow petals, brown seeds, green leaves.</p><div class="swatches"><span style="background:#F6C324" title="#F6C324"></span><span style="background:#FFFBEB" title="#FFFBEB"></span><span style="background:#3E2C14" title="#3E2C14"></span><span style="background:#EEF4E1" title="#EEF4E1"></span><span style="background:#2E2110" title="#2E2110"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#FFFBEB;--surface:#FFFFFF;--ink:#2E2110;--muted:#6B5A3E;--band:#F6C324;--band-ink:#2E2110;--accent:#3E2C14;--accent-ink:#FFE38A;--chip-bg:#EEF4E1;--chip-ink:#3F6B1F;--mode-bg:#F6EED2;--mode-on:#3E2C14;--mode-on-ink:#FFE38A;--tab-on:#3E2C14;--pair-bg:#3E2C14;--pair-ink:#FFE38A;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span><svg class="icon" viewBox="0 0 74 62" aria-hidden="true"><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(0 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(30 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(60 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(90 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(120 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(150 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(180 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(210 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(240 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(270 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(300 36 31)"></ellipse><ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(330 36 31)"></ellipse><circle cx="36" cy="31" r="11" fill="#3E2C14"></circle><circle cx="32" cy="27" r="1.3" fill="#7A5527"></circle><circle cx="36" cy="26" r="1.3" fill="#7A5527"></circle><circle cx="40" cy="27" r="1.3" fill="#7A5527"></circle><circle cx="30" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="34" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="38" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="42" cy="31" r="1.3" fill="#7A5527"></circle><circle cx="32" cy="35" r="1.3" fill="#7A5527"></circle><circle cx="36" cy="36" r="1.3" fill="#7A5527"></circle><circle cx="40" cy="35" r="1.3" fill="#7A5527"></circle></svg></div>
+        
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> cheerful but loud. The yellow "close" grade needs its mark most here.</p>
+    </article><article class="option out">
+      <div class="option-head"><h3><span class="num">7</span>Carpathians</h3><p class="from">The Carpathian mountains: pine forest, morning mist, carved wood.</p><div class="swatches"><span style="background:#1F4D3A" title="#1F4D3A"></span><span style="background:#EEF3EF" title="#EEF3EF"></span><span style="background:#A85E1F" title="#A85E1F"></span><span style="background:#E0EAE3" title="#E0EAE3"></span><span style="background:#142A20" title="#142A20"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#EEF3EF;--surface:#FFFFFF;--ink:#142A20;--muted:#4E6458;--band:#1F4D3A;--band-ink:#F1F6F2;--accent:#A85E1F;--accent-ink:#FFFFFF;--chip-bg:#E0EAE3;--chip-ink:#1F4D3A;--mode-bg:#E0EAE3;--mode-on:#1F4D3A;--mode-on-ink:#F1F6F2;--tab-on:#1F4D3A;--pair-bg:#F1F6F2;--pair-ink:#1F4D3A;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div>
+        <svg class="strip" viewBox="0 0 360 30" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="0,30 0,22 40,10 82,24 130,5 182,23 232,9 282,26 330,7 360,18 360,30" fill="#5E9178"></polygon>
+      <polygon points="0,30 0,26 34,19 72,27 122,16 170,29 222,18 270,27 318,15 360,24 360,30" fill="#2E6B50"></polygon></svg>
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> calm and outdoorsy, but green is also "good", so the band's green is kept deep.</p>
+    </article><article class="option out">
+      <div class="option-head"><h3><span class="num">8</span>Black Sea</h3><p class="from">Odesa and the Black Sea: sea teal, sand, white limestone.</p><div class="swatches"><span style="background:#0F6C77" title="#0F6C77"></span><span style="background:#F2F6F5" title="#F2F6F5"></span><span style="background:#E8B86A" title="#E8B86A"></span><span style="background:#DEEFEF" title="#DEEFEF"></span><span style="background:#0F2B30" title="#0F2B30"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#F2F6F5;--surface:#FFFFFF;--ink:#0F2B30;--muted:#4C6669;--band:#0F6C77;--band-ink:#F2FBFB;--accent:#E8B86A;--accent-ink:#0F2B30;--chip-bg:#DEEFEF;--chip-ink:#0F5C66;--mode-bg:#DEEFEF;--mode-on:#0F6C77;--mode-on-ink:#FFFFFF;--tab-on:#0F6C77;--pair-bg:#E8B86A;--pair-ink:#0F2B30;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span><svg class="icon" viewBox="0 0 92 60" aria-hidden="true">
+      <path d="M40 42a18 18 0 0 1 36 0z" fill="#E8B86A"></path>
+      <rect x="4" y="42" width="86" height="3.4" rx="1.7" fill="#F2FBFB"></rect>
+      <rect x="44" y="49" width="28" height="3.4" rx="1.7" fill="#F2FBFB" opacity=".7"></rect></svg></div>
+        
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> the quietest of the ten. Teal and sand stay clear of all four grade colors, so the grades stand out most.</p>
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">9</span>Kalyna<span class="picked">Picked</span></h3><p class="from">Kalyna, the guelder-rose: red berries and green leaves, a symbol in many Ukrainian songs.</p><div class="swatches"><span style="background:#9B1B30" title="#9B1B30"></span><span style="background:#FBF6F0" title="#FBF6F0"></span><span style="background:#2F6B3A" title="#2F6B3A"></span><span style="background:#F6E3E2" title="#F6E3E2"></span><span style="background:#2A1215" title="#2A1215"></span></div></div>
+      <div class="phone"><div class="screen" style="--bg:#FBF6F0;--surface:#FFFFFF;--ink:#2A1215;--muted:#6D4B4F;--band:#9B1B30;--band-ink:#FFF3F0;--accent:#2F6B3A;--accent-ink:#FFFFFF;--chip-bg:#F6E3E2;--chip-ink:#8A1A2C;--mode-bg:#F6E3E2;--mode-on:#2A1215;--mode-on-ink:#FFF3F0;--tab-on:#9B1B30;--pair-bg:#FFF3F0;--pair-ink:#9B1B30;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span><svg class="icon" viewBox="0 0 96 62" aria-hidden="true">
+        <ellipse cx="28" cy="30" rx="8" ry="17" fill="#3E8A4B" transform="rotate(-50 28 30)"></ellipse>
+        <ellipse cx="34" cy="46" rx="6" ry="12" fill="#2F6B3A" transform="rotate(-95 34 46)"></ellipse><circle cx="52" cy="24" r="6.5" fill="#FF4B57"></circle><circle cx="50" cy="21.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="64" cy="20" r="6.5" fill="#FF4B57"></circle><circle cx="62" cy="17.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="76" cy="24" r="6.5" fill="#FF4B57"></circle><circle cx="74" cy="21.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="58" cy="34" r="6.5" fill="#FF4B57"></circle><circle cx="56" cy="31.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="70" cy="33" r="6.5" fill="#FF4B57"></circle><circle cx="68" cy="30.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="64" cy="45" r="6.5" fill="#FF4B57"></circle><circle cx="62" cy="42.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle><circle cx="82" cy="37" r="6.5" fill="#FF4B57"></circle><circle cx="80" cy="34.8" r="1.8" fill="#FFFFFF" opacity=".75"></circle></svg></div>
+        
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> berry red and leaf green are also "needs work" and "good", so this one can read busy.</p>
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">10</span>Night flag<span class="picked">Picked</span></h3><p class="from">The flag after dark: deep blue with a line of yellow.</p><div class="swatches"><span style="background:#0B1526" title="#0B1526"></span><span style="background:#0B1526" title="#0B1526"></span><span style="background:#FFD500" title="#FFD500"></span><span style="background:#1D3152" title="#1D3152"></span><span style="background:#EAF1FB" title="#EAF1FB"></span></div></div>
+      <div class="phone dark"><div class="screen" style="--bg:#0B1526;--surface:#14233B;--ink:#EAF1FB;--muted:#A9B9D0;--band:#0B1526;--band-ink:#EAF1FB;--accent:#FFD500;--accent-ink:#0B1526;--chip-bg:#1D3152;--chip-ink:#FFE36B;--mode-bg:#14233B;--mode-on:#FFD500;--mode-on-ink:#0B1526;--tab-on:#FFD500;--pair-bg:#1D3152;--pair-ink:#FFE36B;--good:#74E08F;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#FFD95A;--close-bar:#F2C200;--close-mark:#2B2100;--off:#FFA061;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#FF7D7D;--work-bar:#E5484D;--work-mark:#FFFFFF">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div>
+        <svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="glow-6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"></stop><stop offset="1" stop-color="#FFD500" stop-opacity=".35"></stop></linearGradient></defs>
+        <rect width="360" height="10" fill="url(#glow-6)"></rect><rect y="10" width="360" height="4" fill="#FFD500"></rect></svg>
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather"><span class="part" style="--g:var(--off);--gb:var(--off-bar);--gm:var(--off-mark)">
+        <span class="l">w</span><span class="m" title="a little off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part" style="--g:var(--good);--gb:var(--good-bar);--gm:var(--good-mark)">
+        <span class="l">ea</span><span class="m" title="good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part" style="--g:var(--work);--gb:var(--work-bar);--gm:var(--work-mark)">
+        <span class="l">th</span><span class="m" title="needs work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part" style="--g:var(--close);--gb:var(--close-bar);--gm:var(--close-mark)">
+        <span class="l">er</span><span class="m" title="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      <nav class="tabs">
+    <span class="on"><span class="aa">Aa</span>Words</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+    <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav>
+    </div></div>
+      <p class="watch"><b>Watch for:</b> made for evenings. The yellow is only the line, the button, and the tab, so the grades stay clear.</p>
+    </article></main>
+
+<footer class="foot">
+  <p><b>Not in these drafts yet:</b> the real typeface (these use the phone's own), the other screens (Quiet, Headphones, My words), and the moving parts.</p>
+  <p>On a Samsung phone with an OLED screen, the two dark themes (4 and 10) also use less battery.</p>
+</footer>
+
+<script>
+  // The grades: the same four in every theme, with lighter letters on dark themes.
+  const GRADES = {
+    light: {
+      good:  { t: "#1B7A35", b: "#23843F", m: "#FFFFFF" },
+      close: { t: "#8A6A00", b: "#F2C200", m: "#2B2100" },
+      off:   { t: "#C2410C", b: "#F07A1E", m: "#2B1300" },
+      work:  { t: "#B42318", b: "#D92D2D", m: "#FFFFFF" },
+    },
+    dark: {
+      good:  { t: "#74E08F", b: "#23843F", m: "#FFFFFF" },
+      close: { t: "#FFD95A", b: "#F2C200", m: "#2B2100" },
+      off:   { t: "#FFA061", b: "#F07A1E", m: "#2B1300" },
+      work:  { t: "#FF7D7D", b: "#E5484D", m: "#FFFFFF" },
+    },
+  };
+  const MARKS = {
+    good:  '<path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+    close: '<path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+    off:   '<path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/><circle cx="12" cy="19" r="2.1" fill="currentColor"/>',
+    work:  '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>',
+  };
+  const GRADE_NAMES = { good: "good", close: "close", off: "a little off", work: "needs work" };
+  const mark = (g) => `<svg viewBox="0 0 24 24" aria-hidden="true">${MARKS[g]}</svg>`;
+
+  // The word on every Out loud screen: weather = w + ea + th + er.
+  const WORD = [["w", "off"], ["ea", "good"], ["th", "work"], ["er", "close"]];
+
+  const ICONS = {
+    speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    bars: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"/><rect x="16" y="3" width="4.5" height="18" rx="1.6"/></svg>',
+  };
+
+  // Patterns and pictures for the band. Plain shapes only: no textures behind the content.
+  // Each call makes fresh ids, because a pattern or gradient id must be unique on the page.
+  let uid = 0;
+  function crossStitch(red, black, height) {
+    const id = `stitch-${++uid}`, u = 2, n = 11, rects = [];
+    for (let x = 0; x < n; x++) for (let y = 0; y < n; y++) {
+      const d = Math.abs(x - 5) + Math.abs(y - 5);
+      let fill = null;
+      if (d === 4) fill = red;
+      else if (d <= 1) fill = black;
+      else if ((y === 0 || y === n - 1) && x % 2 === 0) fill = black;
+      if (fill) rects.push(`<rect x="${x * u}" y="${y * u}" width="${u}" height="${u}" fill="${fill}"/>`);
+    }
+    return `<svg class="strip" viewBox="0 0 360 ${height}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><pattern id="${id}" width="${n * u}" height="${n * u}" patternUnits="userSpaceOnUse">${rects.join("")}</pattern></defs>
+      <rect width="360" height="${height}" fill="url(#${id})"/></svg>`;
+  }
+  function teeth(dark, gold) {
+    let tri = "";
+    for (let i = 0; i < 23; i++) tri += `<polygon points="${i * 16},16 ${i * 16 + 8},3 ${i * 16 + 16},16" fill="${gold}"/>`;
+    return `<svg class="strip" viewBox="0 0 360 16" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="16" fill="${dark}"/>${tri}</svg>`;
+  }
+  const plainStrip = (color, h) => `<svg class="strip" viewBox="0 0 360 ${h}" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="${h}" fill="${color}"/></svg>`;
+
+  const PICTURES = {
+    domes: (gold, wall) => `<svg class="icon" viewBox="0 0 92 60" aria-hidden="true">
+      <rect x="13" y="41" width="14" height="17" fill="${wall}"/><rect x="36" y="37" width="20" height="21" fill="${wall}"/><rect x="65" y="41" width="14" height="17" fill="${wall}"/>
+      <path d="M11 42c0-8 5-12 9-20 4 8 9 12 9 20z" fill="${gold}"/><rect x="19.3" y="13" width="1.4" height="9" fill="${gold}"/>
+      <path d="M34 38c0-10 7-15 12-26 5 11 12 16 12 26z" fill="${gold}"/><rect x="45.2" y="2" width="1.6" height="11" fill="${gold}"/>
+      <path d="M63 42c0-8 5-12 9-20 4 8 9 12 9 20z" fill="${gold}"/><rect x="71.3" y="13" width="1.4" height="9" fill="${gold}"/></svg>`,
+    flower: () => {
+      let petals = "";
+      const colors = ["#E2412B", "#F28C28", "#E2412B", "#F28C28", "#E2412B"];
+      for (let i = 0; i < 5; i++) petals += `<ellipse cx="66" cy="16" rx="7.5" ry="13" fill="${colors[i]}" transform="rotate(${i * 72} 66 31)"/>`;
+      return `<svg class="icon" viewBox="0 0 100 62" aria-hidden="true">
+        <ellipse cx="34" cy="40" rx="6" ry="16" fill="#4C9A2A" transform="rotate(-55 34 40)"/>
+        <ellipse cx="44" cy="50" rx="5" ry="12" fill="#6DB33F" transform="rotate(-80 44 50)"/>
+        ${petals}<circle cx="66" cy="31" r="7" fill="#F5C518"/>
+        <ellipse cx="92" cy="48" rx="4.5" ry="9" fill="#F5C518" transform="rotate(35 92 48)"/></svg>`;
+    },
+    star: (gold, center) => `<svg class="icon" viewBox="0 0 60 60" aria-hidden="true">
+      <rect x="17" y="17" width="26" height="26" fill="${gold}"/><rect x="17" y="17" width="26" height="26" fill="${gold}" transform="rotate(45 30 30)"/>
+      <circle cx="30" cy="30" r="6" fill="${center}"/></svg>`,
+    sunflower: () => {
+      let petals = "";
+      for (let i = 0; i < 12; i++) petals += `<ellipse cx="36" cy="14" rx="5" ry="11" fill="#E39A0B" transform="rotate(${i * 30} 36 31)"/>`;
+      let seeds = "";
+      for (const [x, y] of [[32, 27], [36, 26], [40, 27], [30, 31], [34, 31], [38, 31], [42, 31], [32, 35], [36, 36], [40, 35]])
+        seeds += `<circle cx="${x}" cy="${y}" r="1.3" fill="#7A5527"/>`;
+      return `<svg class="icon" viewBox="0 0 74 62" aria-hidden="true">${petals}<circle cx="36" cy="31" r="11" fill="#3E2C14"/>${seeds}</svg>`;
+    },
+    mountains: () => `<svg class="strip" viewBox="0 0 360 30" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="0,30 0,22 40,10 82,24 130,5 182,23 232,9 282,26 330,7 360,18 360,30" fill="#5E9178"/>
+      <polygon points="0,30 0,26 34,19 72,27 122,16 170,29 222,18 270,27 318,15 360,24 360,30" fill="#2E6B50"/></svg>`,
+    sun: (sand, line) => `<svg class="icon" viewBox="0 0 92 60" aria-hidden="true">
+      <path d="M40 42a18 18 0 0 1 36 0z" fill="${sand}"/>
+      <rect x="4" y="42" width="86" height="3.4" rx="1.7" fill="${line}"/>
+      <rect x="44" y="49" width="28" height="3.4" rx="1.7" fill="${line}" opacity=".7"/></svg>`,
+    berries: () => {
+      let b = "";
+      for (const [x, y] of [[52, 24], [64, 20], [76, 24], [58, 34], [70, 33], [64, 45], [82, 37]])
+        b += `<circle cx="${x}" cy="${y}" r="6.5" fill="#FF4B57"/><circle cx="${x - 2}" cy="${y - 2.2}" r="1.8" fill="#FFFFFF" opacity=".75"/>`;
+      return `<svg class="icon" viewBox="0 0 96 62" aria-hidden="true">
+        <ellipse cx="28" cy="30" rx="8" ry="17" fill="#3E8A4B" transform="rotate(-50 28 30)"/>
+        <ellipse cx="34" cy="46" rx="6" ry="12" fill="#2F6B3A" transform="rotate(-95 34 46)"/>${b}</svg>`;
+    },
+    glow: (gold) => {
+      const id = `glow-${++uid}`;
+      return `<svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${gold}" stop-opacity="0"/><stop offset="1" stop-color="${gold}" stop-opacity=".35"/></linearGradient></defs>
+        <rect width="360" height="10" fill="url(#${id})"/><rect y="10" width="360" height="4" fill="${gold}"/></svg>`;
+    },
+  };
+
+  // Round one: all ten, numbered 1 to 10. picked marks the seven iiSurf chose.
+  const THEMES = [
+    {
+      name: "Sky over wheat", from: "The flag: blue sky over a yellow wheat field.", picked: true,
+      watch: "<b>Watch for:</b> yellow buttons sit near the yellow \"close\" grade. The grade keeps its own mark, and the button never sits under the word.",
+      c: { bg: "#F3F6FB", surface: "#FFFFFF", ink: "#0E1E36", muted: "#4A5A73", band: "#0057B7", bandInk: "#FFFFFF",
+        accent: "#FFD500", accentInk: "#0E1E36", chipBg: "#E3ECF8", chipInk: "#0B3D80", modeBg: "#E3ECF8", modeOn: "#0057B7", modeOnInk: "#FFFFFF",
+        tabOn: "#0057B7", pairBg: "#FFD500", pairInk: "#0E1E36" },
+      strip: () => plainStrip("#FFD500", 8),
+    },
+    {
+      name: "Golden domes", from: "St. Michael's in Kyiv: sky-blue walls, gold domes, white trim.",
+      watch: "<b>Watch for:</b> softer than the flag. Gold is calmer than yellow next to the grades.",
+      c: { bg: "#EEF5FB", surface: "#FFFFFF", ink: "#12304E", muted: "#4C6680", band: "#2F7FBF", bandInk: "#FFFFFF",
+        accent: "#C99A2E", accentInk: "#1F1708", chipBg: "#E2EEF8", chipInk: "#1D5C8E", modeBg: "#E2EEF8", modeOn: "#12304E", modeOnInk: "#FFFFFF",
+        tabOn: "#2F7FBF", pairBg: "#FFFFFF", pairInk: "#1D5C8E" },
+      icon: () => PICTURES.domes("#E8BE4B", "#F4F8FB"),
+    },
+    {
+      name: "Vyshyvanka", from: "The embroidered shirt: red and black cross-stitch on white linen.", picked: true,
+      watch: "<b>Watch for:</b> red is also \"needs work\", so the red stays in the embroidery and the buttons are black.",
+      c: { bg: "#F8F4EC", surface: "#FFFFFF", ink: "#1B1B1B", muted: "#5B5550", band: "#F8F4EC", bandInk: "#1B1B1B",
+        accent: "#1B1B1B", accentInk: "#FFFFFF", chipBg: "#F0E6D8", chipInk: "#7E1A1A", modeBg: "#F0E6D8", modeOn: "#1B1B1B", modeOnInk: "#FFFFFF",
+        tabOn: "#1B1B1B", pairBg: "#1B1B1B", pairInk: "#FFFFFF" },
+      strip: () => crossStitch("#C8102E", "#1B1B1B", 22),
+    },
+    {
+      name: "Petrykivka", from: "Petrykivka painting: bright brush-stroke flowers on black.", picked: true,
+      watch: "<b>Watch for:</b> a dark theme, easy on the eyes at night. The flower's colors are close to the grades, so it stays small.",
+      dark: true,
+      c: { bg: "#16110E", surface: "#241C17", ink: "#F7EFE4", muted: "#C9B8A6", band: "#16110E", bandInk: "#F7EFE4",
+        accent: "#F2B705", accentInk: "#16110E", chipBg: "#33281F", chipInk: "#F7D9A8", modeBg: "#2A211A", modeOn: "#F2B705", modeOnInk: "#16110E",
+        tabOn: "#F2B705", pairBg: "#33281F", pairInk: "#F7D9A8" },
+      icon: () => PICTURES.flower(),
+    },
+    {
+      name: "Pysanka", from: "Pysanky, the dyed Easter eggs: deep red, black, and saffron in geometric bands.", picked: true,
+      watch: "<b>Watch for:</b> rich and warm. The deep red band is far darker than the \"needs work\" red, but it is worth seeing on the phone.",
+      c: { bg: "#FFF7EA", surface: "#FFFFFF", ink: "#1E0F0B", muted: "#6A4E3F", band: "#6E0F1E", bandInk: "#FFF1DC",
+        accent: "#E39B12", accentInk: "#1E0F0B", chipBg: "#F7E6CC", chipInk: "#6E0F1E", modeBg: "#F7E6CC", modeOn: "#1E0F0B", modeOnInk: "#FFF1DC",
+        tabOn: "#6E0F1E", pairBg: "#E39B12", pairInk: "#1E0F0B" },
+      icon: () => PICTURES.star("#E39B12", "#6E0F1E"),
+      strip: () => teeth("#1E0F0B", "#E39B12"),
+    },
+    {
+      name: "Sunflower field", from: "Ukraine's national flower: yellow petals, brown seeds, green leaves.", picked: true,
+      watch: "<b>Watch for:</b> cheerful but loud. The yellow \"close\" grade needs its mark most here.",
+      c: { bg: "#FFFBEB", surface: "#FFFFFF", ink: "#2E2110", muted: "#6B5A3E", band: "#F6C324", bandInk: "#2E2110",
+        accent: "#3E2C14", accentInk: "#FFE38A", chipBg: "#EEF4E1", chipInk: "#3F6B1F", modeBg: "#F6EED2", modeOn: "#3E2C14", modeOnInk: "#FFE38A",
+        tabOn: "#3E2C14", pairBg: "#3E2C14", pairInk: "#FFE38A" },
+      icon: () => PICTURES.sunflower(),
+    },
+    {
+      name: "Carpathians", from: "The Carpathian mountains: pine forest, morning mist, carved wood.",
+      watch: "<b>Watch for:</b> calm and outdoorsy, but green is also \"good\", so the band's green is kept deep.",
+      c: { bg: "#EEF3EF", surface: "#FFFFFF", ink: "#142A20", muted: "#4E6458", band: "#1F4D3A", bandInk: "#F1F6F2",
+        accent: "#A85E1F", accentInk: "#FFFFFF", chipBg: "#E0EAE3", chipInk: "#1F4D3A", modeBg: "#E0EAE3", modeOn: "#1F4D3A", modeOnInk: "#F1F6F2",
+        tabOn: "#1F4D3A", pairBg: "#F1F6F2", pairInk: "#1F4D3A" },
+      strip: () => PICTURES.mountains(),
+    },
+    {
+      name: "Black Sea", from: "Odesa and the Black Sea: sea teal, sand, white limestone.",
+      watch: "<b>Watch for:</b> the quietest of the ten. Teal and sand stay clear of all four grade colors, so the grades stand out most.",
+      c: { bg: "#F2F6F5", surface: "#FFFFFF", ink: "#0F2B30", muted: "#4C6669", band: "#0F6C77", bandInk: "#F2FBFB",
+        accent: "#E8B86A", accentInk: "#0F2B30", chipBg: "#DEEFEF", chipInk: "#0F5C66", modeBg: "#DEEFEF", modeOn: "#0F6C77", modeOnInk: "#FFFFFF",
+        tabOn: "#0F6C77", pairBg: "#E8B86A", pairInk: "#0F2B30" },
+      icon: () => PICTURES.sun("#E8B86A", "#F2FBFB"),
+    },
+    {
+      name: "Kalyna", from: "Kalyna, the guelder-rose: red berries and green leaves, a symbol in many Ukrainian songs.", picked: true,
+      watch: "<b>Watch for:</b> berry red and leaf green are also \"needs work\" and \"good\", so this one can read busy.",
+      c: { bg: "#FBF6F0", surface: "#FFFFFF", ink: "#2A1215", muted: "#6D4B4F", band: "#9B1B30", bandInk: "#FFF3F0",
+        accent: "#2F6B3A", accentInk: "#FFFFFF", chipBg: "#F6E3E2", chipInk: "#8A1A2C", modeBg: "#F6E3E2", modeOn: "#2A1215", modeOnInk: "#FFF3F0",
+        tabOn: "#9B1B30", pairBg: "#FFF3F0", pairInk: "#9B1B30" },
+      icon: () => PICTURES.berries(),
+    },
+    {
+      name: "Night flag", from: "The flag after dark: deep blue with a line of yellow.", picked: true,
+      watch: "<b>Watch for:</b> made for evenings. The yellow is only the line, the button, and the tab, so the grades stay clear.",
+      dark: true,
+      c: { bg: "#0B1526", surface: "#14233B", ink: "#EAF1FB", muted: "#A9B9D0", band: "#0B1526", bandInk: "#EAF1FB",
+        accent: "#FFD500", accentInk: "#0B1526", chipBg: "#1D3152", chipInk: "#FFE36B", modeBg: "#14233B", modeOn: "#FFD500", modeOnInk: "#0B1526",
+        tabOn: "#FFD500", pairBg: "#1D3152", pairInk: "#FFE36B" },
+      strip: () => PICTURES.glow("#FFD500"),
+    },
+  ];
+  const byName = (name) => THEMES.find((t) => t.name === name);
+
+  function vars(t) {
+    const c = t.c, g = GRADES[t.dark ? "dark" : "light"];
+    return [
+      ["bg", c.bg], ["surface", c.surface], ["ink", c.ink], ["muted", c.muted], ["band", c.band], ["band-ink", c.bandInk],
+      ["accent", c.accent], ["accent-ink", c.accentInk], ["chip-bg", c.chipBg], ["chip-ink", c.chipInk],
+      ["mode-bg", c.modeBg], ["mode-on", c.modeOn], ["mode-on-ink", c.modeOnInk], ["tab-on", c.tabOn],
+      ["pair-bg", c.pairBg], ["pair-ink", c.pairInk],
+      ...Object.entries(g).flatMap(([k, v]) => [[k, v.t], [k + "-bar", v.b], [k + "-mark", v.m]]),
+    ].map(([k, v]) => `--${k}:${v}`).join(";");
+  }
+
+  const tabs = (on) => `<nav class="tabs">
+    <span class="${on === "words" ? "on" : ""}"><span class="aa">Aa</span>Words</span>
+    <span class="${on === "practice" ? "on" : ""}">${ICONS.mic}Practice</span>
+    <span class="${on === "progress" ? "on" : ""}">${ICONS.bars}Progress</span></nav>`;
+
+  // The Out loud screen, after saying "weather".
+  function outLoud(t) {
+    const parts = WORD.map(([letters, g]) =>
+      `<span class="part" style="--g:var(--${g});--gb:var(--${g}-bar);--gm:var(--${g}-mark)">
+        <span class="l">${letters}</span><span class="m" title="${GRADE_NAMES[g]}">${mark(g)}</span></span>`).join("");
+    return `<div class="phone${t.dark ? " dark" : ""}"><div class="screen" style="${vars(t)}">
+      <div class="band">
+        <div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span>${t.icon ? t.icon() : ""}</div>
+        ${t.strip ? t.strip() : ""}
+      </div>
+      <div class="body">
+        <div class="modes"><span>Quiet</span><span>Headphones</span><span class="on">Out loud</span></div>
+        <section class="card">
+          <div class="label">Your try</div>
+          <div class="word" aria-label="weather">${parts}</div>
+          <div class="respell">WEH · thur</div>
+          <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          <div class="row"><span class="btn secondary">${ICONS.speaker}Hear it</span><span class="btn secondary">${ICONS.mic}Say it again</span></div>
+        </section>
+        <section class="card tip">
+          <div class="label">Fix the th</div>
+          <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+          <div class="sub">Same sound, same spot</div>
+          <div class="chips"><span class="chip">feather</span><span class="chip">leather</span><span class="chip">together</span><span class="chip">wetter · weather</span></div>
+          <div class="row"><span class="btn primary">Practice the th</span></div>
+        </section>
+        <section class="card mine">
+          <div class="label">My words</div>
+          <div class="chips"><span class="chip on">weather</span><span class="chip">thirty</span><span class="chip">vegetable</span><span class="chip">world</span><span class="chip">+ Add</span></div>
+        </section>
+      </div>
+      ${tabs("words")}
+    </div></div>`;
+  }
+
+  // Your colors: first language, then a look for the day and one for night. t is the look showing right now.
+  function yourColors(t, day, night) {
+    const tile = (x) => `<div class="tile${x === day || x === night ? " on" : ""}" style="--tb:${x.c.band};--ti:${x.c.bandInk}">
+        ${x === day || x === night ? `<span class="tick">${mark("good")}</span>` : ""}
+        <div class="mini-band"><span class="aa">Aa</span>${x.icon ? x.icon() : ""}${x.strip ? x.strip() : ""}</div>
+        <div class="tile-name">${x.name}</div></div>`;
+    const picked = THEMES.filter((x) => x.picked);
+    return `<div class="phone${t.dark ? " dark" : ""}"><div class="screen" style="${vars(t)}">
+      <div class="band">
+        <div class="band-top"><span class="back" aria-hidden="true">‹</span><span class="brand">Your colors</span>${t.icon ? t.icon() : ""}</div>
+        ${t.strip ? t.strip() : ""}
+      </div>
+      <div class="body">
+        <section class="card">
+          <div class="label">First language</div>
+          <div class="lang-row"><span class="lang-name">Ukrainian<span lang="uk">українська</span></span><span class="chip">Change</span></div>
+          <p class="hint">Your colors come from home. Ukraine has seven.</p>
+        </section>
+        <section class="card">
+          <div class="label">Day look</div>
+          <div class="tiles">${picked.filter((x) => !x.dark).map(tile).join("")}</div>
+        </section>
+        <section class="card">
+          <div class="label">Night look</div>
+          <div class="tiles">${picked.filter((x) => x.dark).map(tile).join("")}</div>
+          <div class="toggle-row"><span>Switch when my phone goes dark</span><span class="switch" aria-hidden="true"><i></i></span></div>
+        </section>
+      </div>
+      ${tabs("")}
+    </div></div>`;
+  }
+
+  document.getElementById("legend").innerHTML = Object.keys(GRADE_NAMES).map((g) => {
+    const v = GRADES.light[g];
+    return `<li><span class="part" style="--gb:${v.b};--gm:${v.m}"><span class="m" style="min-width:44px">${mark(g)}</span></span>${GRADE_NAMES[g]}</li>`;
+  }).join("");
+
+  const sky = byName("Sky over wheat"), shirt = byName("Vyshyvanka"), flowers = byName("Petrykivka"), night = byName("Night flag");
+  document.getElementById("switch").innerHTML = [
+    { t: sky, day: sky, night, title: "Daytime", note: "Day look: Sky over wheat. Night look: Night flag. These are the starting choices." },
+    { t: flowers, day: shirt, night: flowers, title: "Night, with other choices", note: "Day look: Vyshyvanka. Night look: Petrykivka. The phone is in dark mode, so Petrykivka is showing." },
+  ].map((s) => `<article class="option">
+      <div class="option-head"><h3>${s.title}</h3><p class="from">${s.note}</p></div>
+      ${yourColors(s.t, s.day, s.night)}
+    </article>`).join("");
+
+  document.getElementById("grid").innerHTML = THEMES.map((t, i) => {
+    const c = t.c;
+    const sw = [c.band, c.bg, c.accent, c.chipBg, c.ink].map((x) => `<span style="background:${x}" title="${x}"></span>`).join("");
+    return `<article class="option${t.picked ? "" : " out"}">
+      <div class="option-head"><h3><span class="num">${i + 1}</span>${t.name}${t.picked ? '<span class="picked">Picked</span>' : ""}</h3><p class="from">${t.from}</p><div class="swatches">${sw}</div></div>
+      ${outLoud(t)}
+      <p class="watch">${t.watch}</p>
+    </article>`;
+  }).join("");
+</script>
+</body></html>
