@@ -5,11 +5,12 @@
 //   node tools/bake.mjs design/themes.html
 //
 // Chrome's profile goes in .tmp/ (CLAUDE.md: never the system's temporary folder) and is deleted afterwards.
-// Set CHROME if Chrome is not in the usual macOS place. For design drafts, not part of the app.
+// Finds Chrome the same way the other tools do (tools/chrome.mjs). For design drafts, not part of the app.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { chromePath } from "./chrome.mjs";
 
 const page = process.argv[2];
 if (!page) {
@@ -20,7 +21,7 @@ const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 const profile = join(repo, ".tmp", `chrome-bake-${process.pid}`);
 mkdirSync(profile, { recursive: true });
 try {
-  const dom = execFileSync(process.env.CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  const dom = execFileSync(chromePath(),
     ["--headless=new", "--disable-gpu", "--no-first-run", `--user-data-dir=${profile}`, "--dump-dom", pathToFileURL(resolve(page)).href],
     { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 64 * 1024 * 1024 });
   if (!dom.includes("</html>")) throw new Error("Chrome returned no page");

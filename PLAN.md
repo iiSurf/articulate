@@ -39,7 +39,7 @@ Ukrainian is spelled almost the way it sounds, so a Ukrainian speaker tends to s
 3. **Fix this part:** the tip for that sound, the model saying it slowly, then a few words with the same sound in the same spot (think: thank, thin, three) and a sound-alike pair to hear the difference (sink, think). Each one is colored on that part only.
 4. **Back to your word:** try it again and see the colors change.
 
-How it colors: a free speech model that recognizes English sounds runs in the browser, on the phone, so the recording never leaves it. Code lines up what it heard against the word's sounds from the dictionary and scores each one. This is the riskiest part of the plan, so it gets tested first ("The scoring test" below). If the test fails, Out loud shows **the beat** instead (each syllable as a block sized by how loud and long it is, the model's above yours), and the learner picks the part to fix themselves.
+How it colors: a free speech model that recognizes English sounds runs in the browser, on the phone, so the recording never leaves it. Code lines up what it heard against the word's sounds from the dictionary and scores each one. This was the riskiest part of the plan, so it was tested first, and it passed ("The scoring test" below). If it fails on real voices or a real phone, Out loud shows **the beat** instead (each syllable as a block sized by how loud and long it is, the model's above yours), and the learner picks the part to fix themselves.
 
 ## Must, Stretch, Later
 
@@ -51,7 +51,7 @@ How it colors: a free speech model that recognizes English sounds runs in the br
 - Where are you: Quiet, Headphones, Out loud.
 - Quiet: find the strong part, spot the small "uh", and same sound.
 - Headphones: normal and slow, and "which word did you hear?"
-- Out loud: record, play yours and the model back to back, colored letters (or the beat, if the scoring test fails), fix this part, and back to your word.
+- Out loud: record, play yours and the model back to back, colored letters, fix this part, and back to your word. The silence before and after a try is cut off before scoring, to keep it fast. For bad/bed and fool/full, which the model hears poorly, the vowel never shows better than yellow.
 - Works in Chrome on an Android phone and on a computer.
 - The seven Ukraine looks and Your colors: Sky over wheat, Vyshyvanka, Pysanka, Sunflower field, and Kalyna for the day, and Petrykivka and Night flag for night. It starts with Sky over wheat and Night flag. The four grade colors stay the same in every look.
 
@@ -85,12 +85,19 @@ It passes if all three hold:
 
 If it fails, Out loud ships with the beat, and colored letters move to Later. Either way, the result goes in iiSurf's log.
 
+**Result (October 31): passed, on the Mac's own voices.** Swapped sounds were caught 89% of the time, a right sound turned red 3% of the time, and a short word took 2.8 s with Chrome slowed down 6 times as a stand-in for a cheap phone. The th mistakes, the most important ones, were caught 35 times in 36. Weak spots: bad/bed and fool/full. Still unproven: real voices, a real Android phone, and a real accent. Everything is in [docs/scoring-test.md](docs/scoring-test.md). Next, before the handover:
+
+1. iiSurf records about ten words, said right and wrong on purpose, to check the colors with a real voice.
+2. A small page anyone can open on a phone, to time it there.
+
 ## Data and voices
 
-- **Pronunciations:** the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (American English, about 134,000 words, BSD license), turned into a compact file by a script. It gives each word's sounds and stress. A script also lines up each word's letters with its sounds. Code finds the similar words and the puzzle answers.
+- **Pronunciations:** the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (American English, about 135,000 words, BSD license). It is in the repository at `data/words/cmudict.dict`, with its license, and a script will turn it into a compact file for the app. It gives each word's sounds and stress. A script also lines up each word's letters with its sounds. Code finds the similar words and the puzzle answers.
 - **Everyday words:** a list of common words keeps suggestions to words people actually use. Which list depends on its license (to check).
 - **The model voice:** clips made ahead of time, on a computer, with [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), a free voice model (Apache 2.0) with American voices, for the most common words. Any other word plays in the phone's own voice. To try first.
-- **The sound model** (Out loud only): downloaded once on first use, ideally over Wi-Fi, then kept in the browser. It is too big for GitHub Pages, so it comes from where it is published. That download is the app's only outside request, and it sends nothing about the learner.
+- **The sound model** (Out loud only): 355 MB, too big for GitHub, so it comes from Hugging Face, pinned to one version (`js/score/source.js`). The app downloads it once on first use, ideally over Wi-Fi, and keeps it in the browser. Hugging Face allows downloads from both GitHub Pages and localhost (checked October 31). That download is the app's only outside request, and it sends nothing about the learner. While developing, `npm run get-model` keeps a checked copy in `.models/`, and the app uses that copy instead.
+- **The engine that runs it:** onnxruntime-web (Microsoft, MIT), copied into `vendor/` by `npm run vendor` and committed, so the app works on GitHub Pages and from a fresh clone without npm.
+- **Working from a fresh clone:** both of us get everything with `npm install` and `npm run get-model`, on a Mac, Windows, or Linux (README.md, "Getting started"). The only exception is the scoring test's recordings, which use the Mac's voices.
 - **Privacy:** the learner's words and recordings stay in the browser on their phone. No accounts, no server, no analytics, no paid services, no API keys. Saved data uses keys that start with `articulate.`, because every iisurf.github.io site shares one browser storage.
 
 ## Who owns what
@@ -101,9 +108,10 @@ The owner of a file is the only one who changes it. If you need a change in the 
 | --- | --- | --- |
 | The app shell: the page, the look and the themes, moving between screens | iiSurf | `index.html`, `css/`, `js/app.js`, `design/` |
 | Words: my words, the dictionary, letters and sounds, suggestions, word pages, Ukrainian tips | iiSurf | `js/words/`, `data/words/`, `tools/words/`, `tests/words/` |
-| Scoring: the sound model and the color of each part | iiSurf | `js/score/`, `tools/score/`, `tests/score/` |
+| Scoring: the sound model and the color of each part | iiSurf | `js/score/`, `tools/score/`, `tests/score/`, `vendor/` |
 | Practice: the Quiet puzzles, Headphones, the Out loud screen (record, play back, show the colors, fix this part), and the voice clips | the teammate | `js/practice/`, `data/voice/`, `tools/voice/`, `tests/practice/` |
 | The shared documents | iiSurf (the teammate suggests changes in a pull request) | `README.md`, `PLAN.md`, `CLAUDE.md`, `docs/` |
+| The shared tools and settings | iiSurf (the teammate suggests changes in a pull request) | `tools/*.mjs` (not the part folders), `package.json`, `package-lock.json`, `.gitignore`, `.github/` |
 | Each person's log | its writer | `LOG.md` (iiSurf), `LOG-<their GitHub name>.md` (the teammate) |
 
 iiSurf takes Scoring because it is the riskiest part and has to start this weekend, before the teammate joins. The teammate is never blocked by it: until the real scoring lands, a stand-in returns made-up colors in the same shape.
@@ -174,7 +182,7 @@ If a rule ever gets in the way, iiSurf can skip it as the admin (that is what th
 | Fri Oct 30 to Sat Oct 31 | This plan. The teammate joins and approves it. Drafts of the screens. |
 | Sat Oct 31 to Mon Nov 2 | The scoring test (iiSurf, one day). |
 | Sun Nov 1 | Portfolio checkpoint: each of us updates our own Artifact 4 card to show where we are. |
-| Mon Nov 2 | The app shell is merged. Colored letters or the beat, decided by the scoring test. |
+| Mon Nov 2 | The app shell is merged. Colored letters it is (the scoring test passed). |
 | Mon Nov 2 to Thu Nov 5 | Build all the parts, merging every day or two. |
 | Fri Nov 6 | Hand it to the friend and watch them try it. Log what they say. |
 | Sat Nov 7 to Sun Nov 8 | Fix what they ran into. Both cards to "done". Submit on Canvas by 11:59 PM Sunday. |
