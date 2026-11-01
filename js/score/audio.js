@@ -35,3 +35,58 @@ export function normalize(samples) {
   const scale = 1 / Math.sqrt(spread / (samples.length || 1) + 1e-7);
   return Float32Array.from(samples, (x) => (x - mean) * scale);
 }
+
+// Cuts the silence before and after a word, keeping a margin on each side, because the model's time grows with
+// the length of the recording (docs/scoring-test.md). A 20 ms frame counts as sound when it is louder than a
+// twentieth of the loudest frame and well above the room's quiet. The margin is wide on purpose: a "th" or "f" at
+// the start or end of a word is much quieter than its vowel, and cutting it off would make it look left out.
+// Returns the samples as they are when it can't tell the word from the quiet.
+export function trimSilence(samples, { rate = RATE, margin = 0.25, frame = 0.02 } = {}) {
+  const size = Math.max(1, Math.round(frame * rate));
+  const loudness = [];
+  for (let at = 0; at < samples.length; at += size) {
+    const end = Math.min(samples.length, at + size);
+    let sum = 0;
+    for (let i = at; i < end; i++) sum += samples[i] * samples[i];
+    loudness.push(Math.sqrt(sum / (end - at)));
+  }
+  if (loudness.length < 3) return samples;
+  const sorted = [...loudness].sort((a, b) => a - b);
+  const loudest = sorted[sorted.length - 1], quiet = sorted[Math.floor(sorted.length * 0.1)];
+  if (!(loudest > 0) || loudest < quiet * 4) return samples;
+  const line = Math.max(loudest / 20, quiet * 4);
+  let first = loudness.findIndex((x) => x >= line), last = loudness.length - 1;
+  while (last > first && loudness[last] < line) last--;
+  const keep = Math.round(margin * rate);
+  return samples.subarray(Math.max(0, first * size - keep), Math.min(samples.length, (last + 1) * size + keep));
+}
+
+// Turns a recording (a Blob from MediaRecorder) into 16 kHz samples for the model, in the browser. The browser
+// decodes it and changes the rate itself; if it can't decode straight to 16 kHz, the rate is changed here.
+export async function decodeRecording(blob) {
+  const data = await blob.arrayBuffer();
+  let buffer;
+  try {
+    buffer = await new OfflineAudioContext(1, 1, RATE).decodeAudioData(data.slice(0));
+  } catch {
+    buffer = await new OfflineAudioContext(1, 1, 48000).decodeAudioData(data);
+  }
+  const mono = new Float32Array(buffer.length);
+  for (let c = 0; c < buffer.numberOfChannels; c++) {
+    const ch = buffer.getChannelData(c);
+    for (let i = 0; i < mono.length; i++) mono[i] += ch[i] / buffer.numberOfChannels;
+  }
+  return buffer.sampleRate === RATE ? mono : resample(mono, buffer.sampleRate, RATE);
+}
+
+// Changes the sample rate by averaging each stretch of samples into one (good enough for going down to 16 kHz).
+export function resample(samples, from, to) {
+  const ratio = from / to, out = new Float32Array(Math.floor(samples.length / ratio));
+  for (let i = 0; i < out.length; i++) {
+    const a = Math.floor(i * ratio), b = Math.max(a + 1, Math.floor((i + 1) * ratio));
+    let sum = 0;
+    for (let j = a; j < b && j < samples.length; j++) sum += samples[j];
+    out[i] = sum / (b - a);
+  }
+  return out;
+}

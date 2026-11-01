@@ -1,6 +1,6 @@
 # Articulate
 
-A pronunciation practice app for one person: a friend who grew up speaking Ukrainian, speaks English very well, and wants to sound closer to an American accent. They add their own words and get suggestions of similar words. Then they practice in one of three ways: Quiet (puzzles on screen, no sound), Headphones (listening, no speaking), or Out loud (each part of the word colored by how close it was, then practice on that part).
+A pronunciation practice app for one person: a friend who grew up speaking Ukrainian, speaks English very well, and wants to sound closer to an American accent. They add their own words and get suggestions of similar words. Then they practice in one of three ways, picked under "Right now I can…": Read (puzzles on screen, no sound), Listen (hearing words, no speaking), or Speak (each part of the word colored by how close it was, then practice on that part). Use these three names everywhere.
 
 This is TCSS 490 Artifact 4 ("For Someone Else"), built by a team of two. Each of us works with our own Claude Code, and the two agents never talk to each other, so this file and PLAN.md are how both agents stay on the same plan. Due Sunday, November 8, 2026, 11:59 PM.
 
@@ -14,6 +14,7 @@ A fresh clone has everything except two things git ignores: `node_modules/` (`np
 
 - `npm start` serves the repository at http://localhost:8000. Use it, not `file://`: the app loads modules and data with fetch.
 - `npm test` runs every test, with nothing downloaded.
+- To try the scoring by hand: `npm start`, then http://localhost:8000/tools/score/try.html (say a word, see each sound's color).
 - `vendor/` holds the browser engine for the sound model, copied from npm by `npm run vendor`. Never edit it by hand.
 - Never commit `.models/`, `node_modules/`, or `.tmp/`.
 - `npm run score-test` only runs on a Mac (it records with the Mac's voices). Everything else runs on a Mac, Windows, or Linux.

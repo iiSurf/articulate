@@ -23,12 +23,13 @@ export function chromePath() {
   return found;
 }
 
-export async function openChrome() {
+// args: more Chrome switches, like a stand-in microphone that plays a file (see tools/score/try-check.mjs).
+export async function openChrome({ args = [] } = {}) {
   const port = 9400 + Math.floor(Math.random() * 400);
   const profile = join(repo, ".tmp", `chrome-${port}`);
   mkdirSync(profile, { recursive: true });
   const chrome = spawn(chromePath(),
-    ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"],
+    ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, ...args, "about:blank"],
     { stdio: "ignore" });
   const close = async (ws) => {
     try { ws?.close(); } catch {}

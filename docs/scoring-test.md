@@ -1,6 +1,6 @@
 # The scoring test
 
-PLAN.md asked one question before anyone builds Out loud on it: can a free speech model, running in the browser, color each sound of a word right? This is the answer from October 31, 2026.
+PLAN.md asked one question before anyone builds Speak (then called Out loud) on it: can a free speech model, running in the browser, color each sound of a word right? This is the answer from October 31, 2026.
 
 **Short answer: yes, so far.** On recordings made by the Mac's own voices, it passed all three parts of the pass rule:
 
@@ -8,7 +8,7 @@ PLAN.md asked one question before anyone builds Out loud on it: can a free speec
 - It marked a correct sound red 3% of the time.
 - It took 2.8 seconds for a short word with Chrome slowed down 6 times.
 
-Out loud gets colored letters. Three things are still unproven:
+Speak gets colored letters. Three things are still unproven:
 
 - Real voices, and a real accent.
 - A real Android phone.
@@ -84,9 +84,10 @@ A second run timed recordings by length, loading the model the way the app does 
 
 ## What this decides, and what is still open
 
-- **Decided:** Out loud uses colored letters, with "sounded like" for any part that isn't green. The beat stays the fallback.
+- **Decided:** Speak uses colored letters, with "sounded like" for any part that isn't green. The beat stays the fallback.
 - **Make the weak vowels honest:** for bad/bed and fool/full, the app should not sound certain. For example, it can show "close" (yellow) at most for those vowels, and say the model has trouble hearing them.
-- **Still to prove, before the handover:**
+- **The try-it page:** `tools/score/try.html` runs the whole chain in the browser. It records, cuts the silence, scores, and shows the colors and the time on that device. `npm run score-try` checks it with a stand-in microphone: think (all green), sink as think (th red, "like s"), vest as west (w orange, "like v"), and ship as sheep (ee orange, "like ɪ"), each scored in about 0.6 to 0.8 s on this Mac.
+- **Still to prove, before the handover** (on the try-it page):
   1. Real voices. iiSurf records about ten words said right and wrong on purpose, and we check the colors and cuts.
   2. A real Android phone. A small page anyone can open on their phone will time it there.
   3. The download. It is 355 MB, and GitHub Pages can't hold a file that big, so the app loads it from Hugging Face, the app's only outside request.

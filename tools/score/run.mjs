@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 import { readWav } from "../../js/score/audio.js";
 import { CMU_TO_MODEL, targets } from "../../js/score/phones.js";
 import { logSoftmax, prepare, readVocab, scoreWord } from "../../js/score/gop.js";
+import { parseCmudict } from "../../js/words/cmudict.js";
 import { loadModel } from "./model.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -46,14 +47,7 @@ right light, road load, rice lice, pray play`
   .split(",").map((s) => s.trim().split(/\s+/)).filter((p) => p.length === 2);
 
 function readDictionary() {
-  const dict = new Map();
-  for (const line of readFileSync(join(repo, "data", "words", "cmudict.dict"), "utf8").split("\n")) {
-    const m = /^([a-z']+)(?:\(\d+\))?\s+([A-Z0-9 ]+?)(?:\s*#.*)?$/.exec(line.trim());
-    if (!m) continue;
-    if (!dict.has(m[1])) dict.set(m[1], []);
-    dict.get(m[1]).push(m[2].split(" "));
-  }
-  return dict;
+  return parseCmudict(readFileSync(join(repo, "data", "words", "cmudict.dict"), "utf8"));
 }
 
 // The pronunciations of the two words that differ in exactly one sound the model can tell apart.

@@ -2,7 +2,7 @@
 // fetch and Cache Storage are stood in for, so nothing is downloaded.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { MODEL, LOCAL_URL, CACHE_NAME, remoteUrl, modelBytes, VOCAB } from "../../js/score/source.js";
+import { MODEL, LOCAL_URL, CACHE_NAME, remoteUrl, modelBytes, modelSaved, VOCAB } from "../../js/score/source.js";
 
 const full = () => new Uint8Array(MODEL.bytes);
 
@@ -95,4 +95,12 @@ test("the vocabulary kept in the app matches the model's sounds", () => {
   assert.equal(Object.keys(VOCAB).length, 42);
   assert.equal(VOCAB["[PAD]"], 41);
   assert.equal(new Set(Object.values(VOCAB)).size, 42);
+});
+
+test("telling whether the model is already here, without downloading it", async () => {
+  assert.equal(await modelSaved({ fetch: fakeFetch({ [LOCAL_URL]: new Uint8Array(1) }).fetch, caches: fakeCaches() }), "local");
+  assert.equal(await modelSaved({ fetch: fakeFetch({}).fetch, caches: fakeCaches({ [remoteUrl()]: full() }) }), "saved");
+  const { fetch, calls } = fakeFetch({ [remoteUrl()]: full() });
+  assert.equal(await modelSaved({ fetch, caches: fakeCaches() }), null);
+  assert.deepEqual(calls, [LOCAL_URL]);
 });
