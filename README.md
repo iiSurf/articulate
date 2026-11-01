@@ -10,7 +10,7 @@ The app asks "Right now I can…" and the three buttons answer it: Read, Listen,
 
 Built by a team of two with Claude Code for TCSS 490, Artifact 4 ("For Someone Else").
 
-**Status (November 1, 2026):** planning, design drafts, the scoring test (passed, details in [docs/scoring-test.md](docs/scoring-test.md)), and a try-it page for the scoring. The app's screens are not built yet.
+**Status (November 1, 2026):** the app shell works: the seven looks, Your colors, and the tabs, with Read · Listen · Speak waiting for their screens. Also: the plan, the design drafts, the scoring test (passed, details in [docs/scoring-test.md](docs/scoring-test.md)), and a try-it page for the scoring.
 
 ## Getting started
 
@@ -30,7 +30,7 @@ npm start
 
 - `npm install` gets the tools the tests and scripts use. The app itself needs nothing from npm.
 - `npm test` runs every test. They need no downloads.
-- `npm start` serves this folder at http://localhost:8000, for example http://localhost:8000/design/themes.html. Leave it running and reload the page after a change.
+- `npm start` serves this folder at http://localhost:8000. The app is http://localhost:8000/, and the drafts are at http://localhost:8000/design/themes.html. Leave it running and reload the page after a change.
 - **Try the scoring:** http://localhost:8000/tools/score/try.html, or on any phone at https://iisurf.github.io/articulate/tools/score/try.html once it's on `main`. Pick a word, tap Record, say it, and see each sound colored, what it sounded like, and how long scoring took on that device. Nothing is saved or sent.
 
 **The sound model** (355 MB) is the one thing too big for GitHub:
@@ -45,6 +45,7 @@ npm start
 | `npm run score-speed` | Times the model in Chrome, at full speed and slowed down as a stand-in for phones | Anywhere |
 | `npm run score-test` | The scoring test: colors on word pairs said by the Mac's voices | Mac only, because it uses the Mac's `say` voices |
 | `npm run score-try` | Checks the try-it page end to end in Chrome, with a stand-in microphone playing the scoring test's recordings | Mac only (it needs those recordings) |
+| `npm run check-shell` | Clicks through the app shell in Chrome and checks the looks, dark mode, saving, and safe text | Anywhere |
 | `npm run vendor` | Copies the browser engine from `node_modules` into `vendor/`, after updating it | Anywhere |
 
 ## Where things are
@@ -59,6 +60,15 @@ npm start
 - [data/words/](data/words/): the CMU Pronouncing Dictionary (BSD license, kept with it), where every word's sounds come from.
 - [vendor/onnxruntime-web/](vendor/onnxruntime-web/): the engine that runs the sound model in the browser (Microsoft, MIT license). It is copied from npm and committed, so the app works on GitHub Pages without npm.
 - `.github/pull_request_template.md`: the checklist every pull request starts with.
+
+### The app shell (iiSurf)
+
+- [index.html](index.html): the page. Everything else is drawn by `js/app.js`.
+- [js/app.js](js/app.js): the band, one screen at a time, the tabs, Your colors, and "Right now I can…". Each part plugs its screens in with `registerScreen()` (PLAN.md, "Screens, and the hooks the tour needs"). Until a screen is plugged in, it says "This part is being built."
+- [js/looks.js](js/looks.js) and [css/looks.css](css/looks.css): the seven looks, and which one shows (the night look when the phone goes dark, if the learner wants that).
+- [js/store.js](js/store.js): what's saved on the phone, under one key, `articulate.v1`. Anything read back is checked first, so a broken save can't break the app.
+- [js/html.js](js/html.js): the only way markup is made, so typed text always shows as text.
+- [css/app.css](css/app.css): the layout and the shared pieces.
 
 ### Scoring (iiSurf)
 

@@ -1,0 +1,62 @@
+/* The seven looks from Ukraine (design/themes.html). js/looks.js puts data-look on <html>.
+   Every look sets the same names, so the rest of the CSS only uses the names.
+   The four grade colors (good, close, a little off, needs work) are the same in every look: lighter letters on
+   the two dark looks, nothing else changes. */
+
+:root {
+  --good: #1B7A35; --good-bar: #23843F; --good-mark: #FFFFFF;
+  --close: #8A6A00; --close-bar: #F2C200; --close-mark: #2B2100;
+  --off: #C2410C; --off-bar: #F07A1E; --off-mark: #2B1300;
+  --work: #B42318; --work-bar: #D92D2D; --work-mark: #FFFFFF;
+  color-scheme: light;
+}
+:root.dark {
+  --good: #74E08F; --close: #FFD95A; --off: #FFA061; --work: #FF7D7D; --work-bar: #E5484D;
+  color-scheme: dark;
+}
+
+/* Day looks */
+[data-look="sky"] {
+  --bg: #F3F6FB; --surface: #FFFFFF; --ink: #0E1E36; --muted: #4A5A73; --band: #0057B7; --band-ink: #FFFFFF;
+  --accent: #FFD500; --accent-ink: #0E1E36; --chip-bg: #E3ECF8; --chip-ink: #0B3D80; --mode-bg: #E3ECF8;
+  --mode-on: #0057B7; --mode-on-ink: #FFFFFF; --tab-on: #0057B7; --pair-bg: #FFD500; --pair-ink: #0E1E36;
+  --coach-bg: #0E1E36; --coach-ink: #FFFFFF; --coach-step: #FFD500; --ring: #0057B7;
+}
+[data-look="vyshyvanka"] {
+  --bg: #F8F4EC; --surface: #FFFFFF; --ink: #1B1B1B; --muted: #5B5550; --band: #F8F4EC; --band-ink: #1B1B1B;
+  --accent: #1B1B1B; --accent-ink: #FFFFFF; --chip-bg: #F0E6D8; --chip-ink: #7E1A1A; --mode-bg: #F0E6D8;
+  --mode-on: #1B1B1B; --mode-on-ink: #FFFFFF; --tab-on: #1B1B1B; --pair-bg: #1B1B1B; --pair-ink: #FFFFFF;
+  --coach-bg: #1B1B1B; --coach-ink: #FFFFFF; --coach-step: #F0E6D8; --ring: #1B1B1B;
+}
+[data-look="pysanka"] {
+  --bg: #FFF7EA; --surface: #FFFFFF; --ink: #1E0F0B; --muted: #6A4E3F; --band: #6E0F1E; --band-ink: #FFF1DC;
+  --accent: #E39B12; --accent-ink: #1E0F0B; --chip-bg: #F7E6CC; --chip-ink: #6E0F1E; --mode-bg: #F7E6CC;
+  --mode-on: #1E0F0B; --mode-on-ink: #FFF1DC; --tab-on: #6E0F1E; --pair-bg: #E39B12; --pair-ink: #1E0F0B;
+  --coach-bg: #1E0F0B; --coach-ink: #FFF1DC; --coach-step: #E39B12; --ring: #6E0F1E;
+}
+[data-look="sunflower"] {
+  --bg: #FFFBEB; --surface: #FFFFFF; --ink: #2E2110; --muted: #6B5A3E; --band: #F6C324; --band-ink: #2E2110;
+  --accent: #3E2C14; --accent-ink: #FFE38A; --chip-bg: #EEF4E1; --chip-ink: #3F6B1F; --mode-bg: #F6EED2;
+  --mode-on: #3E2C14; --mode-on-ink: #FFE38A; --tab-on: #3E2C14; --pair-bg: #3E2C14; --pair-ink: #FFE38A;
+  --coach-bg: #2E2110; --coach-ink: #FFFBEB; --coach-step: #F6C324; --ring: #3E2C14;
+}
+[data-look="kalyna"] {
+  --bg: #FBF6F0; --surface: #FFFFFF; --ink: #2A1215; --muted: #6D4B4F; --band: #9B1B30; --band-ink: #FFF3F0;
+  --accent: #2F6B3A; --accent-ink: #FFFFFF; --chip-bg: #F6E3E2; --chip-ink: #8A1A2C; --mode-bg: #F6E3E2;
+  --mode-on: #2A1215; --mode-on-ink: #FFF3F0; --tab-on: #9B1B30; --pair-bg: #FFF3F0; --pair-ink: #9B1B30;
+  --coach-bg: #2A1215; --coach-ink: #FFF3F0; --coach-step: #FF9AA2; --ring: #2A1215;
+}
+
+/* Night looks */
+[data-look="petrykivka"] {
+  --bg: #16110E; --surface: #241C17; --ink: #F7EFE4; --muted: #C9B8A6; --band: #16110E; --band-ink: #F7EFE4;
+  --accent: #F2B705; --accent-ink: #16110E; --chip-bg: #33281F; --chip-ink: #F7D9A8; --mode-bg: #2A211A;
+  --mode-on: #F2B705; --mode-on-ink: #16110E; --tab-on: #F2B705; --pair-bg: #33281F; --pair-ink: #F7D9A8;
+  --coach-bg: #F2B705; --coach-ink: #16110E; --coach-step: #16110E; --ring: #F2B705;
+}
+[data-look="night"] {
+  --bg: #0B1526; --surface: #14233B; --ink: #EAF1FB; --muted: #A9B9D0; --band: #0B1526; --band-ink: #EAF1FB;
+  --accent: #FFD500; --accent-ink: #0B1526; --chip-bg: #1D3152; --chip-ink: #FFE36B; --mode-bg: #14233B;
+  --mode-on: #FFD500; --mode-on-ink: #0B1526; --tab-on: #FFD500; --pair-bg: #1D3152; --pair-ink: #FFE36B;
+  --coach-bg: #FFD500; --coach-ink: #0B1526; --coach-step: #0B1526; --ring: #FFD500;
+}

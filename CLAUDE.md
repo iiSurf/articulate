@@ -45,7 +45,9 @@ Check the branch (`git branch --show-current`):
 - No API keys and no paid services, ever. The voice clips are made ahead of time on a computer. The only model on the phone is the free sound model that colors the letters, and it runs in the browser, so recordings never leave the phone.
 - The sound model's download is the app's only outside request. Add no others (no font links, no analytics, no CDN scripts): keep libraries in the repository.
 - Saved data uses keys that start with `articulate.`, because every iisurf.github.io site shares one browser storage.
-- The learner types their own words, and they show up on screen. Never put typed text into the page as raw HTML.
+- The learner types their own words, and they show up on screen. Never put typed text into the page as raw HTML: build markup with `html` from `js/html.js`, and use `raw()` only for markup written in our own code.
+- Screens plug into the app with `registerScreen()` from `js/app.js`, and get what they need from its `ctx` (PLAN.md, "Screens, and the hooks the tour needs"). Don't import another part's screens directly.
+- What's saved goes through `js/store.js`. Changing its shape means a new version and an upgrade step for older saves.
 - Every animation has an off state for `prefers-reduced-motion`.
 - What the learner reads is plain, friendly language.
 - Never put the friend's name, their recordings, or anything that could identify them in the repository. No secrets or tokens either.

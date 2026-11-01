@@ -13,7 +13,8 @@
     "vendor": "node tools/vendor.mjs",
     "score-test": "node tools/score/run.mjs",
     "score-speed": "node tools/score/speed.mjs",
-    "score-try": "node tools/score/try-check.mjs"
+    "score-try": "node tools/score/try-check.mjs",
+    "check-shell": "node tools/check-shell.mjs"
   },
   "devDependencies": {
     "onnxruntime-web": "1.31.1"

@@ -443,3 +443,55 @@ Draw the tutorial iiSurf picked: the first visit teaches by doing with the learn
 
 - Not seen on a real phone.
 - The ring's gentle pulse and the reading aloud by screen readers are described, not drawn.
+
+## 2026-11-01 (Sunday, night): the app shell
+
+### Plan
+
+iiSurf approved the tutorial ("Build this one"), but it walks through screens that don't exist yet. So the build goes in this order, written into PLAN.md under "Building, in order":
+
+1. The app shell.
+2. Words.
+3. Scoring hooked up.
+4. The tour.
+5. Words, finished.
+
+PLAN.md also now proposes how screens plug in (`registerScreen`, with a `ctx`) and which `data-tour` names the Practice screens need, so the tour can point at them. It waits for the teammate's OK. The teammate has no branch on GitHub yet.
+
+### Changed
+
+- New, the app:
+  - `index.html`.
+  - `js/app.js`: the band, the tabs (Words, Practice, Progress), "Right now I can…" Read · Listen · Speak, and Your colors. Screens plug in with `registerScreen()`, and a screen that isn't plugged in says "This part is being built".
+  - `js/looks.js` and `css/looks.css`: the seven looks, with the night look when the phone goes dark if the learner wants.
+  - `js/store.js`: saved on the phone under `articulate.v1`, and checked on the way back in.
+  - `js/html.js`: safe markup.
+  - `css/app.css`.
+- New: 9 tests in `tests/app/shell.test.js`, 42 tests in all.
+- New: `npm run check-shell` (`tools/check-shell.mjs`) clicks through the shell in Chrome.
+- `tools/shot.mjs`:
+  - An address starting with "/" now starts the local server itself.
+  - `COLOR_SCHEME=dark` or `light` fakes the phone's setting.
+- `PLAN.md`, `README.md`, and `CLAUDE.md`: the build order, the screen plug-in, and the rules for markup and saving.
+- The tutorial drafts were committed and pushed first (9b27923), as iiSurf approved them.
+
+### Verified
+
+- `npm test`: 42 of 42.
+- `npm run check-shell`, 10 of 10:
+  - It starts with Sky over wheat, and switches to Night flag when the phone goes dark.
+  - Tapping a look shows it.
+  - The switch turned off keeps the day look in dark mode.
+  - Read · Listen · Speak is remembered, and so is the Practice tab.
+  - Everything survives a reload.
+  - The only key saved is `articulate.v1`.
+  - Markup typed into the address doesn't become markup.
+- Your colors and Speak at 360, 390, and 1280, in light and dark: nothing scrolls sideways.
+- Fixed after looking:
+  - At 1280 the glowing line under the Night flag band grew to 50 px, because the band pictures stretched with the screen. They now keep their height and repeat.
+  - In the tiles, the "Aa" sat on top of the Vyshyvanka and Pysanka strips.
+
+### Not verified
+
+- A real phone.
+- Words, Read, Listen, Speak, and Progress are placeholders. Read, Listen, and Speak are the teammate's part in PLAN.md.

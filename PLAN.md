@@ -116,7 +116,7 @@ The owner of a file is the only one who changes it. If you need a change in the 
 
 | Part | Owner | Files |
 | --- | --- | --- |
-| The app shell: the page, the look and the themes, moving between screens | iiSurf | `index.html`, `css/`, `js/app.js`, `design/` |
+| The app shell: the page, the look and the themes, moving between screens, saved settings, and the tour | iiSurf | `index.html`, `css/`, `js/app.js`, `js/looks.js`, `js/store.js`, `js/html.js`, `js/tour.js`, `tests/app/`, `design/` |
 | Words: my words, the dictionary, letters and sounds, suggestions, word pages, Ukrainian tips | iiSurf | `js/words/`, `data/words/`, `tools/words/`, `tests/words/` |
 | Scoring: the sound model and the color of each part | iiSurf | `js/score/`, `tools/score/`, `tests/score/`, `vendor/` |
 | Practice: the Read puzzles, Listen, the Speak screen (record, play back, show the colors, fix this part), and the voice clips | the teammate | `js/practice/`, `data/voice/`, `tools/voice/`, `tests/practice/` |
@@ -162,6 +162,45 @@ await score(recording, "think")
 ```
 
 Practice finds its own voice clip for a word (`data/voice/`). Changing any of these shapes means changing this section, in a pull request the other person approves.
+
+### Screens, and the hooks the tour needs (proposed by iiSurf on November 1, waiting for the teammate's OK)
+
+The app shell shows one screen at a time. Each part plugs its screens in by name, so nobody edits anyone else's files:
+
+```js
+// js/app.js (iiSurf)
+registerScreen("speak", {
+  render(container, ctx) { ... }, // draw the screen into container
+});
+// ctx gives every screen what it needs from the other parts:
+//   ctx.word          the word being practiced ("weather"), or null
+//   ctx.lookUp(word)  its parts and stress (Words)
+//   ctx.score(...)    how close each sound was (Scoring)
+//   ctx.go(name, x)   open another screen, like ctx.go("fix", { word, part: 2 })
+//   ctx.tour          the tour (below)
+```
+
+The Practice screens are named "read", "listen", "speak", and "fix". Until one is plugged in, the shell shows a plain "This part is being built" in its place.
+
+**The tour** (design/tutorial.html) finds controls by a `data-tour` name, and moves on when a screen tells it something happened. Practice screens add these:
+
+| On the screen | `data-tour` | Tell the tour |
+| --- | --- | --- |
+| Speak: the Record button | `record` | `ctx.tour.did("said")` after a try is graded |
+| Speak: each part of the graded word | `part` (with `data-grade` set to good, close, off, or work) | tapping a part opens "fix" |
+| Fix: the Back to the word button | `fix-back` | `ctx.tour.did("fixed")` when it's tapped |
+| Read: the puzzle | `read-puzzle` | nothing (the tip shows once by itself) |
+| Listen: the Play button | `listen-play` | nothing |
+
+A test (`tests/app/tour.test.js`, with the tour) will check that every `data-tour` name the tour uses exists somewhere in the code, so renaming one means updating the tour.
+
+## Building, in order (iiSurf's part)
+
+1. **The app shell:** the page, the seven looks and Your colors (day, night, and following the phone's dark mode), the tabs (Words, Practice, Progress), "Right now I can…" with Read, Listen, and Speak, saved settings, and a safe way to put text on the page. Started November 1.
+2. **Words:** My words (add, remove, saved on the phone), and the word page (its sounds, the strong part, Hear it and Slowly with the phone's own voice until the voice clips exist).
+3. **Scoring hooked up:** `score(recording, word)` from the handshake, with the letters for each sound.
+4. **The tour:** the welcome, the step card, the ring, the one-time tips, the "?", and Show me around again. Steps 1 and 2 run on the Words screens. Steps 3 to 5 run on the Speak and Fix screens through the hooks above.
+5. **Words, finished:** suggestions, a smaller dictionary file, and lining up letters with sounds.
 
 ## Branches, pull requests, and merging
 

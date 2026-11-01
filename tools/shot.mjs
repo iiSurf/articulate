@@ -3,6 +3,10 @@
 //
 //   node tools/shot.mjs <out.png> <width> <height> <url> [full=0] [scale=1] [regions]
 //   node tools/shot.mjs .tmp/shots/home-390.png 390 844 "file://$PWD/design/themes.html" 1
+//   node tools/shot.mjs .tmp/shots/colors-390.png 390 844 "/#/colors"
+//
+// An address starting with "/" opens this repository through the local server (tools/serve.mjs), which the app
+// needs. COLOR_SCHEME=dark makes the page think the phone is in dark mode.
 //
 // full=1 grows the shot to the page's whole height. regions is optional JavaScript, run in the page, that returns a
 // list of { x, y, width, height } in page pixels: each one is saved as its own picture (out-1.png, out-2.png, ...).
@@ -10,6 +14,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { openChrome } from "./chrome.mjs";
+import { startServer } from "./serve.mjs";
 
 const [out, width, height, url, full = "0", scale = "1", regions = ""] = process.argv.slice(2);
 if (!out || !width || !height || !url) {
@@ -18,13 +23,15 @@ if (!out || !width || !height || !url) {
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const server = url.startsWith("/") ? await startServer() : null;
 const chrome = await openChrome();
 try {
   const { send, evaluate } = chrome;
   const size = (h) => send("Emulation.setDeviceMetricsOverride", { width: +width, height: h, deviceScaleFactor: +scale, mobile: +width < 768 });
   await send("Page.enable");
   await size(+height);
-  await send("Page.navigate", { url });
+  if (process.env.COLOR_SCHEME) await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: process.env.COLOR_SCHEME }] });
+  await send("Page.navigate", { url: server ? server.url + url : url });
   await sleep(1200);
   if (full === "1") {
     const m = await send("Page.getLayoutMetrics");
@@ -49,4 +56,5 @@ try {
   }
 } finally {
   await chrome.close();
+  server?.close();
 }
