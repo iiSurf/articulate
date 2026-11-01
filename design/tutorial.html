@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articulate tutorial drafts</title>
+<!--
+  Rough drafts of the tutorial iiSurf picked on November 1 (PLAN.md, Must): the first visit teaches by doing, with
+  the learner's own first word, and the other screens each explain themselves once with a tip.
+  Self-contained on purpose: no fonts, scripts, or images from anywhere else. The phones use the look and parts
+  of design/themes.html (Sky over wheat, and Night flag for one).
+  The script draws everything. After changing it, run `node tools/bake.mjs design/tutorial.html` so the drawn
+  page is saved into this file too, for previews that don't run JavaScript.
+-->
+<style>
+  :root { --page: #E9E9E6; --page-ink: #1D1D1F; --page-muted: #55555A; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--page-ink);
+    font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+
+  .intro, .section-head { max-width: 1232px; margin: 0 auto; padding: 32px 24px 8px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 10px; }
+  .section-head h2 { font-size: 26px; line-height: 1.2; margin: 0 0 8px; }
+  .intro p, .section-head p { margin: 0 0 10px; max-width: 780px; color: var(--page-muted); }
+  .intro p b, .section-head p b { color: var(--page-ink); }
+
+  .grid { max-width: 1232px; margin: 0 auto; padding: 20px 24px 56px; display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(372px, 100%), 1fr)); gap: 48px 28px; }
+  .option { display: flex; flex-direction: column; align-items: center; }
+  .option-head, .watch { width: 100%; max-width: 360px; }
+  .option h3 { margin: 0; font-size: 22px; line-height: 1.2; display: flex; align-items: center; gap: 10px; }
+  .num { display: inline-grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%;
+    background: var(--page-ink); color: #fff; font-size: 17px; }
+  .from { margin: 8px 0 14px; color: var(--page-muted); font-size: 16px; min-height: 4.35em; }
+  .watch { margin: 14px 0 0; font-size: 16px; color: var(--page-muted); }
+  .watch b { color: var(--page-ink); }
+
+  /* The phone, as in design/themes.html */
+  .phone { width: 100%; max-width: 360px; border-radius: 36px; padding: 10px; background: #1B1B1D;
+    box-shadow: 0 18px 40px rgba(0,0,0,.18); }
+  .screen { border-radius: 27px; overflow: hidden; background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; min-height: 780px; }
+  .band { position: relative; background: var(--band); color: var(--band-ink); }
+  .band-top { position: relative; display: flex; align-items: center; gap: 10px; padding: 20px 16px 18px; min-height: 76px; }
+  .brand { font-weight: 800; font-size: 23px; letter-spacing: .2px; }
+  .back { font-weight: 800; font-size: 30px; line-height: 1; margin: -4px 0 0; }
+  .pair { font-weight: 800; font-size: 13px; letter-spacing: .06em;
+    background: var(--pair-bg); color: var(--pair-ink); border-radius: 999px; padding: 4px 9px; }
+  .help { margin-left: auto; flex: none; width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid var(--band-ink);
+    display: grid; place-items: center; font-weight: 900; font-size: 17px; }
+  .strip { display: block; width: 100%; }
+
+  .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .modes-label { font-size: 15px; font-weight: 800; color: var(--muted); margin: 0 0 -6px 2px; }
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;
+    background: var(--mode-bg); border-radius: 15px; }
+  .modes span { text-align: center; padding: 9px 2px; border-radius: 11px; font-weight: 800; font-size: 15px; color: var(--chip-ink); }
+  .modes .on { background: var(--mode-on); color: var(--mode-on-ink); }
+
+  .card { background: var(--surface); border-radius: 18px; padding: 14px 14px 16px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 6px 18px rgba(0,0,0,.07); }
+  .dark .card { box-shadow: none; }
+  .card p { margin: 6px 0 0; }
+  .label { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .sub { font-size: 14px; font-weight: 700; color: var(--muted); margin: 12px 0 6px; }
+  .hint { font-size: 15px; color: var(--muted); }
+
+  .word { display: flex; justify-content: center; gap: 5px; margin: 12px 0 0; }
+  .part { display: flex; flex-direction: column; align-items: center; gap: 7px; border-radius: 14px; padding: 2px; }
+  .part .l { font-size: 52px; font-weight: 800; line-height: 1; color: var(--g, var(--ink)); }
+  .part .m { width: 100%; min-width: 36px; height: 24px; border-radius: 12px; background: var(--gb, var(--chip-bg)); color: var(--gm);
+    display: grid; place-items: center; }
+  .part .m svg { width: 17px; height: 17px; }
+  .respell { text-align: center; font-weight: 800; color: var(--muted); letter-spacing: .05em; margin: 10px 0 0; }
+  .heard { margin: 10px 0 0; font-size: 16px; }
+  .heard b, .card b { color: var(--ink); }
+
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .btn { flex: 1; border-radius: 14px; padding: 12px 10px; font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 7px; text-align: center; }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.secondary { background: var(--chip-bg); color: var(--chip-ink); }
+  .btn.big { flex: none; padding: 16px; font-size: 18px; border-radius: 16px; }
+  .btn.off { opacity: .45; }
+  .uk { font-weight: 800; font-size: 18px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--chip-bg); color: var(--chip-ink); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 15px; }
+
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); padding: 9px 6px 13px; }
+  .tabs span { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 800; color: var(--muted); }
+  .tabs .on { color: var(--tab-on); }
+  .tabs svg { width: 24px; height: 24px; }
+  .aa { font-size: 19px; line-height: 24px; font-weight: 900; }
+
+  /* The grades */
+  .good { --g: var(--good); --gb: var(--good-bar); --gm: var(--good-mark); }
+  .close { --g: var(--close); --gb: var(--close-bar); --gm: var(--close-mark); }
+  .off { --g: var(--off); --gb: var(--off-bar); --gm: var(--off-mark); }
+  .work { --g: var(--work); --gb: var(--work-bar); --gm: var(--work-mark); }
+
+  /* The tutorial's own parts */
+  .ring { box-shadow: 0 0 0 3px var(--surface), 0 0 0 7px var(--ring); }
+  .part.ring { margin: 0 7px; }
+  .coach { margin-top: auto; background: var(--coach-bg); color: var(--coach-ink); border-radius: 18px; padding: 14px 16px; }
+  .coach .step { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--coach-step); }
+  .dots { display: flex; gap: 5px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; opacity: .3; }
+  .dots i.on { opacity: 1; }
+  .coach p { margin: 8px 0 10px; font-size: 16px; line-height: 1.4; font-weight: 600; }
+  .coach b { color: inherit; font-weight: 900; }
+  .coach .coach-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .coach .skip { font-size: 14px; font-weight: 800; opacity: .85; text-decoration: underline; }
+  .coach .btn { flex: none; padding: 10px 18px; }
+  .coach h4 { margin: 8px 0 4px; font-size: 22px; }
+  .coach ul { list-style: none; padding: 0; margin: 6px 0 12px; display: flex; flex-direction: column; gap: 6px; font-weight: 700; }
+  .keys { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 8px 0 2px; font-size: 14px; font-weight: 800; }
+  .keys span { display: flex; align-items: center; gap: 5px; }
+  .keys i { width: 30px; height: 18px; border-radius: 9px; background: var(--gb); color: var(--gm); display: grid; place-items: center; }
+  .keys svg { width: 12px; height: 12px; }
+
+  .greet { font-size: 46px; font-weight: 900; line-height: 1.05; margin: 22px 4px 0; color: var(--band); }
+  .dark .greet { color: var(--accent); }
+  .welcome h3 { font-size: 23px; margin: 2px 4px 4px; }
+  .bullets { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 10px; }
+  .bullets li { display: flex; gap: 10px; align-items: flex-start; font-weight: 700; }
+  .ok { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--good-bar); color: #fff; display: grid; place-items: center; }
+  .ok svg { width: 15px; height: 15px; }
+  .linkish { text-align: center; font-weight: 800; color: var(--chip-ink); text-decoration: underline; font-size: 15px; }
+
+  .inrow { display: flex; gap: 8px; margin-top: 12px; }
+  .field { flex: 1; min-width: 0; border: 2px solid var(--ring); background: var(--surface); border-radius: 14px; padding: 10px 14px;
+    font-weight: 700; display: flex; align-items: center; }
+  .caret { width: 2px; height: 20px; background: var(--ink); margin-left: 1px; }
+  .inrow .btn { flex: none; padding: 12px 18px; }
+
+  .progress { height: 12px; border-radius: 6px; background: var(--chip-bg); overflow: hidden; margin: 12px 0 8px; }
+  .progress i { display: block; height: 100%; background: var(--tab-on); }
+
+  .tries { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .try { display: flex; align-items: center; gap: 6px; background: var(--chip-bg); color: var(--chip-ink); border-radius: 999px; padding: 5px 6px 5px 12px; font-weight: 700; font-size: 15px; }
+  .try i { width: 30px; height: 22px; border-radius: 11px; background: var(--gb, var(--surface)); color: var(--gm, var(--chip-ink)); display: grid; place-items: center; }
+  .try svg { width: 13px; height: 13px; }
+
+  .tipcard { background: var(--surface); border: 3px solid var(--ring); border-radius: 18px; padding: 12px 14px 14px; }
+  .tipcard .t { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ring); }
+  .tipcard p { margin: 4px 0 10px; font-size: 16px; }
+  .tipcard b { color: var(--ink); }
+  .got { display: inline-block; background: var(--ring); color: var(--surface); border-radius: 12px; padding: 8px 16px; font-weight: 800; font-size: 15px; }
+
+  .syll { display: flex; justify-content: center; gap: 6px; margin: 14px 0 6px; }
+  .syll span { background: var(--chip-bg); color: var(--chip-ink); border-radius: 12px; padding: 12px; font-size: 24px; font-weight: 800; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .choices span { background: var(--chip-bg); color: var(--chip-ink); border-radius: 16px; padding: 18px 8px; text-align: center; font-size: 24px; font-weight: 800; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; margin-top: 10px; }
+  .tile { border-radius: 14px; overflow: hidden; background: var(--chip-bg); }
+  .tile.on { outline: 3px solid var(--tab-on); outline-offset: 2px; }
+  .tile .mini { height: 44px; background: var(--tb); color: var(--ti); display: flex; align-items: center; padding: 0 10px; font-weight: 900; font-size: 18px;
+    border-bottom: 5px solid var(--ts, transparent); }
+  .tile .name { padding: 7px 10px 9px; font-weight: 800; font-size: 14px; color: var(--chip-ink); }
+
+  .foot { max-width: 1232px; margin: 0 auto; padding: 0 24px 48px; color: var(--page-muted); }
+  .foot p { max-width: 780px; margin: 0 0 8px; }
+
+  @media (max-width: 520px) {
+    .intro, .section-head { padding: 24px 16px 4px; }
+    h1 { font-size: 26px; }
+    .grid { padding: 16px 16px 48px; }
+    .foot { padding: 0 16px 40px; }
+    .from { min-height: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>Articulate: the first visit</h1>
+  <p>Rough drafts of the tutorial you picked. <b>The first visit teaches by doing:</b> your friend practices their own first word, one step at a time, and finishes having done it, not just read about it. After that, <b>each other screen explains itself once</b>, with a tip the first time it opens.</p>
+  <p>The card at the bottom of each step says what to do next, and a ring shows where to tap. <b>Skip the tour</b> is always there. The phones use the Sky over wheat look, and one uses Night flag. Tell me what to change by number.</p>
+</header>
+
+<section class="section-head">
+  <h2>The first visit: five steps with your own word</h2>
+  <p>Add a word, hear it, say it, fix the part that isn't green, and say it again.</p>
+</section>
+<main class="grid" id="visit"><article class="option">
+      <div class="option-head"><h3><span class="num">1</span>Welcome</h3><p class="from">The first time Articulate opens: a Ukrainian hello, what the app is for, and one button to start. Skip goes straight to the app.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      </div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body welcome">
+          <div class="greet" lang="uk">Привіт!</div>
+          <h3>Welcome to Articulate.</h3>
+          <div class="card"><p style="margin:0">Let's practice your first word together. It takes about a minute.</p>
+            <ul class="bullets">
+              <li><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>Practice the words you use every day.</li>
+              <li><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>Practice anywhere, even on the bus.</li>
+              <li><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>Your voice stays on this phone.</li>
+            </ul></div>
+          <span class="btn primary big ring" style="margin-top:auto">Let's start</span>
+          <div class="linkish">Skip. I'll look around on my own.</div>
+        </div></div></div>
+      
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">2</span>Step 1: add a word</h3><p class="from">They type their own first word. The card at the bottom says what to do, and the ring shows where to tap.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="card"><div class="label">My words</div>
+            <p class="hint">You haven't added any words yet.</p>
+            <div class="inrow"><span class="field">weather<i class="caret"></i></span><span class="btn primary ring">Add</span></div>
+            <div class="sub">Not sure? Start with one of these:</div>
+            <div class="chips"><span class="chip">three</span><span class="chip">world</span><span class="chip">very</span><span class="chip">thirty</span></div>
+          </div>
+          <div class="coach" aria-live="polite">
+      <div class="step"><span>Step 1 of 5</span><span class="dots"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div>
+      <p>Type a word you use often, or one people sometimes ask you to repeat. Then tap <b>Add</b>.</p>
+      <div class="coach-foot"><span class="skip">Skip the tour</span></div></div>
+        </div><nav class="tabs">
+      <span class="on"><span class="aa">Aa</span>Words</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">3</span>Step 2: hear it</h3><p class="from">The app says the word, at normal speed and slowly. The sounds wait in gray until they are said.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="card"><div class="label">Your word</div>
+            <div class="word" aria-label="weather"><span class="part "><span class="l">w</span><span class="m"></span></span><span class="part "><span class="l">ea</span><span class="m"></span></span><span class="part "><span class="l">th</span><span class="m"></span></span><span class="part "><span class="l">er</span><span class="m"></span></span></div>
+            <div class="respell">WEH · thur</div>
+            <div class="row"><span class="btn secondary ring"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><circle cx="18" cy="12" r="2.2" fill="currentColor"></circle></svg>Slowly</span></div>
+          </div>
+          <div class="coach" aria-live="polite">
+      <div class="step"><span>Step 2 of 5</span><span class="dots"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span></div>
+      <p>Tap <b>Hear it</b> to listen to the word. Tap <b>Slowly</b> to hear each sound.</p>
+      <div class="coach-foot"><span class="skip">Skip the tour</span></div></div>
+        </div><nav class="tabs">
+      <span class="on"><span class="aa">Aa</span>Words</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">4</span>Step 3: the one-time download</h3><p class="from">Before the first try, the sound model downloads, only once. They can keep listening while it does.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="modes-label">Right now I can…</div>
+      <div class="modes"><span class="">Read</span><span class="">Listen</span><span class="on">Speak</span></div>
+          <div class="card"><div class="label">Before your first try</div>
+            <p>To check your sounds, Articulate needs its sound model. It downloads once (355 MB). Wi-Fi is best.</p>
+            <div class="progress"><i style="width:42%"></i></div>
+            <p class="hint" style="margin:0">Downloading: 42%. You can keep listening while you wait.</p>
+          </div>
+          <span class="btn primary big off"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Record</span>
+          <div class="coach" aria-live="polite">
+      <div class="step"><span>Step 3 of 5</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></div>
+      <p>This download happens only once. When it's done, tap <b>Record</b> and say “weather”.</p>
+      <div class="coach-foot"><span class="skip">Skip the tour</span></div></div>
+        </div><nav class="tabs">
+      <span class=""><span class="aa">Aa</span>Words</span>
+      <span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      <p class="watch"><b>Watch for:</b> 355 MB is a lot on mobile data, so the app should say so when the phone isn't on Wi-Fi, and offer to wait.</p>
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">5</span>Step 3: say it</h3><p class="from">After they say it, each part of the word gets its color, and the card explains the four colors.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="modes-label">Right now I can…</div>
+      <div class="modes"><span class="">Read</span><span class="">Listen</span><span class="on">Speak</span></div>
+          <div class="card"><div class="label">Your try</div>
+            <div class="word" aria-label="weather"><span class="part off"><span class="l">w</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part good"><span class="l">ea</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part work ring"><span class="l">th</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part close"><span class="l">er</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span></div>
+            <div class="respell">WEH · thur</div>
+            <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          </div>
+          <div class="coach" aria-live="polite">
+      <div class="step"><span>Step 3 of 5</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></div>
+      <p>Here's how it went. Each part of the word gets a color:</p><div class="keys"><span class="good"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></i>good</span><span class="close"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></i>close</span><span class="off"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></i>a little off</span><span class="work"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></i>needs work</span></div>Tap the red part to practice just that sound.<p></p>
+      <div class="coach-foot"><span class="skip">Skip the tour</span></div></div>
+        </div><nav class="tabs">
+      <span class=""><span class="aa">Aa</span>Words</span>
+      <span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">6</span>Step 4: fix the red part</h3><p class="from">Tapping the red th opens practice for just that sound: a tip that starts from a Ukrainian sound, then words with th in the same spot.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      <span class="back" aria-hidden="true">‹</span>
+      <span class="brand">Fix the th</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="card"><div class="label">How to say it</div>
+            <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+            <div class="row"><span class="btn secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><circle cx="18" cy="12" r="2.2" fill="currentColor"></circle></svg>Hear the th slowly</span></div>
+          </div>
+          <div class="card"><div class="label">Same sound, same spot</div>
+            <div class="tries"><span class="try good">feather<i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></i></span><span class="try close">leather<i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></i></span><span class="try ">together<i><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></i></span></div>
+          </div>
+          <span class="btn primary big ring">Back to “weather”</span>
+          <div class="coach" aria-live="polite">
+      <div class="step"><span>Step 4 of 5</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+      <p>Practice just the <b>th</b> with words that have it in the same spot. When it feels easier, go back to your word.</p>
+      <div class="coach-foot"><span class="skip">Skip the tour</span></div></div>
+        </div><nav class="tabs">
+      <span class=""><span class="aa">Aa</span>Words</span>
+      <span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">7</span>Step 5: say it again</h3><p class="from">Back to the word. The th got better, and the tour ends by showing the three ways to practice.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="modes-label">Right now I can…</div>
+      <div class="modes"><span class="">Read</span><span class="">Listen</span><span class="on">Speak</span></div>
+          <div class="card"><div class="label">Your second try</div>
+            <div class="word" aria-label="weather"><span class="part off"><span class="l">w</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></span></span><span class="part good"><span class="l">ea</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span class="part close"><span class="l">th</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></span><span class="part good"><span class="l">er</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span></div>
+            <p class="heard"><b>Better!</b> The <b>th</b> went from red to yellow.</p>
+          </div>
+          <div class="coach" aria-live="polite">
+            <div class="step"><span>Step 5 of 5</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+            <h4>You did it!</h4>
+            <p style="margin:0">You practiced your first word. Next time, choose how you want to practice:</p>
+            <ul><li>Read: no sound, for anywhere</li><li>Listen: with headphones</li><li>Speak: out loud, with colors</li></ul>
+            <div class="coach-foot"><span></span><span class="btn primary">Done</span></div>
+          </div>
+        </div><nav class="tabs">
+      <span class=""><span class="aa">Aa</span>Words</span>
+      <span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article></main>
+
+<section class="section-head">
+  <h2>After the first visit: one tip per screen, and the tour again</h2>
+  <p>The first time each screen opens, one tip explains it. It never shows again, but the <b>?</b> at the top of every screen brings it back.</p>
+</section>
+<main class="grid" id="tips"><article class="option">
+      <div class="option-head"><h3><span class="num">8</span>Tip: Read</h3><p class="from">The first time they open Read, one tip explains it. After Got it, it doesn't show again.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="modes-label">Right now I can…</div>
+      <div class="modes"><span class="on">Read</span><span class="">Listen</span><span class="">Speak</span></div>
+          <div class="tipcard" role="note"><div class="t">Tip · Read</div><p><b>Read</b> is practice with no sound, for anywhere. Tap the part of the word that's said the strongest.</p><span class="got">Got it</span></div>
+          <div class="card"><div class="label">Which part is strongest?</div>
+            <div class="syll"><span>pho</span><span>tog</span><span>ra</span><span>phy</span></div>
+            <p class="hint" style="text-align:center">photography</p>
+          </div>
+        </div><nav class="tabs">
+      <span class=""><span class="aa">Aa</span>Words</span>
+      <span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">9</span>Tip: Listen, at night</h3><p class="from">The same kind of tip, in the Night flag look.</p></div>
+      <div class="phone dark"><div class="screen" style="--bg:#0B1526;--surface:#14233B;--ink:#EAF1FB;--muted:#A9B9D0;--band:#0B1526;--band-ink:#EAF1FB;--accent:#FFD500;--accent-ink:#0B1526;--chip-bg:#1D3152;--chip-ink:#FFE36B;--mode-bg:#14233B;--mode-on:#FFD500;--mode-on-ink:#0B1526;--tab-on:#FFD500;--pair-bg:#1D3152;--pair-ink:#FFE36B;--coach-bg:#FFD500;--coach-ink:#0B1526;--coach-step:#0B1526;--ring:#FFD500;--good:#74E08F;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#FFD95A;--close-bar:#F2C200;--close-mark:#2B2100;--off:#FFA061;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#FF7D7D;--work-bar:#E5484D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      
+      <span class="brand">Articulate</span><span class="pair">UA → EN</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"></stop><stop offset="1" stop-color="#FFD500" stop-opacity=".35"></stop></linearGradient></defs><rect width="360" height="10" fill="url(#glow)"></rect><rect y="10" width="360" height="4" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="modes-label">Right now I can…</div>
+      <div class="modes"><span class="">Read</span><span class="on">Listen</span><span class="">Speak</span></div>
+          <div class="tipcard" role="note"><div class="t">Tip · Listen</div><p><b>Listen</b> works best with headphones. Hear a word, then tap the one you heard.</p><span class="got">Got it</span></div>
+          <div class="card"><div class="label">Which word did you hear?</div>
+            <div class="row"><span class="btn primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Play it again</span></div>
+            <div class="choices"><span>sheep</span><span>ship</span></div>
+          </div>
+        </div><nav class="tabs">
+      <span class=""><span class="aa">Aa</span>Words</span>
+      <span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article><article class="option">
+      <div class="option-head"><h3><span class="num">10</span>Tip: Your colors, and the tour again</h3><p class="from">Your colors explains itself once. It also has Show me around again, which runs the five steps with a new word.</p></div>
+      <div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--coach-bg:#0E1E36;--coach-ink:#FFFFFF;--coach-step:#FFD500;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top">
+      <span class="back" aria-hidden="true">‹</span>
+      <span class="brand">Your colors</span>
+      <span class="help" aria-hidden="true">?</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div>
+        <div class="body">
+          <div class="tipcard" role="note"><div class="t">Tip · Your colors</div><p>Pick a look for the day and one for night. Articulate switches when your phone goes dark.</p><span class="got">Got it</span></div>
+          <div class="card"><div class="label">Day look</div>
+            <div class="tiles"><div class="tile on" style="--tb:#0057B7;--ti:#FFFFFF;--ts:#FFD500"><div class="mini">Aa</div><div class="name">Sky over wheat</div></div><div class="tile" style="--tb:#F8F4EC;--ti:#1B1B1B;--ts:#C8102E"><div class="mini">Aa</div><div class="name">Vyshyvanka</div></div></div>
+          </div>
+          <div class="card"><div class="label">Help</div>
+            <div class="row"><span class="btn secondary ring">Show me around again</span></div>
+            <p class="hint">Practice one word with the steps again.</p>
+          </div>
+        </div><nav class="tabs">
+      <span class=""><span class="aa">Aa</span>Words</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span>
+      <span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div>
+      
+    </article></main>
+
+<footer class="foot">
+  <p><b>Not in these drafts yet:</b> the moving parts. In the app, the ring around the next thing to tap pulses gently, and stays still when motion is turned off. Screen readers read the step card aloud. If the app is closed in the middle of the tour, it picks up from the same step next time.</p>
+</footer>
+
+<script>
+  const GRADES = {
+    light: { good: ["#1B7A35", "#23843F", "#FFFFFF"], close: ["#8A6A00", "#F2C200", "#2B2100"], off: ["#C2410C", "#F07A1E", "#2B1300"], work: ["#B42318", "#D92D2D", "#FFFFFF"] },
+    dark: { good: ["#74E08F", "#23843F", "#FFFFFF"], close: ["#FFD95A", "#F2C200", "#2B2100"], off: ["#FFA061", "#F07A1E", "#2B1300"], work: ["#FF7D7D", "#E5484D", "#FFFFFF"] },
+  };
+  const MARKS = {
+    good: '<path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+    close: '<path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+    off: '<path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/><circle cx="12" cy="19" r="2.1" fill="currentColor"/>',
+    work: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>',
+  };
+  const NAMES = { good: "good", close: "close", off: "a little off", work: "needs work" };
+  const mark = (g) => `<svg viewBox="0 0 24 24" aria-hidden="true">${MARKS[g]}</svg>`;
+  const ICONS = {
+    speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    slow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><circle cx="18" cy="12" r="2.2" fill="currentColor"/></svg>',
+    mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    bars: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"/><rect x="16" y="3" width="4.5" height="18" rx="1.6"/></svg>',
+  };
+
+  // Two of the seven looks (design/themes.html), plus the colors the tutorial adds: its card and its ring.
+  const SKY = {
+    c: { bg: "#F3F6FB", surface: "#FFFFFF", ink: "#0E1E36", muted: "#4A5A73", band: "#0057B7", "band-ink": "#FFFFFF",
+      accent: "#FFD500", "accent-ink": "#0E1E36", "chip-bg": "#E3ECF8", "chip-ink": "#0B3D80", "mode-bg": "#E3ECF8", "mode-on": "#0057B7",
+      "mode-on-ink": "#FFFFFF", "tab-on": "#0057B7", "pair-bg": "#FFD500", "pair-ink": "#0E1E36",
+      "coach-bg": "#0E1E36", "coach-ink": "#FFFFFF", "coach-step": "#FFD500", ring: "#0057B7" },
+    strip: '<svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"/></svg>',
+  };
+  const NIGHT = {
+    dark: true,
+    c: { bg: "#0B1526", surface: "#14233B", ink: "#EAF1FB", muted: "#A9B9D0", band: "#0B1526", "band-ink": "#EAF1FB",
+      accent: "#FFD500", "accent-ink": "#0B1526", "chip-bg": "#1D3152", "chip-ink": "#FFE36B", "mode-bg": "#14233B", "mode-on": "#FFD500",
+      "mode-on-ink": "#0B1526", "tab-on": "#FFD500", "pair-bg": "#1D3152", "pair-ink": "#FFE36B",
+      "coach-bg": "#FFD500", "coach-ink": "#0B1526", "coach-step": "#0B1526", ring: "#FFD500" },
+    strip: '<svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"/><stop offset="1" stop-color="#FFD500" stop-opacity=".35"/></linearGradient></defs><rect width="360" height="10" fill="url(#glow)"/><rect y="10" width="360" height="4" fill="#FFD500"/></svg>',
+  };
+  const vars = (t) => [...Object.entries(t.c),
+    ...Object.entries(GRADES[t.dark ? "dark" : "light"]).flatMap(([k, [text, bar, m]]) => [[k, text], [`${k}-bar`, bar], [`${k}-mark`, m]])]
+    .map(([k, v]) => `--${k}:${v}`).join(";");
+
+  // Pieces of a screen
+  const band = (t, { title = "", back = false, help = true } = {}) => `<div class="band"><div class="band-top">
+      ${back ? '<span class="back" aria-hidden="true">‹</span>' : ""}
+      ${title ? `<span class="brand">${title}</span>` : '<span class="brand">Articulate</span><span class="pair">UA → EN</span>'}
+      ${help ? '<span class="help" aria-hidden="true">?</span>' : ""}</div>${t.strip}</div>`;
+  const tabs = (on) => `<nav class="tabs">
+      <span class="${on === "words" ? "on" : ""}"><span class="aa">Aa</span>Words</span>
+      <span class="${on === "practice" ? "on" : ""}">${ICONS.mic}Practice</span>
+      <span class="${on === "progress" ? "on" : ""}">${ICONS.bars}Progress</span></nav>`;
+  const modes = (on) => `<div class="modes-label">Right now I can…</div>
+      <div class="modes">${["Read", "Listen", "Speak"].map((m) => `<span class="${m === on ? "on" : ""}">${m}</span>`).join("")}</div>`;
+  // The word, sound by sound. grades: one per part, or null before it has been said.
+  const word = (parts, ringAt = -1) => `<div class="word" aria-label="weather">${parts.map(([letters, g], i) =>
+      `<span class="part ${g || ""}${i === ringAt ? " ring" : ""}"><span class="l">${letters}</span><span class="m">${g ? mark(g) : ""}</span></span>`).join("")}</div>`;
+  const coach = (step, text, { button = "" } = {}) => `<div class="coach" aria-live="polite">
+      <div class="step"><span>Step ${step} of 5</span><span class="dots">${[1, 2, 3, 4, 5].map((i) => `<i class="${i <= step ? "on" : ""}"></i>`).join("")}</span></div>
+      <p>${text}</p>
+      <div class="coach-foot"><span class="skip">Skip the tour</span>${button ? `<span class="btn primary">${button}</span>` : ""}</div></div>`;
+  const keys = () => `<div class="keys">${Object.entries(NAMES).map(([g, n]) => `<span class="${g}"><i>${mark(g)}</i>${n}</span>`).join("")}</div>`;
+  const tip = (title, text) => `<div class="tipcard" role="note"><div class="t">Tip · ${title}</div><p>${text}</p><span class="got">Got it</span></div>`;
+  const tryChip = (w, g) => `<span class="try ${g || ""}">${w}<i>${g ? mark(g) : ICONS.mic}</i></span>`;
+  const phone = (t, inside) => `<div class="phone${t.dark ? " dark" : ""}"><div class="screen" style="${vars(t)}">${inside}</div></div>`;
+
+  const SAID = [["w", "off"], ["ea", "good"], ["th", "work"], ["er", "close"]];
+  const AGAIN = [["w", "off"], ["ea", "good"], ["th", "close"], ["er", "good"]];
+
+  const VISIT = [
+    {
+      title: "Welcome",
+      what: "The first time Articulate opens: a Ukrainian hello, what the app is for, and one button to start. Skip goes straight to the app.",
+      draw: () => phone(SKY, `${band(SKY, { help: false })}
+        <div class="body welcome">
+          <div class="greet" lang="uk">Привіт!</div>
+          <h3>Welcome to Articulate.</h3>
+          <div class="card"><p style="margin:0">Let's practice your first word together. It takes about a minute.</p>
+            <ul class="bullets">
+              <li><span class="ok">${mark("good")}</span>Practice the words you use every day.</li>
+              <li><span class="ok">${mark("good")}</span>Practice anywhere, even on the bus.</li>
+              <li><span class="ok">${mark("good")}</span>Your voice stays on this phone.</li>
+            </ul></div>
+          <span class="btn primary big ring" style="margin-top:auto">Let's start</span>
+          <div class="linkish">Skip. I'll look around on my own.</div>
+        </div>`),
+    },
+    {
+      title: "Step 1: add a word",
+      what: "They type their own first word. The card at the bottom says what to do, and the ring shows where to tap.",
+      draw: () => phone(SKY, `${band(SKY)}
+        <div class="body">
+          <div class="card"><div class="label">My words</div>
+            <p class="hint">You haven't added any words yet.</p>
+            <div class="inrow"><span class="field">weather<i class="caret"></i></span><span class="btn primary ring">Add</span></div>
+            <div class="sub">Not sure? Start with one of these:</div>
+            <div class="chips"><span class="chip">three</span><span class="chip">world</span><span class="chip">very</span><span class="chip">thirty</span></div>
+          </div>
+          ${coach(1, "Type a word you use often, or one people sometimes ask you to repeat. Then tap <b>Add</b>.")}
+        </div>${tabs("words")}`),
+    },
+    {
+      title: "Step 2: hear it",
+      what: "The app says the word, at normal speed and slowly. The sounds wait in gray until they are said.",
+      draw: () => phone(SKY, `${band(SKY)}
+        <div class="body">
+          <div class="card"><div class="label">Your word</div>
+            ${word(SAID.map(([l]) => [l, null]))}
+            <div class="respell">WEH · thur</div>
+            <div class="row"><span class="btn secondary ring">${ICONS.speaker}Hear it</span><span class="btn secondary">${ICONS.slow}Slowly</span></div>
+          </div>
+          ${coach(2, "Tap <b>Hear it</b> to listen to the word. Tap <b>Slowly</b> to hear each sound.")}
+        </div>${tabs("words")}`),
+    },
+    {
+      title: "Step 3: the one-time download",
+      what: "Before the first try, the sound model downloads, only once. They can keep listening while it does.",
+      watch: "<b>Watch for:</b> 355 MB is a lot on mobile data, so the app should say so when the phone isn't on Wi-Fi, and offer to wait.",
+      draw: () => phone(SKY, `${band(SKY)}
+        <div class="body">
+          ${modes("Speak")}
+          <div class="card"><div class="label">Before your first try</div>
+            <p>To check your sounds, Articulate needs its sound model. It downloads once (355 MB). Wi-Fi is best.</p>
+            <div class="progress"><i style="width:42%"></i></div>
+            <p class="hint" style="margin:0">Downloading: 42%. You can keep listening while you wait.</p>
+          </div>
+          <span class="btn primary big off">${ICONS.mic}Record</span>
+          ${coach(3, "This download happens only once. When it's done, tap <b>Record</b> and say “weather”.")}
+        </div>${tabs("practice")}`),
+    },
+    {
+      title: "Step 3: say it",
+      what: "After they say it, each part of the word gets its color, and the card explains the four colors.",
+      draw: () => phone(SKY, `${band(SKY)}
+        <div class="body">
+          ${modes("Speak")}
+          <div class="card"><div class="label">Your try</div>
+            ${word(SAID, 2)}
+            <div class="respell">WEH · thur</div>
+            <p class="heard">The <b>th</b> sounded like a <b>d</b>, and the <b>w</b> leaned toward a <b>v</b>.</p>
+          </div>
+          ${coach(3, `Here's how it went. Each part of the word gets a color:${keys()}Tap the red part to practice just that sound.`)}
+        </div>${tabs("practice")}`),
+    },
+    {
+      title: "Step 4: fix the red part",
+      what: "Tapping the red th opens practice for just that sound: a tip that starts from a Ukrainian sound, then words with th in the same spot.",
+      draw: () => phone(SKY, `${band(SKY, { title: "Fix the th", back: true })}
+        <div class="body">
+          <div class="card"><div class="label">How to say it</div>
+            <p>Say the <span class="uk" lang="uk">з</span> in <span class="uk" lang="uk">зуб</span>, then slide your tongue forward until it touches your top teeth. Keep the buzz going.</p>
+            <div class="row"><span class="btn secondary">${ICONS.slow}Hear the th slowly</span></div>
+          </div>
+          <div class="card"><div class="label">Same sound, same spot</div>
+            <div class="tries">${tryChip("feather", "good")}${tryChip("leather", "close")}${tryChip("together", null)}</div>
+          </div>
+          <span class="btn primary big ring">Back to “weather”</span>
+          ${coach(4, "Practice just the <b>th</b> with words that have it in the same spot. When it feels easier, go back to your word.")}
+        </div>${tabs("practice")}`),
+    },
+    {
+      title: "Step 5: say it again",
+      what: "Back to the word. The th got better, and the tour ends by showing the three ways to practice.",
+      draw: () => phone(SKY, `${band(SKY)}
+        <div class="body">
+          ${modes("Speak")}
+          <div class="card"><div class="label">Your second try</div>
+            ${word(AGAIN)}
+            <p class="heard"><b>Better!</b> The <b>th</b> went from red to yellow.</p>
+          </div>
+          <div class="coach" aria-live="polite">
+            <div class="step"><span>Step 5 of 5</span><span class="dots">${"<i class=\"on\"></i>".repeat(5)}</span></div>
+            <h4>You did it!</h4>
+            <p style="margin:0">You practiced your first word. Next time, choose how you want to practice:</p>
+            <ul><li>Read: no sound, for anywhere</li><li>Listen: with headphones</li><li>Speak: out loud, with colors</li></ul>
+            <div class="coach-foot"><span></span><span class="btn primary">Done</span></div>
+          </div>
+        </div>${tabs("practice")}`),
+    },
+  ];
+
+  const TIPS = [
+    {
+      title: "Tip: Read",
+      what: "The first time they open Read, one tip explains it. After Got it, it doesn't show again.",
+      draw: () => phone(SKY, `${band(SKY)}
+        <div class="body">
+          ${modes("Read")}
+          ${tip("Read", "<b>Read</b> is practice with no sound, for anywhere. Tap the part of the word that's said the strongest.")}
+          <div class="card"><div class="label">Which part is strongest?</div>
+            <div class="syll"><span>pho</span><span>tog</span><span>ra</span><span>phy</span></div>
+            <p class="hint" style="text-align:center">photography</p>
+          </div>
+        </div>${tabs("practice")}`),
+    },
+    {
+      title: "Tip: Listen, at night",
+      what: "The same kind of tip, in the Night flag look.",
+      draw: () => phone(NIGHT, `${band(NIGHT)}
+        <div class="body">
+          ${modes("Listen")}
+          ${tip("Listen", "<b>Listen</b> works best with headphones. Hear a word, then tap the one you heard.")}
+          <div class="card"><div class="label">Which word did you hear?</div>
+            <div class="row"><span class="btn primary">${ICONS.speaker}Play it again</span></div>
+            <div class="choices"><span>sheep</span><span>ship</span></div>
+          </div>
+        </div>${tabs("practice")}`),
+    },
+    {
+      title: "Tip: Your colors, and the tour again",
+      what: "Your colors explains itself once. It also has Show me around again, which runs the five steps with a new word.",
+      draw: () => {
+        const tile = (name, band, ink, stripe, on) => `<div class="tile${on ? " on" : ""}" style="--tb:${band};--ti:${ink};--ts:${stripe}"><div class="mini">Aa</div><div class="name">${name}</div></div>`;
+        return phone(SKY, `${band(SKY, { title: "Your colors", back: true })}
+        <div class="body">
+          ${tip("Your colors", "Pick a look for the day and one for night. Articulate switches when your phone goes dark.")}
+          <div class="card"><div class="label">Day look</div>
+            <div class="tiles">${tile("Sky over wheat", "#0057B7", "#FFFFFF", "#FFD500", true)}${tile("Vyshyvanka", "#F8F4EC", "#1B1B1B", "#C8102E", false)}</div>
+          </div>
+          <div class="card"><div class="label">Help</div>
+            <div class="row"><span class="btn secondary ring">Show me around again</span></div>
+            <p class="hint">Practice one word with the steps again.</p>
+          </div>
+        </div>${tabs("")}`);
+      },
+    },
+  ];
+
+  const draw = (list, start) => list.map((s, i) => `<article class="option">
+      <div class="option-head"><h3><span class="num">${start + i}</span>${s.title}</h3><p class="from">${s.what}</p></div>
+      ${s.draw()}
+      ${s.watch ? `<p class="watch">${s.watch}</p>` : ""}
+    </article>`).join("");
+  document.getElementById("visit").innerHTML = draw(VISIT, 1);
+  document.getElementById("tips").innerHTML = draw(TIPS, VISIT.length + 1);
+</script>
+</body></html>

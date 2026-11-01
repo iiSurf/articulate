@@ -54,6 +54,7 @@ npm start
 - [docs/scoring-test.md](docs/scoring-test.md): whether a free speech model can color each sound of a word right, and how fast. The method, the results, and what is still unproven.
 - [CLAUDE.md](CLAUDE.md): the rules every Claude Code agent on this repository follows.
 - [LOG.md](LOG.md): iiSurf's log. The teammate keeps their own log next to it, `LOG-<their GitHub name>.md`. Together they are the record of what we planned and what changed.
+- [design/tutorial.html](design/tutorial.html): drafts of the first visit. Ten phones: a welcome, the five steps with your own first word, and the one-time tips on the other screens.
 - [design/themes.html](design/themes.html): drafts of the look. It shows the seven Ukrainian color themes picked from ten, and Your colors, the screen for choosing a look for the day and one for night.
 - [data/words/](data/words/): the CMU Pronouncing Dictionary (BSD license, kept with it), where every word's sounds come from.
 - [vendor/onnxruntime-web/](vendor/onnxruntime-web/): the engine that runs the sound model in the browser (Microsoft, MIT license). It is copied from npm and committed, so the app works on GitHub Pages without npm.

@@ -60,7 +60,7 @@ How it colors: a free speech model that recognizes English sounds runs in the br
   4. tap the part that isn't green and practice it,
   5. say the word again.
 
-  After that, the first time each other screen opens (Read, Listen, Your colors), a one-line tip explains it once. Each screen also has a "?" button for more. There's always a Skip, and Your colors has "Show me around again". It is drawn as drafts first, and built once the screens exist.
+  After that, the first time each other screen opens (Read, Listen, Your colors), a one-line tip explains it once. Each screen also has a "?" button for more. There's always a Skip, and Your colors has "Show me around again". The drafts are in [design/tutorial.html](design/tutorial.html), and it gets built once the screens exist.
 - The seven Ukraine looks and Your colors: Sky over wheat, Vyshyvanka, Pysanka, Sunflower field, and Kalyna for the day, and Petrykivka and Night flag for night. It starts with Sky over wheat and Night flag. The four grade colors stay the same in every look.
 
 **Stretch:**

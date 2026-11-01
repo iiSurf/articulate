@@ -408,3 +408,38 @@ iiSurf picked 1.
 
 - No "Quiet", "Headphones", or "Out loud" left in the drafts, and in the docs only where they say what was asked or replaced.
 - The drafts at 390 and 1280 wide, in a light look (Sky over wheat) and a dark one (Night flag).
+
+## 2026-11-01 (Sunday, evening): tutorial drafts
+
+### Plan
+
+Draw the tutorial iiSurf picked: the first visit teaches by doing with the learner's own word, plus a one-time tip on each other screen. Draw it before building it, the same way the looks were picked.
+
+### Changed
+
+- New: `design/tutorial.html`, ten phones in the Sky over wheat look (one in Night flag), baked so it shows without JavaScript.
+  - **Welcome:** "Привіт! Welcome to Articulate.", three short promises, Let's start, and a skip.
+  - **Step 1:** add your own word.
+  - **Step 2:** hear it, at normal speed and slowly.
+  - **Step 3:** the one-time download of the sound model, with a note to warn on mobile data. Then say it, and the colors are explained.
+  - **Step 4:** fix the red part: the tip from з in зуб, then words with th in the same spot.
+  - **Step 5:** say it again ("Better! The th went from red to yellow."). The tour ends with Read, Listen, and Speak explained.
+  - **Tips:** Read, Listen (in Night flag), and Your colors, with "Show me around again".
+- The tour's own parts:
+  - a step card at the bottom, with "Step 2 of 5", five dots, one sentence, and Skip the tour;
+  - a ring around the next thing to tap;
+  - a "?" on every screen;
+  - tip cards with Got it.
+- `PLAN.md` and `README.md` link to the drafts.
+
+### Verified
+
+- At 360, 390, and 1280 wide: nothing scrolls sideways, and no word is wider than its card.
+- Fixed after the first look:
+  - The step card's footer shared a style name with the page's footer, which added a big empty strip and indented "Skip the tour".
+  - The ring around the red "th" touched the letters next to it.
+
+### Not verified
+
+- Not seen on a real phone.
+- The ring's gentle pulse and the reading aloud by screen readers are described, not drawn.
