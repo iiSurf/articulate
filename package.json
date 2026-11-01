@@ -14,7 +14,8 @@
     "score-test": "node tools/score/run.mjs",
     "score-speed": "node tools/score/speed.mjs",
     "score-try": "node tools/score/try-check.mjs",
-    "check-shell": "node tools/check-shell.mjs"
+    "check-shell": "node tools/check-shell.mjs",
+    "check-words": "node tools/check-words.mjs"
   },
   "devDependencies": {
     "onnxruntime-web": "1.31.1"

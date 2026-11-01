@@ -532,3 +532,58 @@ iiSurf chose to **keep the plan** and asked for a message telling the teammate w
 
 - That the teammate has the GitHub invite. iiSurf sends it from Settings, Collaborators.
 - iiSurf's Monday deliveries (`ctx.lookUp`, `ctx.score`, My words, and the tips and word lists) are promised in the brief and not built yet.
+
+## 2026-11-01 (Sunday, late night): what Practice needs, and My words
+
+### Plan
+
+iiSurf said to start on what the teammate needs, but without a deadline. So the brief no longer promises iiSurf's pieces "by Monday night". It says they come next, and the teammate's own schedule stays.
+
+### Changed
+
+- **Which letters make which sound** (`js/words/align.js`):
+  - It cuts a word into pieces, one per sound, by the cheapest usual spelling: w|ea|th|er, kn|igh|t, ph|o|t|o|g|r|a|ph|y.
+  - Silent letters stand alone: the e in write, the s in island.
+  - A few spellings make two sounds: x in box, o in one, qu in queen.
+- **Looking a word up** (`js/words/lookup.js`): the word's sounds, letters, stress, and strong part. The dictionary loads once.
+- **The scoring hooked up** (`scoreRecording` in `js/score/score.js`):
+  - It gives each part as it's spelled, with its grade and what it sounded like.
+  - The vowels the model hears poorly never show better than yellow and are marked unsure, as PLAN.md says.
+- **Everything Practice needs from `ctx`:** `score`, `lookUp`, `model.saved` and `model.load`, `word`, and `param`. The scoring engine loads only when it's first used.
+- **My words** (`js/words/screens.js`):
+  - Add a typed word or a suggested one.
+  - If a word is already there or isn't in the word list, it says so.
+  - Remove a word, with Undo.
+  - Practice it opens Speak with the word.
+- **The word page:** its letters, with the strong part underlined and silent letters in gray, its sounds, Hear it and Slowly with the phone's voice (`js/words/speech.js`), and Practice it.
+- `js/store.js`: `current`, the word being practiced. It's an optional field with a default, so no new version.
+- New: `npm run check-words` (`tools/check-words.mjs`).
+- Docs:
+  - `docs/practice-brief.md`: what `ctx` gives now.
+  - `PLAN.md`: build steps 2 and 3 are done.
+  - `README.md`: the Words files.
+- Fixed while building: My words added its click handler to the screen again every time it redrew, so a tap would have counted more than once. The handler is now on the card, which is drawn fresh each time.
+
+### Verified
+
+- `npm test`: 50 of 50, with these new tests:
+  - letters lined up for 20 words, plus a check that 1,000 words spell themselves exactly;
+  - looking words up;
+  - scoring by parts, including the unsure vowel;
+  - the saved current word.
+- `npm run check-words`, 12 of 12:
+  - adding a typed word and a suggested one;
+  - a word that's already there, one that isn't in the list, and typed markup;
+  - remove, and Undo putting it back in place;
+  - the word page as w|ea*|th|er, with the sounds w ɛ ð ɝ;
+  - Practice it opening Speak with the word;
+  - write's silent e;
+  - surviving a reload.
+- `npm run check-shell`: 10 of 10.
+- My words and the word page at 360, 390, and 1280 wide: nothing scrolls sideways.
+
+### Not verified
+
+- Hear it and Slowly were not heard. Headless Chrome has no voices, so they need a real phone.
+- `ctx.score` hasn't run with a real recording inside the app. Its parts are the same code the try-it page uses, and the parts-by-letters step has tests.
+- Still to come from iiSurf: the Ukrainian tips, same-sound words, and sound-alike pairs. Then the tour.

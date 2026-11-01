@@ -10,7 +10,7 @@ The app asks "Right now I can…" and the three buttons answer it: Read, Listen,
 
 Built by a team of two with Claude Code for TCSS 490, Artifact 4 ("For Someone Else").
 
-**Status (November 1, 2026):** the app shell works: the seven looks, Your colors, and the tabs, with Read · Listen · Speak waiting for their screens. Also: the plan, the design drafts, the scoring test (passed, details in [docs/scoring-test.md](docs/scoring-test.md)), and a try-it page for the scoring.
+**Status (November 1, 2026):** the app shell works (the seven looks, Your colors, and the tabs), and so do My words and the word page. Read · Listen · Speak are waiting for their screens, and the scoring is hooked up for them. Also: the plan, the design drafts, the scoring test (passed, details in [docs/scoring-test.md](docs/scoring-test.md)), and a try-it page for the scoring.
 
 ## Getting started
 
@@ -45,6 +45,7 @@ npm start
 | `npm run score-speed` | Times the model in Chrome, at full speed and slowed down as a stand-in for phones | Anywhere |
 | `npm run score-test` | The scoring test: colors on word pairs said by the Mac's voices | Mac only, because it uses the Mac's `say` voices |
 | `npm run score-try` | Checks the try-it page end to end in Chrome, with a stand-in microphone playing the scoring test's recordings | Mac only (it needs those recordings) |
+| `npm run check-words` | Clicks through My words and the word page in Chrome | Anywhere |
 | `npm run check-shell` | Clicks through the app shell in Chrome and checks the looks, dark mode, saving, and safe text | Anywhere |
 | `npm run vendor` | Copies the browser engine from `node_modules` into `vendor/`, after updating it | Anywhere |
 
@@ -84,7 +85,11 @@ npm start
 
 ### Words (iiSurf)
 
-- [js/words/cmudict.js](js/words/cmudict.js): reads the dictionary and looks up a typed word (phone keyboards' curly apostrophes included).
+- [js/words/screens.js](js/words/screens.js): My words (add a word you type or a suggested one, remove it with Undo, Practice it), and the word page (its letters with the strong part underlined and silent letters in gray, its sounds, Hear it, Slowly, and Practice it).
+- [js/words/lookup.js](js/words/lookup.js): `lookUp(word)`, which gives its sounds, the letters for each sound, the stress, and the strong part.
+- [js/words/align.js](js/words/align.js): lines a spelling up with its sounds (w|ea|th|er, kn|igh|t, with silent letters on their own).
+- [js/words/speech.js](js/words/speech.js): says a word with the phone's own voice, normally or slowly.
+- [js/words/cmudict.js](js/words/cmudict.js): reads the dictionary, and turns a phone keyboard's curly apostrophe into a straight one.
 
 ### Tools
 

@@ -150,3 +150,6 @@ show();
 // The Practice screens (the teammate's part) plug themselves in from js/practice/index.js, which calls
 // registerScreen() for each one. Until that file exists, those screens say "This part is being built".
 import("./practice/index.js").catch(() => {});
+
+// My words and the word page (iiSurf's Words part).
+import("./words/screens.js");
