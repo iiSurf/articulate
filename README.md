@@ -52,6 +52,7 @@ npm start
 
 - [PLAN.md](PLAN.md): the team plan. What we are building, who owns which part, how we keep our work from colliding, and the timeline. Both of us, and both of our Claude Code agents, work from it.
 - [docs/needs.md](docs/needs.md): what we know about the person it is for, and what each answer means for the app.
+- [docs/practice-brief.md](docs/practice-brief.md): the teammate's brief for Practice (Speak, Fix, Listen, Read): setup, the order to build in, how screens plug in, and the schedule to Friday.
 - [docs/scoring-test.md](docs/scoring-test.md): whether a free speech model can color each sound of a word right, and how fast. The method, the results, and what is still unproven.
 - [CLAUDE.md](CLAUDE.md): the rules every Claude Code agent on this repository follows.
 - [LOG.md](LOG.md): iiSurf's log. The teammate keeps their own log next to it, `LOG-<their GitHub name>.md`. Together they are the record of what we planned and what changed.

@@ -131,3 +131,7 @@ function yourColors(main) {
 phoneDark.addEventListener("change", show);
 window.addEventListener("hashchange", show);
 show();
+
+// The Practice screens (the teammate's part) plug themselves in from js/practice/index.js, which calls
+// registerScreen() for each one. Until that file exists, those screens say "This part is being built".
+import("./practice/index.js").catch(() => {});

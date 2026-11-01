@@ -495,3 +495,40 @@ PLAN.md also now proposes how screens plug in (`registerScreen`, with a `ctx`) a
 
 - A real phone.
 - Words, Read, Listen, Speak, and Progress are placeholders. Read, Listen, and Speak are the teammate's part in PLAN.md.
+
+## 2026-11-01 (Sunday, late night): keeping the plan, and the teammate's brief
+
+### Plan
+
+The teammate hasn't started Practice (Read, Listen, Speak, Fix). iiSurf was offered three choices:
+
+1. Move Speak and Fix to iiSurf.
+2. Keep the plan.
+3. Have iiSurf build everything.
+
+iiSurf chose to **keep the plan** and asked for a message telling the teammate what's needed to stay on track. The message should be encouraging, helpful, and excited.
+
+### Changed
+
+- `js/app.js` loads `js/practice/index.js`, the teammate's own file, when it exists, so Practice screens plug in with `registerScreen()` without anyone editing iiSurf's files. PLAN.md says so.
+- New: `docs/practice-brief.md`, the teammate's brief:
+  - setup in about 15 minutes;
+  - what to build, in order: Speak, Fix this part, Listen, Read;
+  - the scoring result's shape;
+  - how screens plug in, with example code;
+  - what `ctx` gives now, and what iiSurf adds by Monday night: `lookUp`, `score`, the word, the tips, and the word lists;
+  - the `data-tour` names;
+  - the rules that keep us from colliding;
+  - a schedule to Friday, with pull requests Tuesday night and Thursday night.
+- `CLAUDE.md` points the teammate's agent at the brief. `README.md` links it.
+- iiSurf got a short message to send the teammate, in the conversation, not the repository. Claude doesn't send messages.
+
+### Verified
+
+- A stand-in `js/practice/index.js`, in a throwaway copy of the app, plugged a Speak screen in, and screens it didn't register still said "This part is being built".
+- `npm run check-shell`: 10 of 10.
+
+### Not verified
+
+- That the teammate has the GitHub invite. iiSurf sends it from Settings, Collaborators.
+- iiSurf's Monday deliveries (`ctx.lookUp`, `ctx.score`, My words, and the tips and word lists) are promised in the brief and not built yet.

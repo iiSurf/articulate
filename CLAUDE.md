@@ -24,7 +24,7 @@ A fresh clone has everything except two things git ignores: `node_modules/` (`np
 Check the branch (`git branch --show-current`):
 
 - `nicks-branch`: you are working for **iiSurf** (GitHub: iiSurf), who owns the app shell, Words, Scoring, and the shared documents, and writes in `LOG.md`.
-- Any other branch: you are working for **the teammate**, who owns Practice and writes in their own `LOG-<their GitHub name>.md`.
+- Any other branch: you are working for **the teammate**, who owns Practice and writes in their own `LOG-<their GitHub name>.md`. Start with [docs/practice-brief.md](docs/practice-brief.md): what to build, in what order, and how the screens plug in.
 - `main`: stop. Nobody works on `main`. Ask your person which branch to use.
 
 ## Rules for every agent

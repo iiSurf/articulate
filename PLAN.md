@@ -180,7 +180,7 @@ registerScreen("speak", {
 //   ctx.tour          the tour (below)
 ```
 
-The Practice screens are named "read", "listen", "speak", and "fix". Until one is plugged in, the shell shows a plain "This part is being built" in its place.
+The Practice screens are named "read", "listen", "speak", and "fix". Until one is plugged in, the shell shows a plain "This part is being built" in its place. The shell loads `js/practice/index.js` (the teammate's file) when it exists, and that file calls `registerScreen()` for each Practice screen, so plugging in never means editing iiSurf's files.
 
 **The tour** (design/tutorial.html) finds controls by a `data-tour` name, and moves on when a screen tells it something happened. Practice screens add these:
 
