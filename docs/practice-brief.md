@@ -102,7 +102,7 @@ export const speak = {
 
 **What `ctx` gives you:**
 - **Now:** `ctx.go(name)` opens another screen, `ctx.state` and `ctx.save()` cover what's saved, and `ctx.tour.did(...)` tells the tour something happened.
-- **Coming from iiSurf by Monday night:**
+- **Coming next from iiSurf** (I'll tell you as each one lands):
   - `ctx.lookUp(word)`: the word's sounds, the letters that make each one, and which part is strong;
   - `ctx.score(recording, word)`: the result above, plus the letters for each sound;
   - `ctx.word`: the word being practiced, from My words;
@@ -131,12 +131,14 @@ When a try has been graded, call `ctx.tour.did("said")`. When they tap Back to t
 
 ## The schedule that gets us to the handover on Friday
 
-| When | You | iiSurf |
-| --- | --- | --- |
-| Mon Nov 2 | Set up, branch, log, start Speak against a stand-in | `ctx.lookUp`, `ctx.score`, My words, the tips and word lists |
-| Tue Nov 3 | Speak working with the real scoring. **First pull request Tuesday night**, even if it's rough. | The tour's steps 1 and 2 |
-| Wed Nov 4 | Fix this part | The tour's steps 3 to 5, on your screens |
-| Thu Nov 5 | Listen and Read. **Pull request Thursday night.** | Polish, and checking on phones |
-| Fri Nov 6 | Hand it to our friend together | |
+| When | You |
+| --- | --- |
+| Mon Nov 2 | Set up, branch, log, start Speak against a stand-in |
+| Tue Nov 3 | Speak working with the real scoring. **First pull request Tuesday night**, even if it's rough. |
+| Wed Nov 4 | Fix this part |
+| Thu Nov 5 | Listen and Read. **Pull request Thursday night.** |
+| Fri Nov 6 | Hand it to our friend together |
+
+Alongside, I'm building the word lookup, the scoring hookup, My words, the tips and word lists, and then the tour on top of your screens. I'll tell you as each piece lands.
 
 If anything is unclear, or something of mine is in your way, message me right away. I'd much rather help early than find out late. Thanks for building this with me. It's going to be great to watch our friend use it.
