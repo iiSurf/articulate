@@ -10,7 +10,7 @@ const DAY = new Set(LOOKS.filter((l) => !l.dark).map((l) => l.id));
 const NIGHT = new Set(LOOKS.filter((l) => l.dark).map((l) => l.id));
 
 export function fresh() {
-  return { version: VERSION, words: [], mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [] };
+  return { version: VERSION, words: [], current: null, mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [] };
 }
 
 // Everything read back from storage goes through here. Whatever is missing or wrong becomes the starting value,
@@ -27,6 +27,8 @@ export function sanitize(saved) {
       s.words.push({ text, added: typeof w.added === "string" ? w.added.slice(0, 10) : "" });
     }
   }
+  // The word being practiced right now: one of their words, or nothing.
+  if (typeof saved.current === "string" && s.words.some((w) => w.text === saved.current)) s.current = saved.current;
   if (MODES.includes(saved.mode)) s.mode = saved.mode;
   const looks = saved.looks && typeof saved.looks === "object" ? saved.looks : {};
   if (DAY.has(looks.day)) s.looks.day = looks.day;

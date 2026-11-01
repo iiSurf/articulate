@@ -1,6 +1,6 @@
-// From a recording to a grade for each sound of a word. This is the scoring half of PLAN.md's handshake; the
-// letters that go with each sound come with the Words part's lookUp(). For now it takes the word's sounds.
-import { RATE, trimSilence } from "./audio.js";
+// From a recording to a grade for each sound of a word (scoreSounds), and for each part of the word as it's
+// spelled (scoreRecording, PLAN.md's score() in the handshake, which uses the Words part's lookUp() for the letters).
+import { RATE, decodeRecording, trimSilence } from "./audio.js";
 import { targets } from "./phones.js";
 import { CUTS, logSoftmax, prepare, readVocab, scoreWord } from "./gop.js";
 
@@ -35,4 +35,31 @@ export function heardAs(raw, vocab) {
     return top;
   });
   return best.filter((id, i) => id !== best[i - 1] && names[id] && !skip.has(names[id])).map((id) => names[id]);
+}
+
+// The vowels the scoring test found the model hears poorly (bad/bed, fool/full: docs/scoring-test.md). A part
+// with one of them never shows better than yellow, and says it's unsure, so the app never claims more than it knows.
+const UNSURE = new Set(["AE", "EH", "UW", "UH"]);
+const WORSE = { green: 0, yellow: 1, orange: 2, red: 3 };
+
+// PLAN.md's score(recording, word): a recording (a Blob from the microphone, or 16 kHz samples) and a typed word,
+// to a grade for each part of the word as it's spelled. lookUp and loadModel come from the app (ctx.score passes
+// them in, and the tests pass stand-ins). Everything scoreSounds() returns, plus:
+//   word: "weather", strong: 1 (the part said strongest),
+//   parts: [{ letters: "th", sounds: [2], grade: "red", heard: "d", unsure: false }, ...]
+// A part's grade is its worst sound's grade; a silent letter has grade null.
+export async function scoreRecording(recording, typed, { lookUp, loadModel, onProgress } = {}) {
+  const found = await lookUp(typed);
+  if (!found) throw new Error(`"${typed}" isn't in our word list yet.`);
+  const samples = recording instanceof Float32Array ? recording : await decodeRecording(recording);
+  const model = await loadModel({ onProgress });
+  const result = await scoreSounds(samples, found.phones, model);
+  const parts = found.parts.map((p) => {
+    const sounds = p.sounds.map((i) => result.sounds[i]);
+    const worst = sounds.reduce((w, s) => (!w || WORSE[s.grade] > WORSE[w.grade] ? s : w), null);
+    const unsure = sounds.some((s) => UNSURE.has(s.cmu));
+    const grade = worst && unsure && worst.grade === "green" ? "yellow" : worst?.grade ?? null;
+    return { letters: p.letters, sounds: p.sounds, grade, heard: worst?.heard ?? null, unsure };
+  });
+  return { ...result, word: found.word, strong: found.strong, parts };
 }

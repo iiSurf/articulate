@@ -72,3 +72,10 @@ test("saving and loading go through one key, and a browser that won't save is to
   assert.equal(save(s, full), false);
   assert.deepEqual(load(full), fresh());
 });
+
+test("the word being practiced is kept only if it's one of their words", () => {
+  const words = [{ text: "weather", added: "2026-11-01" }];
+  assert.equal(sanitize({ words, current: "weather" }).current, "weather");
+  assert.equal(sanitize({ words, current: "think" }).current, null);
+  assert.equal(sanitize({ words, current: 5 }).current, null);
+});

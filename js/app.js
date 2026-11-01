@@ -4,6 +4,7 @@
 import { html, raw } from "./html.js";
 import { LOOKS, byId, lookFor } from "./looks.js";
 import { MODES, load, save } from "./store.js";
+import { lookUp } from "./words/lookup.js";
 
 const state = load();
 const screens = new Map();
@@ -24,12 +25,26 @@ export function registerScreen(name, screen) {
   if (started) show();
 }
 
-// What every screen gets from the rest of the app. More arrives as the parts are built (PLAN.md).
-function context() {
+// What every screen gets from the rest of the app (PLAN.md, "Screens, and the hooks the tour needs").
+// The scoring code and its engine load only when a screen first scores or loads the model.
+function context(param = "") {
   return {
     state,
+    param, // what follows the screen's name in the address: the word, in #/words/weather
+    word: state.current, // the word being practiced, picked in My words
     save: () => save(state),
-    go: (name, params = {}) => { location.hash = `#/${name}${params.word ? `/${encodeURIComponent(params.word)}` : ""}`; },
+    lookUp, // lookUp(word) → its sounds, the letters for each, its stress, and its strong part (js/words/lookup.js)
+    // score(recording, word, { onProgress }) → each part's letters with a grade (js/score/score.js, scoreRecording)
+    score: async (recording, word, options = {}) => {
+      const [{ scoreRecording }, { loadModel }] = await Promise.all([import("./score/score.js"), import("./score/model.js")]);
+      return scoreRecording(recording, word, { lookUp, loadModel, ...options });
+    },
+    // The sound model: saved() says whether it's already here ("local", "saved", or null), load() gets it ready.
+    model: {
+      saved: async () => (await import("./score/source.js")).modelSaved(),
+      load: async (options) => (await import("./score/model.js")).loadModel(options),
+    },
+    go: (name, param = "") => { location.hash = `#/${name}${param ? `/${encodeURIComponent(param)}` : ""}`; },
     tour: { did() {} },
   };
 }
@@ -71,13 +86,13 @@ function show() {
   const main = document.getElementById("main");
   if (page === "colors") yourColors(main);
   else if (page === "practice") practice(main, sub);
-  else screen(main, page);
+  else screen(main, page, page, sub);
 }
 
 // A plugged-in screen, or a plain note while it's being built.
-function screen(container, name, title = name) {
+function screen(container, name, title = name, param = "") {
   const s = screens.get(name);
-  if (s) s.render(container, context());
+  if (s) s.render(container, context(param));
   else container.insertAdjacentHTML("beforeend", String(html`<section class="card"><h2 class="label">${title}</h2><p>This part is being built.</p></section>`));
 }
 
