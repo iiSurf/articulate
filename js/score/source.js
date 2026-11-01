@@ -71,3 +71,14 @@ async function readAll(res, onProgress) {
   }
   return out.subarray(0, got);
 }
+
+// Whether the model can load without a download: "local", "saved", or null. Downloads nothing.
+export async function modelSaved({ fetch = globalThis.fetch, caches = globalThis.caches } = {}) {
+  try {
+    if ((await fetch(LOCAL_URL, { method: "HEAD" })).ok) return "local";
+  } catch {
+    // No local server, or no copy on it.
+  }
+  if (caches && (await (await caches.open(CACHE_NAME)).match(remoteUrl()))) return "saved";
+  return null;
+}

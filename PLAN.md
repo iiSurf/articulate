@@ -15,14 +15,14 @@ How it works:
    - words that sound almost the same (west and vest),
    - words with the same hard sound (think, three, both),
    - words from the same family where the stress moves (PHOtograph, phoTOGraphy).
-3. **Where are you right now?** One tap picks how to practice:
-   - **Quiet:** no sound at all. Puzzles on screen that train the ear in your head (below).
-   - **Headphones:** listen, but no speaking. Hear each word at normal speed and slowly, and play "which word did you hear?" with sound-alike pairs.
-   - **Out loud:** say the word and see each part of it colored by how close it was (below).
+3. **Right now I can…** One tap picks how to practice. The names were chosen on November 1, replacing Quiet, Headphones, and Out loud:
+   - **Read:** no sound at all. Puzzles on screen that train the ear in your head (below).
+   - **Listen:** hearing, but no speaking (with headphones on a bus). Hear each word at normal speed and slowly, and play "which word did you hear?" with sound-alike pairs.
+   - **Speak:** say the word and see each part of it colored by how close it was (below).
 4. **Tips** that compare each hard English sound to a Ukrainian sound they already know.
 5. **Colors from home.** The app's colors come from the learner's first language, Ukrainian first. Ukraine has seven looks (drafts in [design/themes.html](design/themes.html)). The "UA → EN" tag in the band opens Your colors, where the learner picks one look for the day and one for night, and the app switches when the phone goes dark.
 
-### Quiet: practice in your head
+### Read: practice in your head
 
 Ukrainian is spelled almost the way it sounds, so a Ukrainian speaker tends to say every letter they see. English spelling hides its sounds: the small "uh", silent letters, and one sound spelled many ways. These puzzles train exactly that, and the dictionary knows every answer, so the app is always right about them:
 
@@ -32,14 +32,14 @@ Ukrainian is spelled almost the way it sounds, so a Ukrainian speaker tends to s
 - **Odd one out:** which of four words has a different sound in the marked spot (cut, but, put, shut)?
 - **Mouth it:** a short cue for the hard part ("tongue between your teeth"), to mouth without making a sound.
 
-### Out loud: colored letters, then fix that part
+### Speak: colored letters, then fix that part
 
 1. Say the word. Each part of it turns a color: **green** (good), **yellow** (close), **orange** (a little off), or **red** (needs work). Every color also has its own mark under the letters, so it works for color-blind eyes too. When the app can't tell, the part stays plain instead of guessing.
 2. Tap a part to see what it sounded like ("this sounded like s").
 3. **Fix this part:** the tip for that sound, the model saying it slowly, then a few words with the same sound in the same spot (think: thank, thin, three) and a sound-alike pair to hear the difference (sink, think). Each one is colored on that part only.
 4. **Back to your word:** try it again and see the colors change.
 
-How it colors: a free speech model that recognizes English sounds runs in the browser, on the phone, so the recording never leaves it. Code lines up what it heard against the word's sounds from the dictionary and scores each one. This was the riskiest part of the plan, so it was tested first, and it passed ("The scoring test" below). If it fails on real voices or a real phone, Out loud shows **the beat** instead (each syllable as a block sized by how loud and long it is, the model's above yours), and the learner picks the part to fix themselves.
+How it colors: a free speech model that recognizes English sounds runs in the browser, on the phone, so the recording never leaves it. Code lines up what it heard against the word's sounds from the dictionary and scores each one. This was the riskiest part of the plan, so it was tested first, and it passed ("The scoring test" below). If it fails on real voices or a real phone, Speak shows **the beat** instead (each syllable as a block sized by how loud and long it is, the model's above yours), and the learner picks the part to fix themselves.
 
 ## Must, Stretch, Later
 
@@ -48,11 +48,19 @@ How it colors: a free speech model that recognizes English sounds runs in the br
 - My words: add and remove words, saved on the phone.
 - A page for each word: its parts (which letters make which sound), which syllable is strong, the tip for a Ukrainian speaker, and the model voice.
 - Suggestions from the dictionary, tap to add.
-- Where are you: Quiet, Headphones, Out loud.
-- Quiet: find the strong part, spot the small "uh", and same sound.
-- Headphones: normal and slow, and "which word did you hear?"
-- Out loud: record, play yours and the model back to back, colored letters, fix this part, and back to your word. The silence before and after a try is cut off before scoring, to keep it fast. For bad/bed and fool/full, which the model hears poorly, the vowel never shows better than yellow.
+- Right now I can: Read, Listen, Speak.
+- Read: find the strong part, spot the small "uh", and same sound.
+- Listen: normal and slow, and "which word did you hear?"
+- Speak: record, play yours and the model back to back, colored letters, fix this part, and back to your word. The silence before and after a try is cut off before scoring, to keep it fast. For bad/bed and fool/full, which the model hears poorly, the vowel never shows better than yellow.
 - Works in Chrome on an Android phone and on a computer.
+- **A first visit that teaches by doing** (chosen November 1). The first time the app opens, it walks the learner through their own first word:
+  1. add a word,
+  2. hear it,
+  3. say it and see the colors,
+  4. tap the part that isn't green and practice it,
+  5. say the word again.
+
+  After that, the first time each other screen opens (Read, Listen, Your colors), a one-line tip explains it once. Each screen also has a "?" button for more. There's always a Skip, and Your colors has "Show me around again". The drafts are in [design/tutorial.html](design/tutorial.html), and it gets built once the screens exist.
 - The seven Ukraine looks and Your colors: Sky over wheat, Vyshyvanka, Pysanka, Sunflower field, and Kalyna for the day, and Petrykivka and Night flag for night. It starts with Sky over wheat and Night flag. The four grade colors stay the same in every look.
 
 **Stretch:**
@@ -71,7 +79,7 @@ How it colors: a free speech model that recognizes English sounds runs in the br
 
 ## The scoring test
 
-One day, before anyone builds Out loud on it (Saturday, October 31 to Monday, November 2, iiSurf):
+One day, before anyone builds Speak on it (Saturday, October 31 to Monday, November 2, iiSurf):
 
 1. Run a free English sound-recognition model in Chrome. The first candidate is [speako-phoneme-recognizer](https://huggingface.co/robg/speako-phoneme-recognizer) (Apache 2.0, about 355 MB, built to run in the browser). Try a smaller one too, if one exists.
 2. Score each sound of a word against the dictionary, the way pronunciation research does ([CTC-based GOP](https://github.com/frank613/CTC-based-GOP)).
@@ -83,19 +91,21 @@ It passes if all three hold:
 - The wrong-on-purpose part turns orange or red at least 8 times in 10.
 - A part said correctly turns red at most 1 time in 10.
 
-If it fails, Out loud ships with the beat, and colored letters move to Later. Either way, the result goes in iiSurf's log.
+If it fails, Speak ships with the beat, and colored letters move to Later. Either way, the result goes in iiSurf's log.
 
 **Result (October 31): passed, on the Mac's own voices.** Swapped sounds were caught 89% of the time, a right sound turned red 3% of the time, and a short word took 2.8 s with Chrome slowed down 6 times as a stand-in for a cheap phone. The th mistakes, the most important ones, were caught 35 times in 36. Weak spots: bad/bed and fool/full. Still unproven: real voices, a real Android phone, and a real accent. Everything is in [docs/scoring-test.md](docs/scoring-test.md). Next, before the handover:
 
 1. iiSurf records about ten words, said right and wrong on purpose, to check the colors with a real voice.
-2. A small page anyone can open on a phone, to time it there.
+2. Time it on real phones.
+
+Both happen on the try-it page, `tools/score/try.html` (built November 1). Anyone can open it on GitHub Pages, say a word, see the colors and the time, and copy the results.
 
 ## Data and voices
 
 - **Pronunciations:** the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (American English, about 135,000 words, BSD license). It is in the repository at `data/words/cmudict.dict`, with its license, and a script will turn it into a compact file for the app. It gives each word's sounds and stress. A script also lines up each word's letters with its sounds. Code finds the similar words and the puzzle answers.
 - **Everyday words:** a list of common words keeps suggestions to words people actually use. Which list depends on its license (to check).
 - **The model voice:** clips made ahead of time, on a computer, with [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), a free voice model (Apache 2.0) with American voices, for the most common words. Any other word plays in the phone's own voice. To try first.
-- **The sound model** (Out loud only): 355 MB, too big for GitHub, so it comes from Hugging Face, pinned to one version (`js/score/source.js`). The app downloads it once on first use, ideally over Wi-Fi, and keeps it in the browser. Hugging Face allows downloads from both GitHub Pages and localhost (checked October 31). That download is the app's only outside request, and it sends nothing about the learner. While developing, `npm run get-model` keeps a checked copy in `.models/`, and the app uses that copy instead.
+- **The sound model** (Speak only): 355 MB, too big for GitHub, so it comes from Hugging Face, pinned to one version (`js/score/source.js`). The app downloads it once on first use, ideally over Wi-Fi, and keeps it in the browser. Hugging Face allows downloads from both GitHub Pages and localhost (checked October 31). That download is the app's only outside request, and it sends nothing about the learner. While developing, `npm run get-model` keeps a checked copy in `.models/`, and the app uses that copy instead.
 - **The engine that runs it:** onnxruntime-web (Microsoft, MIT), copied into `vendor/` by `npm run vendor` and committed, so the app works on GitHub Pages and from a fresh clone without npm.
 - **Working from a fresh clone:** both of us get everything with `npm install` and `npm run get-model`, on a Mac, Windows, or Linux (README.md, "Getting started"). The only exception is the scoring test's recordings, which use the Mac's voices.
 - **Privacy:** the learner's words and recordings stay in the browser on their phone. No accounts, no server, no analytics, no paid services, no API keys. Saved data uses keys that start with `articulate.`, because every iisurf.github.io site shares one browser storage.
@@ -106,10 +116,10 @@ The owner of a file is the only one who changes it. If you need a change in the 
 
 | Part | Owner | Files |
 | --- | --- | --- |
-| The app shell: the page, the look and the themes, moving between screens | iiSurf | `index.html`, `css/`, `js/app.js`, `design/` |
+| The app shell: the page, the look and the themes, moving between screens, saved settings, and the tour | iiSurf | `index.html`, `css/`, `js/app.js`, `js/looks.js`, `js/store.js`, `js/html.js`, `js/tour.js`, `tests/app/`, `design/` |
 | Words: my words, the dictionary, letters and sounds, suggestions, word pages, Ukrainian tips | iiSurf | `js/words/`, `data/words/`, `tools/words/`, `tests/words/` |
 | Scoring: the sound model and the color of each part | iiSurf | `js/score/`, `tools/score/`, `tests/score/`, `vendor/` |
-| Practice: the Quiet puzzles, Headphones, the Out loud screen (record, play back, show the colors, fix this part), and the voice clips | the teammate | `js/practice/`, `data/voice/`, `tools/voice/`, `tests/practice/` |
+| Practice: the Read puzzles, Listen, the Speak screen (record, play back, show the colors, fix this part), and the voice clips | the teammate | `js/practice/`, `data/voice/`, `tools/voice/`, `tests/practice/` |
 | The shared documents | iiSurf (the teammate suggests changes in a pull request) | `README.md`, `PLAN.md`, `CLAUDE.md`, `docs/` |
 | The shared tools and settings | iiSurf (the teammate suggests changes in a pull request) | `tools/*.mjs` (not the part folders), `package.json`, `package-lock.json`, `.gitignore`, `.github/` |
 | Each person's log | its writer | `LOG.md` (iiSurf), `LOG-<their GitHub name>.md` (the teammate) |
@@ -152,6 +162,45 @@ await score(recording, "think")
 ```
 
 Practice finds its own voice clip for a word (`data/voice/`). Changing any of these shapes means changing this section, in a pull request the other person approves.
+
+### Screens, and the hooks the tour needs (proposed by iiSurf on November 1, waiting for the teammate's OK)
+
+The app shell shows one screen at a time. Each part plugs its screens in by name, so nobody edits anyone else's files:
+
+```js
+// js/app.js (iiSurf)
+registerScreen("speak", {
+  render(container, ctx) { ... }, // draw the screen into container
+});
+// ctx gives every screen what it needs from the other parts:
+//   ctx.word          the word being practiced ("weather"), or null
+//   ctx.lookUp(word)  its parts and stress (Words)
+//   ctx.score(...)    how close each sound was (Scoring)
+//   ctx.go(name, x)   open another screen, like ctx.go("fix", { word, part: 2 })
+//   ctx.tour          the tour (below)
+```
+
+The Practice screens are named "read", "listen", "speak", and "fix". Until one is plugged in, the shell shows a plain "This part is being built" in its place. The shell loads `js/practice/index.js` (the teammate's file) when it exists, and that file calls `registerScreen()` for each Practice screen, so plugging in never means editing iiSurf's files.
+
+**The tour** (design/tutorial.html) finds controls by a `data-tour` name, and moves on when a screen tells it something happened. Practice screens add these:
+
+| On the screen | `data-tour` | Tell the tour |
+| --- | --- | --- |
+| Speak: the Record button | `record` | `ctx.tour.did("said")` after a try is graded |
+| Speak: each part of the graded word | `part` (with `data-grade` set to good, close, off, or work) | tapping a part opens "fix" |
+| Fix: the Back to the word button | `fix-back` | `ctx.tour.did("fixed")` when it's tapped |
+| Read: the puzzle | `read-puzzle` | nothing (the tip shows once by itself) |
+| Listen: the Play button | `listen-play` | nothing |
+
+A test (`tests/app/tour.test.js`, with the tour) will check that every `data-tour` name the tour uses exists somewhere in the code, so renaming one means updating the tour.
+
+## Building, in order (iiSurf's part)
+
+1. **The app shell:** the page, the seven looks and Your colors (day, night, and following the phone's dark mode), the tabs (Words, Practice, Progress), "Right now I can…" with Read, Listen, and Speak, saved settings, and a safe way to put text on the page. Started November 1.
+2. **Words:** My words (add, remove, saved on the phone), and the word page (its sounds, the strong part, Hear it and Slowly with the phone's own voice until the voice clips exist). Built November 1, along with lining letters up with sounds.
+3. **Scoring hooked up:** `score(recording, word)` from the handshake, with the letters for each sound. Built November 1 as `ctx.score`, with `ctx.lookUp`, `ctx.model`, and `ctx.word`.
+4. **The tour:** the welcome, the step card, the ring, the one-time tips, the "?", and Show me around again. Steps 1 and 2 run on the Words screens. Steps 3 to 5 run on the Speak and Fix screens through the hooks above.
+5. **Words, finished:** suggestions, a smaller dictionary file, and lining up letters with sounds.
 
 ## Branches, pull requests, and merging
 

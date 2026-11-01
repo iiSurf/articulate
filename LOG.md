@@ -266,8 +266,324 @@ iiSurf asked whether the teammate can use what was downloaded. They couldn't: th
 - The browser downloading the full model from Hugging Face. Only the permission header was checked, to avoid another 355 MB download, and the download logic is covered by the tests.
 - Windows and Linux themselves. The tools look for Chrome in the usual places there, but neither was tried.
 
+## 2026-10-31 (Saturday, later still): the card opens the repository
+
+### Plan
+
+iiSurf merged the plan into `main` (pull request #2), so the Portfolio card's button can open the repository itself instead of `nicks-branch`.
+
+### Changed
+
+- In the Portfolio (688daa2):
+  - The button opens https://github.com/iiSurf/articulate.
+  - The progress line now includes the scoring test, which passed, and "Next: building the app."
+  - Scripts and styles are at `?v=20261031`, and the Portfolio's own log has an entry.
+- Here, before committing the scoring test: `nicks-branch` was brought up to date with `main` (a fast-forward to iiSurf's merge, with no file changes).
+
+### Verified
+
+- Live, after GitHub Pages published it: the card at 390 and 1280 wide shows the new text, and its button's address is https://github.com/iiSurf/articulate, which answers.
+
+### Not verified
+
+- A real phone, Safari, or Firefox.
+- The Portfolio's own log still says the live check is to come. It gets updated with the next Portfolio change.
+
 ### Not verified
 
 - Not seen on a real Samsung phone.
 - The drafts use the phone's own font, not a chosen one.
 - Only the Out loud screen is drawn. At 360 wide, "Say it again" wraps inside the drawn phone frame, which is narrower than a real phone screen.
+
+## 2026-11-01 (Sunday): the try-it page
+
+### Plan
+
+The scoring test passed on the Mac's voices, but two things were still unproven: real voices, and real phones. The answer is a test page anyone can open and say a word into. It's a tool for building the app, not part of it, and not a tutorial (that comes next, after the screens exist).
+
+### Changed
+
+- New, the page: `tools/score/try.html`.
+  - Pick or type a word. Tap Record, say it, and tap again; it stops by itself after 4 seconds.
+  - It shows each sound colored with its mark, its score, and what it sounded like, plus what the model heard overall, a playback of the recording, and how long scoring took on that device.
+  - It keeps a list of tries, with a button to copy them.
+  - It loads the model the way the app will: the local copy, then the browser's saved copy, then a download with a progress bar, after asking first.
+  - Nothing is saved or sent. `?word=` opens it with a word.
+- New: `js/score/score.js`, `scoreSounds()`. It takes a recording to graded sounds, cuts the silence, runs the model, says what the model heard, and times it.
+- `js/score/audio.js`:
+  - `trimSilence()` keeps the word with a quarter second on each side, so a quiet "th" at the start isn't cut off.
+  - `decodeRecording()` turns a phone's recording into 16 kHz samples.
+  - `resample()` changes the rate when the browser can't do it itself.
+- `js/score/source.js`: `modelSaved()` tells whether the model is already here, without downloading it.
+- New: `js/words/cmudict.js`, the dictionary reader for the page and the scoring test. It also turns a phone's curly apostrophe into a straight one.
+- New: `tools/score/try-check.mjs` (`npm run score-try`) checks the page end to end in Chrome with a stand-in microphone.
+  - Headless Chrome's own fake microphone sent no sound, whatever the file. Plain 16 kHz and 48 kHz WAVs were tried too.
+  - So the page's "open the microphone" call is swapped for one that plays a recording through the browser's audio.
+  - `tools/chrome.mjs` takes extra Chrome switches for this.
+- Fixed while testing: opening the microphone can take a few seconds, and a second tap during that wait started a second recording. The page now says "Starting the microphone…" and ignores taps until it's open.
+- New tests: 12 of them, for trimming, rate change, the dictionary reader, `scoreSounds` with a stand-in model, and `modelSaved`. 33 in all.
+- `PLAN.md`:
+  - The try-it page is where the real-voice and phone checks happen.
+  - A short first-run tour is now a Must, planned with drafts first.
+- `README.md`, `CLAUDE.md`, and `docs/scoring-test.md`: the try-it page.
+
+### Verified
+
+- `npm test`: 33 of 33 pass.
+- `npm run score-try`, 4 of 4 as expected:
+  - think, said right: all green.
+  - sink, scored as think: th red, "like s".
+  - vest, scored as west: w orange, "like v".
+  - ship, scored as sheep: ee orange, "like ɪ".
+  - Each was scored in 0.6 to 0.8 s on this Mac, after cutting about a quarter of each recording.
+- Trimming on the Mac's recordings, padded with 1.5 s of quiet on each side: about 3.8 s cut to about 0.8 s.
+  - 97 of 108 sounds kept their color.
+  - Of the 11 that changed, 8 went up to green, and 2 went down: the th in "both" and the a in "path", green to orange.
+- The scoring test, rerun with the shared dictionary reader: the same results.
+- The page at 360, 390, and 1280 wide, with a result showing: nothing scrolls sideways.
+
+### Not verified
+
+- A real microphone. Only the stand-in has been tried; the real one needs a person.
+- A real phone, and the page on GitHub Pages: it isn't on `main` yet.
+- The playback shows "0:00 / 0:00" until it's played. Chrome doesn't know a fresh recording's length, but it plays.
+
+## 2026-11-01 (Sunday, later): the tutorial's shape, and plainer words
+
+### Plan
+
+Pick how the app teaches itself, and fix wording iiSurf found awkward on the try-it page.
+
+### Decisions
+
+- **The tutorial: learn by doing, plus tips** (iiSurf picked B with C's tips, out of three shapes):
+  - A: a spotlight tour like MySkate's.
+  - B: learning by doing with your own first word.
+  - C: one-time tips on each screen.
+
+  On the first visit, the learner adds their own first word, hears it, says it, sees the colors, fixes the part that isn't green, and says it again. Every other screen shows a one-line tip the first time it opens, and has a "?" for more. There's always a Skip, and a way to replay it. It is drawn as drafts first, and built once the screens exist. PLAN.md has the steps.
+- **New names for the three ways to practice:** "Quiet", "Headphones", and "Out loud" are hard to understand as buttons, so they will change. Options went to iiSurf.
+
+### Changed
+
+- `tools/score/try.html`: every sentence rewritten in plain English.
+  - "Try the scoring" became "Check your sounds".
+  - "like s" became "sounded like s", and a missing sound says "missing".
+  - "The model heard" became "What the app heard".
+  - The note about the numbers now says plainly that the number shows how sure the app is that you said that sound, that higher is better, and that below −2 the sound came out closer to a different one.
+  - The dictionary codes after the word's sounds are gone.
+- `PLAN.md`: the tutorial in the Must list.
+
+### Verified
+
+- `npm run score-try`: 4 of 4 as expected after the wording changes.
+- New pictures at 360, 390, and 1280 wide.
+
+### Not verified
+
+- A real microphone or phone (unchanged from the last entry).
+
+## 2026-11-01 (Sunday, later still): Read, Listen, Speak
+
+### Plan
+
+Give the three ways to practice names anyone understands. iiSurf found "Quiet" awkward to select, and "Headphones" and "Out loud" not much better. Three sets were offered:
+
+1. "Right now I can…" Read, Listen, Speak
+2. Look, Hear, Say
+3. No sound, Listen only, Out loud
+
+iiSurf picked 1.
+
+### Changed
+
+- The app asks **"Right now I can…"**, and the three buttons answer it: **Read** (puzzles on screen, no sound), **Listen** (hearing words, no speaking), and **Speak** (say it and see the colors).
+- Renamed everywhere they describe the app:
+  - `PLAN.md`: how it works, its section titles, the Must list, the tutorial, the scoring test, the data, and who owns what.
+  - `README.md`, `CLAUDE.md` (which now tells both agents to use these three names everywhere), `docs/needs.md`, and `docs/scoring-test.md`.
+- The interview questions in `docs/needs.md` keep their old wording, because that is what was asked. Earlier log entries keep the old names, because that is what was decided then.
+- `design/themes.html`: every phone now shows "Right now I can…" above Read · Listen · Speak. Re-baked.
+
+### Verified
+
+- No "Quiet", "Headphones", or "Out loud" left in the drafts, and in the docs only where they say what was asked or replaced.
+- The drafts at 390 and 1280 wide, in a light look (Sky over wheat) and a dark one (Night flag).
+
+## 2026-11-01 (Sunday, evening): tutorial drafts
+
+### Plan
+
+Draw the tutorial iiSurf picked: the first visit teaches by doing with the learner's own word, plus a one-time tip on each other screen. Draw it before building it, the same way the looks were picked.
+
+### Changed
+
+- New: `design/tutorial.html`, ten phones in the Sky over wheat look (one in Night flag), baked so it shows without JavaScript.
+  - **Welcome:** "Привіт! Welcome to Articulate.", three short promises, Let's start, and a skip.
+  - **Step 1:** add your own word.
+  - **Step 2:** hear it, at normal speed and slowly.
+  - **Step 3:** the one-time download of the sound model, with a note to warn on mobile data. Then say it, and the colors are explained.
+  - **Step 4:** fix the red part: the tip from з in зуб, then words with th in the same spot.
+  - **Step 5:** say it again ("Better! The th went from red to yellow."). The tour ends with Read, Listen, and Speak explained.
+  - **Tips:** Read, Listen (in Night flag), and Your colors, with "Show me around again".
+- The tour's own parts:
+  - a step card at the bottom, with "Step 2 of 5", five dots, one sentence, and Skip the tour;
+  - a ring around the next thing to tap;
+  - a "?" on every screen;
+  - tip cards with Got it.
+- `PLAN.md` and `README.md` link to the drafts.
+
+### Verified
+
+- At 360, 390, and 1280 wide: nothing scrolls sideways, and no word is wider than its card.
+- Fixed after the first look:
+  - The step card's footer shared a style name with the page's footer, which added a big empty strip and indented "Skip the tour".
+  - The ring around the red "th" touched the letters next to it.
+
+### Not verified
+
+- Not seen on a real phone.
+- The ring's gentle pulse and the reading aloud by screen readers are described, not drawn.
+
+## 2026-11-01 (Sunday, night): the app shell
+
+### Plan
+
+iiSurf approved the tutorial ("Build this one"), but it walks through screens that don't exist yet. So the build goes in this order, written into PLAN.md under "Building, in order":
+
+1. The app shell.
+2. Words.
+3. Scoring hooked up.
+4. The tour.
+5. Words, finished.
+
+PLAN.md also now proposes how screens plug in (`registerScreen`, with a `ctx`) and which `data-tour` names the Practice screens need, so the tour can point at them. It waits for the teammate's OK. The teammate has no branch on GitHub yet.
+
+### Changed
+
+- New, the app:
+  - `index.html`.
+  - `js/app.js`: the band, the tabs (Words, Practice, Progress), "Right now I can…" Read · Listen · Speak, and Your colors. Screens plug in with `registerScreen()`, and a screen that isn't plugged in says "This part is being built".
+  - `js/looks.js` and `css/looks.css`: the seven looks, with the night look when the phone goes dark if the learner wants.
+  - `js/store.js`: saved on the phone under `articulate.v1`, and checked on the way back in.
+  - `js/html.js`: safe markup.
+  - `css/app.css`.
+- New: 9 tests in `tests/app/shell.test.js`, 42 tests in all.
+- New: `npm run check-shell` (`tools/check-shell.mjs`) clicks through the shell in Chrome.
+- `tools/shot.mjs`:
+  - An address starting with "/" now starts the local server itself.
+  - `COLOR_SCHEME=dark` or `light` fakes the phone's setting.
+- `PLAN.md`, `README.md`, and `CLAUDE.md`: the build order, the screen plug-in, and the rules for markup and saving.
+- The tutorial drafts were committed and pushed first (9b27923), as iiSurf approved them.
+
+### Verified
+
+- `npm test`: 42 of 42.
+- `npm run check-shell`, 10 of 10:
+  - It starts with Sky over wheat, and switches to Night flag when the phone goes dark.
+  - Tapping a look shows it.
+  - The switch turned off keeps the day look in dark mode.
+  - Read · Listen · Speak is remembered, and so is the Practice tab.
+  - Everything survives a reload.
+  - The only key saved is `articulate.v1`.
+  - Markup typed into the address doesn't become markup.
+- Your colors and Speak at 360, 390, and 1280, in light and dark: nothing scrolls sideways.
+- Fixed after looking:
+  - At 1280 the glowing line under the Night flag band grew to 50 px, because the band pictures stretched with the screen. They now keep their height and repeat.
+  - In the tiles, the "Aa" sat on top of the Vyshyvanka and Pysanka strips.
+
+### Not verified
+
+- A real phone.
+- Words, Read, Listen, Speak, and Progress are placeholders. Read, Listen, and Speak are the teammate's part in PLAN.md.
+
+## 2026-11-01 (Sunday, late night): keeping the plan, and the teammate's brief
+
+### Plan
+
+The teammate hasn't started Practice (Read, Listen, Speak, Fix). iiSurf was offered three choices:
+
+1. Move Speak and Fix to iiSurf.
+2. Keep the plan.
+3. Have iiSurf build everything.
+
+iiSurf chose to **keep the plan** and asked for a message telling the teammate what's needed to stay on track. The message should be encouraging, helpful, and excited.
+
+### Changed
+
+- `js/app.js` loads `js/practice/index.js`, the teammate's own file, when it exists, so Practice screens plug in with `registerScreen()` without anyone editing iiSurf's files. PLAN.md says so.
+- New: `docs/practice-brief.md`, the teammate's brief:
+  - setup in about 15 minutes;
+  - what to build, in order: Speak, Fix this part, Listen, Read;
+  - the scoring result's shape;
+  - how screens plug in, with example code;
+  - what `ctx` gives now, and what iiSurf adds by Monday night: `lookUp`, `score`, the word, the tips, and the word lists;
+  - the `data-tour` names;
+  - the rules that keep us from colliding;
+  - a schedule to Friday, with pull requests Tuesday night and Thursday night.
+- `CLAUDE.md` points the teammate's agent at the brief. `README.md` links it.
+- iiSurf got a short message to send the teammate, in the conversation, not the repository. Claude doesn't send messages.
+
+### Verified
+
+- A stand-in `js/practice/index.js`, in a throwaway copy of the app, plugged a Speak screen in, and screens it didn't register still said "This part is being built".
+- `npm run check-shell`: 10 of 10.
+
+### Not verified
+
+- That the teammate has the GitHub invite. iiSurf sends it from Settings, Collaborators.
+- iiSurf's Monday deliveries (`ctx.lookUp`, `ctx.score`, My words, and the tips and word lists) are promised in the brief and not built yet.
+
+## 2026-11-01 (Sunday, late night): what Practice needs, and My words
+
+### Plan
+
+iiSurf said to start on what the teammate needs, but without a deadline. So the brief no longer promises iiSurf's pieces "by Monday night". It says they come next, and the teammate's own schedule stays.
+
+### Changed
+
+- **Which letters make which sound** (`js/words/align.js`):
+  - It cuts a word into pieces, one per sound, by the cheapest usual spelling: w|ea|th|er, kn|igh|t, ph|o|t|o|g|r|a|ph|y.
+  - Silent letters stand alone: the e in write, the s in island.
+  - A few spellings make two sounds: x in box, o in one, qu in queen.
+- **Looking a word up** (`js/words/lookup.js`): the word's sounds, letters, stress, and strong part. The dictionary loads once.
+- **The scoring hooked up** (`scoreRecording` in `js/score/score.js`):
+  - It gives each part as it's spelled, with its grade and what it sounded like.
+  - The vowels the model hears poorly never show better than yellow and are marked unsure, as PLAN.md says.
+- **Everything Practice needs from `ctx`:** `score`, `lookUp`, `model.saved` and `model.load`, `word`, and `param`. The scoring engine loads only when it's first used.
+- **My words** (`js/words/screens.js`):
+  - Add a typed word or a suggested one.
+  - If a word is already there or isn't in the word list, it says so.
+  - Remove a word, with Undo.
+  - Practice it opens Speak with the word.
+- **The word page:** its letters, with the strong part underlined and silent letters in gray, its sounds, Hear it and Slowly with the phone's voice (`js/words/speech.js`), and Practice it.
+- `js/store.js`: `current`, the word being practiced. It's an optional field with a default, so no new version.
+- New: `npm run check-words` (`tools/check-words.mjs`).
+- Docs:
+  - `docs/practice-brief.md`: what `ctx` gives now.
+  - `PLAN.md`: build steps 2 and 3 are done.
+  - `README.md`: the Words files.
+- Fixed while building: My words added its click handler to the screen again every time it redrew, so a tap would have counted more than once. The handler is now on the card, which is drawn fresh each time.
+
+### Verified
+
+- `npm test`: 50 of 50, with these new tests:
+  - letters lined up for 20 words, plus a check that 1,000 words spell themselves exactly;
+  - looking words up;
+  - scoring by parts, including the unsure vowel;
+  - the saved current word.
+- `npm run check-words`, 12 of 12:
+  - adding a typed word and a suggested one;
+  - a word that's already there, one that isn't in the list, and typed markup;
+  - remove, and Undo putting it back in place;
+  - the word page as w|ea*|th|er, with the sounds w ɛ ð ɝ;
+  - Practice it opening Speak with the word;
+  - write's silent e;
+  - surviving a reload.
+- `npm run check-shell`: 10 of 10.
+- My words and the word page at 360, 390, and 1280 wide: nothing scrolls sideways.
+
+### Not verified
+
+- Hear it and Slowly were not heard. Headless Chrome has no voices, so they need a real phone.
+- `ctx.score` hasn't run with a real recording inside the app. Its parts are the same code the try-it page uses, and the parts-by-letters step has tests.
+- Still to come from iiSurf: the Ukrainian tips, same-sound words, and sound-alike pairs. Then the tour.

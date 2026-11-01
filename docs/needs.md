@@ -16,7 +16,7 @@ A friend of iiSurf's who grew up speaking Ukrainian. They speak English very wel
 | Which accent would you like to sound closer to? | American. | American pronunciations and American voices. |
 | When would you practice, and for how long? Out loud, or listen only? | Many times each day. They already have a weekly language coach, Duolingo, and another accent app. Out loud or listen only: both. | Short sessions, many times a day. A way to practice by listening only and a way to say it out loud. Do what their other apps don't: practice their own words. |
 | iPhone or Android? Phone or computer? | Mostly a Samsung Android phone, sometimes a computer. | Phone first. Check at 360 wide (many Samsung phones) and 390, with a roomier layout at 1280. Test in Chrome on Android. |
-| Should the app tell you what it heard you say? | "If you think that is best", or see on screen how close their try is to the right pronunciation. | Show on screen how close they came: each part of the word colored (Out loud, in PLAN.md). The sound model runs on the phone, so the recording never leaves it. |
+| Should the app tell you what it heard you say? | "If you think that is best", or see on screen how close their try is to the right pronunciation. | Show on screen how close they came: each part of the word colored (Speak, in PLAN.md). The sound model runs on the phone, so the recording never leaves it. |
 | More words: new words, words that sound alike, or the right way to say words you already use? | First add the words they are working on, then get suggestions of similar words to add to the mix. | My words come first, then suggestions they tap to add. |
 | Would tips that compare English sounds to Ukrainian ones help? | Yes, if it helps their accent and pronunciation. | Each hard sound gets a tip that starts from a Ukrainian sound they already know. |
 | What have you tried before? What did you like, and what made you quit? | Not answered. | Ask at the handover. |
@@ -26,8 +26,8 @@ A friend of iiSurf's who grew up speaking Ukrainian. They speak English very wel
 
 | What they need | What it means for Articulate |
 | --- | --- |
-| Speaking out loud is often not an option: on public transportation, or in a quiet room with other people. They still want to train their pronunciation then, in their head, with text on screen. | A Quiet way to practice with no sound at all: puzzles about which part is strong, which letters shrink to "uh", and which letters sound the same. A Headphones way for listening without speaking. |
-| Where speaking is fine (outside, at home), they want to see on the letters, or near them, how each part of the word went: green if good, yellow if close, orange if a little worse, red if it needs work. | Out loud colors each part of the word. Each color also gets its own mark, for color-blind eyes. |
+| Speaking out loud is often not an option: on public transportation, or in a quiet room with other people. They still want to train their pronunciation then, in their head, with text on screen. | Read: a way to practice with no sound at all, with puzzles about which part is strong, which letters shrink to "uh", and which letters sound the same. Listen: hearing words without speaking. |
+| Where speaking is fine (outside, at home), they want to see on the letters, or near them, how each part of the word went: green if good, yellow if close, orange if a little worse, red if it needs work. | Speak colors each part of the word. Each color also gets its own mark, for color-blind eyes. |
 | Then suggestions and a little practice on that one part, with other words that sound similar or the same there, until they go back to the word and say it right. | "Fix this part": the tip, the slow model, words with the same sound in the same spot, a sound-alike pair, then back to the word. |
 
 ## Sounds that are often hard for Ukrainian speakers of English
