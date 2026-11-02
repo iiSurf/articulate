@@ -99,9 +99,22 @@ One list both agents check before starting work. When you fix an issue or start 
 The Stretch and Later lists above still hold. These ideas aren't in Must or Stretch yet, except where noted:
 
 - **American dialects:** the learner picks an accent to aim for (Southern, Boston, New York City, Pittsburgh, or Upper Midwest and Pacific Northwest), and scoring follows it. The dialect's way of saying a sound is green, and the General American way is yellow. Each region has plain notes for the learner, with words to try. General American stays the default. A working, tested version is in [docs/dialects.md](docs/dialects.md) as a proposal for Scoring (iiSurf's part). It has limits: the model can't hear vowel-only differences, and there are no dialect voices. It may not be worth it for this learner, so ask at the handover.
-- **Install and auto-update** (this is Stretch's "Home screen and offline"): a web app manifest and a service worker, so Chrome on Android offers "Install app", and each launch picks up what's new on `main`. `index.html` exists now, so this can start. There are two traps:
-  - The service worker must never delete the `articulate.model` cache, which holds the 355 MB model.
-  - It must be scoped to `/articulate/`, since every iisurf.github.io site shares one origin.
+- **On every platform, separately, with no accounts** (chosen by the teammate on November 1, keeping the app's rules: no accounts, no server, no paid services, and recordings never leave the phone). Each device keeps its own words, and a small save file moves them between devices.
+  - **Install and auto-update** (Stretch's "Home screen and offline"): a web app manifest and a service worker.
+    - Chrome on Android, and Chrome or Edge on a computer, offer "Install app". On an iPhone it's Share, then Add to Home Screen.
+    - Each launch picks up what's new on `main`.
+    - `index.html` exists now, so this can start. There are two traps:
+      - The service worker must never delete the `articulate.model` cache, which holds the 355 MB model.
+      - It must be scoped to `/articulate/`, since every iisurf.github.io site shares one origin.
+    - The model still downloads once on each device, the first time Speak is used.
+  - **A save file to move your words:**
+    - "Save my words" downloads a small file, like `articulate-save-2026-11-06.json`. It holds the word list, the looks, and where the tour is. It never holds recordings, because none are saved.
+    - On a phone, it can go through the share sheet (email, messages, Drive) with the Web Share API, so the file only travels where the learner sends it.
+    - "Open a save" reads the file through `sanitize()` in `js/store.js`, which already makes any broken or old save safe.
+    - The learner picks between two options: "Add these words" (keeps this device's settings) or "Replace everything".
+    - The file carries `version`, so a newer app can upgrade an older save.
+    - It lives in `js/store.js` and a screen like Your colors, which are iiSurf's files.
+  - **Maybe later:** a small Android app file (a Trusted Web Activity, made with PWABuilder) that opens the site, about 1 to 2 MB, and updates with the site. Installing it outside the Play Store takes allowing "unknown apps" once, so the web install is simpler.
 
 ## The scoring test
 

@@ -72,3 +72,24 @@ Make a picked dialect actually change the scores, not just stop its forms from b
 - Real recordings and the real model.
 - How the notes and the yellow "General American way" look in the app. That needs a picker and screens, which are iiSurf's files.
 
+
+## 2026-11-01 (Sunday, night): every platform, no accounts, and a save file
+
+### Plan
+
+Accounts and syncing across devices came up, but they would break the app's rules. So I chose to keep the rules: no accounts, no server, no paid services, and recordings never leave the phone. The app should still work on many platforms, each device on its own, with a simple save file to move the words between them.
+
+### Changed
+
+- `PLAN.md` (suggested), "Future features and ideas": a new item, "On every platform, separately, with no accounts". It covers three things:
+  - installing and updating as a web app;
+  - a save file, made with "Save my words" and read with "Open a save", through `sanitize()`, with "Add these words" or "Replace everything";
+  - maybe later, a small Android app file.
+
+### Verified
+
+- `js/store.js` already sends every save it reads through `sanitize()`, so a save file from another device can't break the app.
+
+### Not verified
+
+- Nothing is built yet. Install and the save file are both iiSurf's files (`index.html`, `js/store.js`), so they need iiSurf's OK, or a patch like the dialects one.
