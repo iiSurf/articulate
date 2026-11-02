@@ -98,7 +98,7 @@ One list both agents check before starting work. When you fix an issue or start 
 
 The Stretch and Later lists above still hold. These ideas aren't in Must or Stretch yet, except where noted:
 
-- **American dialects:** scoring that also accepts Southern, Boston, or New York City ways of saying a word, with General American as the default. A working, tested version is sketched in [docs/dialects.md](docs/dialects.md) as a proposal for Scoring (iiSurf's part). It has limits: the model can't hear vowel-only differences, and there are no dialect voices. It may not be worth it for this learner, so ask at the handover.
+- **American dialects:** the learner picks an accent to aim for (Southern, Boston, New York City, Pittsburgh, or Upper Midwest and Pacific Northwest), and scoring follows it. The dialect's way of saying a sound is green, and the General American way is yellow. Each region has plain notes for the learner, with words to try. General American stays the default. A working, tested version is in [docs/dialects.md](docs/dialects.md) as a proposal for Scoring (iiSurf's part). It has limits: the model can't hear vowel-only differences, and there are no dialect voices. It may not be worth it for this learner, so ask at the handover.
 - **Install and auto-update** (this is Stretch's "Home screen and offline"): a web app manifest and a service worker, so Chrome on Android offers "Install app", and each launch picks up what's new on `main`. `index.html` exists now, so this can start. There are two traps:
   - The service worker must never delete the `articulate.model` cache, which holds the 355 MB model.
   - It must be scoped to `/articulate/`, since every iisurf.github.io site shares one origin.

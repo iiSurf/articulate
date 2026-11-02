@@ -41,3 +41,34 @@ So none of it was pushed. It was rebuilt here from the newest `main` instead.
 
 - The dialect scoring on real recordings or with the real model. It was only checked with made-up model output in the tests.
 - Install and auto-update. They're only written up, not built.
+
+## 2026-11-01 (Sunday, night): dialects that change the scores, with regional notes
+
+### Plan
+
+Make a picked dialect actually change the scores, not just stop its forms from being marked wrong, and give each region notes the learner can read.
+
+### Changed
+
+- `docs/dialects.patch` (still a proposal for Scoring, nothing in `js/` changes):
+  - The picked dialect is the target. Its way of saying a sound is green, and the General American way is yellow, with `general: true`.
+  - A left-out r is green, and a kept one is yellow.
+  - Each difference is a feature with a note (a title, words to try, and a tip), and `notesFor()` gives the notes for one word.
+  - Added Pittsburgh ("dahn" for down) and Upper Midwest and Pacific Northwest ("bayg" for bag, and thank).
+- `docs/dialects.md`: rewritten for the new scoring, with a table of every dialect's notes.
+- `PLAN.md` (suggested): the dialects idea, updated.
+
+### Verified
+
+- The patch applies cleanly to the newest `main`.
+- With it applied, all 66 tests pass (50 existing and 16 new), in a separate copy of the repository. The new tests cover:
+  - green for the dialect's way and yellow for the General American way, in Southern, Boston, and Pittsburgh;
+  - red for a sound that's neither;
+  - General American unchanged.
+- `npm test` passes on this branch.
+
+### Not verified
+
+- Real recordings and the real model.
+- How the notes and the yellow "General American way" look in the app. That needs a picker and screens, which are iiSurf's files.
+
