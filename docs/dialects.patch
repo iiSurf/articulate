@@ -1,0 +1,254 @@
+diff --git a/js/score/dialects.js b/js/score/dialects.js
+new file mode 100644
+index 0000000..cb1918f
+--- /dev/null
++++ b/js/score/dialects.js
+@@ -0,0 +1,84 @@
++// American dialects the scoring can allow for (a proposal: docs/dialects.md).
++//
++// The scoring model hears 38 sounds (phones.js), so a dialect can only be told apart where it uses a
++// different one of those sounds, or drops one. Each rule looks at one sound of a word, with its neighbors,
++// and can:
++//   - add sounds that also count as right there (`also`), or
++//   - mark the sound as one this dialect may leave out (`optional`).
++// The General American way of saying a word always still counts as right. A dialect only stops its own
++// way of saying a word from being marked as a mistake.
++//
++// Dialect differences the model can't hear (vowels that only shift a little, like the Northern Cities shift
++// around Chicago or the California vowel shift) aren't here. For those regions the scoring is the same as
++// General American.
++
++const VOWELS = new Set([
++  "AA", "AE", "AH", "AO", "AW", "AY", "EH", "ER", "EY", "IH", "IY", "OW", "OY", "UH", "UW",
++]);
++const VOICED = new Set([
++  "B", "D", "G", "V", "DH", "Z", "ZH", "JH", "M", "N", "NG", "L", "R", "W", "Y",
++]);
++
++const isVowel = (p) => VOWELS.has(p);
++const last = (phones, i) => i === phones.length - 1;
++
++// pin and pen sound the same: the e before m or n is said like the i in "pin".
++function pinPen(phones, i) {
++  if (phones[i] === "EH" && (phones[i + 1] === "N" || phones[i + 1] === "M")) return { also: ["ɪ"] };
++}
++
++// The "i" in time, ride, my, and fire said as one long "ah" instead of sliding "ah-ee", except before a
++// voiceless sound (right, ice), where most Southern speakers keep the slide.
++function flatI(phones, i) {
++  const next = phones[i + 1];
++  if (phones[i] === "AY" && (last(phones, i) || VOICED.has(next) || isVowel(next))) return { also: ["ɑ"] };
++}
++
++// No r after a vowel unless another vowel follows (car → "cah", water → "watah"; carry keeps its r).
++function noR(phones, i) {
++  const beforeConsonantOrEnd = last(phones, i) || !isVowel(phones[i + 1]);
++  if (phones[i] === "R" && i > 0 && isVowel(phones[i - 1]) && beforeConsonantOrEnd) return { optional: true };
++  if (phones[i] === "ER" && beforeConsonantOrEnd) return { also: ["ə"] };
++}
++
++export const DIALECTS = {
++  general: {
++    name: "General American",
++    about: "The accent of most national news and of the model voice.",
++    rules: [],
++  },
++  southern: {
++    name: "Southern",
++    about: "pin and pen sound the same, and time sounds like \"tahm\".",
++    rules: [pinPen, flatI],
++  },
++  boston: {
++    name: "Boston",
++    about: "No r after a vowel: car sounds like \"cah\".",
++    rules: [noR],
++  },
++  newYork: {
++    name: "New York City",
++    about: "No r after a vowel: water sounds like \"watah\".",
++    rules: [noR],
++  },
++};
++
++export const DEFAULT_DIALECT = "general";
++
++// What a dialect changes for one word: for each sound, extra model sounds that count as right, and whether
++// it may be left out. phones are CMU sounds without stress numbers.
++// allowances(["K", "AA", "R"], "boston") → [{ also: [] }, { also: [] }, { also: [], optional: true }]
++export function allowances(phones, dialect = DEFAULT_DIALECT) {
++  const d = DIALECTS[dialect];
++  if (!d) throw new Error(`Unknown dialect: ${dialect}`);
++  return phones.map((_, i) => {
++    const out = { also: [], optional: false };
++    for (const rule of d.rules) {
++      const r = rule(phones, i);
++      if (r?.also) out.also.push(...r.also.filter((s) => !out.also.includes(s)));
++      if (r?.optional) out.optional = true;
++    }
++    return out;
++  });
++}
+diff --git a/js/score/gop.js b/js/score/gop.js
+index 3914dd2..cbac533 100644
+--- a/js/score/gop.js
++++ b/js/score/gop.js
+@@ -91,7 +91,29 @@ export function gradeOf(score, cuts = CUTS) {
+ // Scores each sound of a word. word is a list of { cmu, ok } (from targets() in phones.js).
+ // Returns, for each sound: its score, its grade, and, when it isn't green, the closest other sound
+ // ("" means it sounded left out).
++//
++// A sound marked optional (a dialect may leave it out, like the r in "car" in Boston) is left out only if the
++// word fits the recording better without it. Each optional sound is decided on its own, so "hardware" can keep
++// one r and drop the other. A sound left out comes back with no score, grade null (shown plain, like "couldn't
++// tell"), and dropped: true, and the other sounds are scored as the word without it.
++const MOST_OPTIONAL = 4; // 2^4 = 16 fits at most; words almost always have one or two
++
+ export function scoreWord(prep, word, v, cuts = CUTS) {
++  const optional = word.map((w, i) => (w.optional ? i : -1)).filter((i) => i >= 0).slice(0, MOST_OPTIONAL);
++  if (!optional.length) return scoreEach(prep, word, v, cuts);
++  // Start from keeping every sound, so a recording nothing fits is scored as the word as written.
++  let best = new Set(), bestFit = fit(prep, word.map((w) => w.ok));
++  for (let mask = 1; mask < 1 << optional.length; mask++) {
++    const drop = new Set(optional.filter((_, b) => mask & (1 << b)));
++    const f = fit(prep, word.filter((_, i) => !drop.has(i)).map((w) => w.ok));
++    if (f > bestFit) { bestFit = f; best = drop; }
++  }
++  const scored = scoreEach(prep, word.filter((_, i) => !best.has(i)), v, cuts);
++  let k = 0;
++  return word.map((w, i) => (best.has(i) ? { cmu: w.cmu, score: null, grade: null, heard: null, dropped: true } : scored[k++]));
++}
++
++function scoreEach(prep, word, v, cuts) {
+   const labels = word.map((w) => w.ok);
+   const whole = fit(prep, labels);
+   return word.map((w, i) => {
+diff --git a/js/score/phones.js b/js/score/phones.js
+index b8dd770..d403b1b 100644
+--- a/js/score/phones.js
++++ b/js/score/phones.js
+@@ -5,6 +5,8 @@
+ // Some are one sound to the model: AO and AA (caught, cot), ZH and SH (measure, mesh), and AH, which
+ // covers both the strong vowel in "cut" and the small "uh" in "about".
+ 
++import { allowances, DEFAULT_DIALECT } from "./dialects.js";
++
+ export const CMU_TO_MODEL = {
+   AA: "ɑ", AE: "æ", AH: "ə", AO: "ɑ", AW: "aʊ", AY: "aɪ", B: "b", CH: "ʧ", D: "d", DH: "ð",
+   EH: "ɛ", ER: "ɝ", EY: "eɪ", F: "f", G: "g", HH: "h", IH: "ɪ", IY: "i", JH: "ʤ", K: "k",
+@@ -18,11 +20,16 @@ const ALSO_RIGHT = { T: ["ɾ"], D: ["ɾ"] };
+ 
+ // For each dictionary sound of a word, the model sounds that count as saying it right.
+ // targets(["TH", "IH1", "NG", "K"]) → [{ cmu: "TH", ok: ["θ"] }, { cmu: "IH", ok: ["ɪ"] }, ...]
+-export function targets(cmuPhones) {
+-  return cmuPhones.map((p) => {
+-    const cmu = p.replace(/[0-9]/g, "");
++// With a dialect (dialects.js), its own way of saying the word also counts as right, and a sound it may
++// leave out gets optional: true. targets(["K", "AA1", "R"], "boston")[2] → { cmu: "R", ok: ["ɹ"], optional: true }
++export function targets(cmuPhones, dialect = DEFAULT_DIALECT) {
++  const bare = cmuPhones.map((p) => p.replace(/[0-9]/g, ""));
++  const extra = allowances(bare, dialect);
++  return bare.map((cmu, i) => {
+     const sound = CMU_TO_MODEL[cmu];
+-    if (!sound) throw new Error(`Unknown sound: ${p}`);
+-    return { cmu, ok: [sound, ...(ALSO_RIGHT[cmu] || [])] };
++    if (!sound) throw new Error(`Unknown sound: ${cmuPhones[i]}`);
++    const ok = [sound, ...(ALSO_RIGHT[cmu] || [])];
++    for (const s of extra[i].also) if (!ok.includes(s)) ok.push(s);
++    return extra[i].optional ? { cmu, ok, optional: true } : { cmu, ok };
+   });
+ }
+diff --git a/tests/score/dialects.test.js b/tests/score/dialects.test.js
+new file mode 100644
+index 0000000..536af16
+--- /dev/null
++++ b/tests/score/dialects.test.js
+@@ -0,0 +1,89 @@
++// Dialects (a proposal, docs/dialects.md): which ways of saying a word each one allows, and how scoring treats a sound
++// a dialect may leave out. No model, no audio.
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import { allowances, DIALECTS } from "../../js/score/dialects.js";
++import { targets } from "../../js/score/phones.js";
++import { logSoftmax, readVocab, prepare, scoreWord } from "../../js/score/gop.js";
++
++const ok = (phones, dialect) => targets(phones, dialect).map((t) => t.ok);
++const optional = (phones, dialect) => targets(phones, dialect).map((t) => Boolean(t.optional));
++
++test("General American changes nothing", () => {
++  for (const word of [["P", "EH1", "N"], ["T", "AY1", "M"], ["K", "AA1", "R"], ["W", "AO1", "T", "ER0"]]) {
++    assert.deepEqual(targets(word, "general"), targets(word));
++    assert.ok(targets(word).every((t) => !t.optional));
++  }
++});
++
++test("an unknown dialect is an error", () => {
++  assert.throws(() => allowances(["K"], "atlantis"), /Unknown dialect/);
++});
++
++test("every dialect has a name and a plain sentence about it", () => {
++  for (const d of Object.values(DIALECTS)) {
++    assert.ok(d.name && d.about && Array.isArray(d.rules));
++  }
++});
++
++test("Southern: the e in pen and ten also counts as the i in pin", () => {
++  assert.deepEqual(ok(["P", "EH1", "N"], "southern")[1], ["ɛ", "ɪ"]);
++  assert.deepEqual(ok(["T", "EH1", "M", "P", "T"], "southern")[1], ["ɛ", "ɪ"]);
++  // Not before other sounds: bed stays bed.
++  assert.deepEqual(ok(["B", "EH1", "D"], "southern")[1], ["ɛ"]);
++});
++
++test("Southern: time and ride can be said with a flat ah, right keeps its slide", () => {
++  assert.deepEqual(ok(["T", "AY1", "M"], "southern")[1], ["aɪ", "ɑ"]);
++  assert.deepEqual(ok(["R", "AY1", "D"], "southern")[1], ["aɪ", "ɑ"]);
++  assert.deepEqual(ok(["M", "AY1"], "southern")[1], ["aɪ", "ɑ"]);
++  assert.deepEqual(ok(["F", "AY1", "ER0"], "southern")[1], ["aɪ", "ɑ"]); // fire → "fahr"
++  assert.deepEqual(ok(["R", "AY1", "T"], "southern")[1], ["aɪ"]);
++});
++
++test("Boston and New York: the r after a vowel may be left out", () => {
++  for (const d of ["boston", "newYork"]) {
++    assert.deepEqual(optional(["K", "AA1", "R"], d), [false, false, true]); // car
++    assert.deepEqual(optional(["K", "AA1", "R", "D"], d), [false, false, true, false]); // card
++    assert.deepEqual(optional(["K", "AE1", "R", "IY0"], d), [false, false, false, false]); // carry keeps it
++    assert.deepEqual(optional(["R", "AY1", "T"], d), [false, false, false]); // a first r stays
++    assert.deepEqual(ok(["W", "AO1", "T", "ER0"], d)[3], ["ɝ", "ə"]); // water → "watah"
++  }
++});
++
++// A tiny model with the sounds of "car", to check scoring with an r that may be left out.
++const VOCAB = { "[PAD]": 0, "|": 1, k: 2, "ɑ": 3, "ɹ": 4, "[UNK]": 5 };
++const v = readVocab(VOCAB);
++const frames = (list) =>
++  logSoftmax(list.map((x) => Object.keys(VOCAB).map((k) => (k === (x === "-" ? "[PAD]" : x) ? 8 : 0))));
++const CAR = ["K", "AA1", "R"];
++
++test("car said without the r: red in General American, fine in Boston", () => {
++  const prep = prepare(frames(["k", "k", "-", "ɑ", "ɑ", "ɑ"]), v);
++  const general = scoreWord(prep, targets(CAR, "general"), v);
++  assert.equal(general[2].grade, "red");
++  const boston = scoreWord(prep, targets(CAR, "boston"), v);
++  assert.deepEqual(boston.map((r) => r.grade), ["green", "green", null]);
++  assert.equal(boston[2].dropped, true);
++});
++
++test("car said with the r is still green in Boston", () => {
++  const prep = prepare(frames(["k", "k", "-", "ɑ", "ɑ", "-", "ɹ", "ɹ"]), v);
++  const boston = scoreWord(prep, targets(CAR, "boston"), v);
++  assert.deepEqual(boston.map((r) => r.grade), ["green", "green", "green"]);
++  assert.ok(boston.every((r) => !r.dropped));
++});
++
++// hardware: H AA R D W EH R, here with only "h ɑ d w ɛ ɹ" (the first r left out, the last kept).
++const VOCAB2 = { "[PAD]": 0, "|": 1, h: 2, "ɑ": 3, "ɹ": 4, d: 5, w: 6, "ɛ": 7, "ə": 8, "ɾ": 9, "[UNK]": 10 };
++const v2 = readVocab(VOCAB2);
++const frames2 = (list) =>
++  logSoftmax(list.map((x) => Object.keys(VOCAB2).map((k) => (k === (x === "-" ? "[PAD]" : x) ? 8 : 0))));
++
++test("each r is kept or left out on its own: hardware with one r", () => {
++  const prep = prepare(frames2(["h", "h", "-", "ɑ", "ɑ", "-", "d", "d", "-", "w", "w", "-", "ɛ", "ɛ", "-", "ɹ", "ɹ"]), v2);
++  const result = scoreWord(prep, targets(["HH", "AA1", "R", "D", "W", "EH2", "R"], "boston"), v2);
++  assert.deepEqual(result.map((r) => r.grade), ["green", "green", null, "green", "green", "green", "green"]);
++  assert.equal(result[2].dropped, true);
++  assert.ok(!result[6].dropped);
++});
