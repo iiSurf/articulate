@@ -93,3 +93,45 @@ Accounts and syncing across devices came up, but they would break the app's rule
 ### Not verified
 
 - Nothing is built yet. Install and the save file are both iiSurf's files (`index.html`, `js/store.js`), so they need iiSurf's OK, or a patch like the dialects one.
+
+## 2026-11-06 (Friday, handover day): Speak
+
+### Plan
+
+Build Speak first, since it's the screen that matters most, with the improvements from the list built in. Fix this part, Listen, and Read come next.
+
+### Changed
+
+- New: `js/practice/`, the Practice part.
+  - `index.js` plugs Speak in and loads `practice.css`.
+  - `speak.js` is the Speak screen:
+    - Record, then each part of the word colored, with a mark as well as a color (✓ ≈ ! ✕).
+    - "The th sounded like a d", in plain words, never IPA.
+    - Say it again, Hear it, and Slowly.
+    - Tapping a part that isn't green opens a small practice panel under the word, with Hear it slowly and Back to the word.
+  - It also covers the problem cases:
+    - the one-time 355 MB download, with a mobile-data warning;
+    - the microphone blocked or missing, with links to Listen and Read;
+    - a try that's too short or too quiet;
+    - recording stops by itself after 4 s;
+    - the "hard to hear" note for unsure vowels;
+    - no word picked, with the learner's own words to pick from.
+  - It sets the tour names: `data-tour="record"`, `data-tour="part"` with `data-grade`, `data-tour="fix-back"`, plus `ctx.tour.did("said")` and `("fixed")`.
+  - `recorder.js` records with the try-it page's microphone settings (no echo cancelling, noise suppression, or automatic loudness).
+  - `feedback.js` holds the words Speak says. It has no page and no model, so it can be tested.
+- New: `tests/practice/feedback.test.js`, 9 tests.
+
+### Verified
+
+- `npm test` passes: 59 of 59, 50 existing and 9 new.
+- In headless Chrome, with a stand-in for the scoring:
+  - no word, ready, download, mic blocked, a graded try, and the part panel;
+  - at 360, 390, and 1280 wide, light and dark;
+  - a long word (photography) fits at 360.
+
+### Not verified
+
+- A real recording with the real model. The model isn't downloaded in this workspace, and there's no microphone.
+- A real Android phone.
+- Fix this part as its own screen: the app has no route for "fix" yet, so the part panel sits inside Speak until iiSurf adds one.
+- Listen and Read aren't built yet.

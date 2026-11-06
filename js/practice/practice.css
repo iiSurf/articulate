@@ -1,0 +1,61 @@
+/* Practice (the teammate's part): Speak, and the part practice under it. The grade colors come from every look
+   (css/looks.css): --good, --close, --off, --work for the letters, --*-bar behind each mark, --*-mark on it. */
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.speak { display: grid; gap: 12px; }
+.speak-card { text-align: center; }
+.speak-card .label { text-align: left; }
+
+.speak-word { display: flex; justify-content: center; flex-wrap: wrap; gap: 0; margin: 14px 0 6px; }
+.speak-word.graded { gap: 6px; }
+.speak-word .part { display: inline-flex; flex-direction: column; align-items: center; gap: 7px;
+  background: none; border: 0; padding: 4px 2px; font: inherit; color: var(--ink); border-radius: 12px; }
+.speak-word .part .l { font-size: 50px; font-weight: 800; line-height: 1; color: var(--g, var(--ink)); }
+.speak-word .part .m { width: 100%; min-width: 40px; height: 26px; border-radius: 13px; display: grid; place-items: center;
+  background: var(--gb, transparent); color: var(--gm, inherit); font-size: 16px; font-weight: 900; }
+.speak-word .part .m.blank { background: transparent; }
+.speak-word .part.silent .l { color: var(--muted); }
+.speak-word .part.good { --g: var(--good); --gb: var(--good-bar); --gm: var(--good-mark); }
+.speak-word .part.close { --g: var(--close); --gb: var(--close-bar); --gm: var(--close-mark); }
+.speak-word .part.off { --g: var(--off); --gb: var(--off-bar); --gm: var(--off-mark); }
+.speak-word .part.work { --g: var(--work); --gb: var(--work-bar); --gm: var(--work-mark); }
+.speak-word:not(.graded) .part { padding: 4px 0; }
+.speak-word.long .part .l { font-size: 38px; }
+.speak-word.longer .part .l { font-size: 30px; }
+.speak-word.graded .part { min-width: 44px; }
+button.part { cursor: pointer; }
+button.part:hover .m, button.part.open .m { outline: 3px solid var(--ring); outline-offset: 2px; }
+
+.speak-result { margin-top: 6px; }
+.speak-result .headline { font-size: 20px; font-weight: 800; margin: 4px 0 2px; }
+.speak-result .heard { margin: 4px 0; font-size: 17px; }
+.speak-result .unsure { font-size: 14px; }
+.status:empty { display: none; }
+
+.record { margin-top: 14px; }
+.record.live { background: var(--work-bar); color: var(--work-mark); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--work-bar) 25%, transparent); } }
+.rec-time, .download progress { width: 100%; height: 8px; margin-top: 8px; accent-color: var(--accent); }
+
+.note { text-align: left; background: var(--chip-bg); color: var(--ink); border-radius: 12px; padding: 10px 12px; margin-top: 10px; }
+.note p { margin: 0; }
+.note p + p { margin-top: 6px; }
+.note.warn { border-left: 5px solid var(--off-bar); }
+.note a, .speak-switch a { color: var(--chip-ink); font-weight: 700; }
+
+.download { text-align: left; margin-top: 8px; }
+.download p { margin: 6px 0; }
+
+.fix { scroll-margin-top: 12px; }
+.fix:focus { outline: none; }
+.speak-switch { text-align: center; margin: 0; }
+.speak-switch a { display: inline-block; padding: 12px 8px; }
+
+.speak .chips { margin: 10px 0 4px; }
+.speak .chip { min-height: 44px; }
+.speak a.btn { text-decoration: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .record.live { animation: none; }
+}
