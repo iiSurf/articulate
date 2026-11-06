@@ -134,13 +134,13 @@ index 0000000..9a39922
 +  return seen.map((f) => FEATURES[f].note);
 +}
 diff --git a/js/score/gop.js b/js/score/gop.js
-index 3914dd2..0d6c03a 100644
+index e366da0..e927c60 100644
 --- a/js/score/gop.js
 +++ b/js/score/gop.js
 @@ -91,7 +91,39 @@ export function gradeOf(score, cuts = CUTS) {
  // Scores each sound of a word. word is a list of { cmu, ok } (from targets() in phones.js).
  // Returns, for each sound: its score, its grade, and, when it isn't green, the closest other sound
- // ("" means it sounded left out).
+ // ("" means it sounded left out). `closest` is that sound even when it is green.
 +//
 +// With a dialect (targets(phones, dialect)), two more things can happen:
 +//   - A sound the dialect says another way has `general`, the General American sound. Said the General American

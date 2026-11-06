@@ -171,3 +171,30 @@ Build the other two ways to practice, so all three of Read, Listen, and Speak wo
 
 - Hearing the words. Headless Chrome has no voices, so the phone's voice wasn't heard, and Listen was checked with a stand-in voice.
 - A real phone.
+
+## 2026-11-06 (Friday, afternoon): four fixes for iiSurf, as a patch
+
+### Plan
+
+Fix the four bugs from the improvements list most likely to show at the handover. They're all in iiSurf's files, so they're a patch, like the dialects one.
+
+### Changed
+
+- New: `docs/fixes.md` and `docs/fixes.patch`. The patch fixes four things:
+  - Every way of saying a word is scored, and the best fit is kept.
+  - The e and oo vowels are capped at yellow only when the model really couldn't tell them from their partner.
+  - A stray % in the address no longer blanks the app.
+  - The phone turning dark no longer wipes the screen.
+- `docs/dialects.patch` was rebuilt to go on after `fixes.patch`. The only conflict was one comment in `gop.js`.
+
+### Verified
+
+- On `main` with the patch: 54 of 54 tests pass, 4 of them new.
+- With both patches: 70 of 70 pass.
+- In headless Chrome:
+  - the % address works (on `main` it's blank);
+  - a Read answer stays on screen when the phone switches to dark.
+
+### Not verified
+
+- Real recordings, and whether `UNSURE_MARGIN` (1) is the right size.
