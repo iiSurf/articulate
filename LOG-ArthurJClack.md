@@ -135,3 +135,39 @@ Build Speak first, since it's the screen that matters most, with the improvement
 - A real Android phone.
 - Fix this part as its own screen: the app has no route for "fix" yet, so the part panel sits inside Speak until iiSurf adds one.
 - Listen and Read aren't built yet.
+
+## 2026-11-06 (Friday, afternoon): Listen and Read
+
+### Plan
+
+Build the other two ways to practice, so all three of Read, Listen, and Speak work at the handover.
+
+### Changed
+
+- `js/practice/listen.js`, Listen:
+  - The phone says one word, and the learner taps which of two it was.
+  - The pairs cover the sounds from `docs/needs.md`: th or t, th or s, th or d, w or v, ee or i, e or a, long or short oo, p or b, ng or n, and oh or aw.
+  - After answering, there's a tip on how to hear the difference, both words to replay, and Next word.
+  - Pairs with the learner's own words come up more often.
+  - If the browser can't speak, it says so in plain words and points to Read.
+- `js/practice/read.js`, Read, with no sound at all. Three puzzles take turns:
+  - **Find the strong part**: tap the part said strongest.
+  - **Spot the small "uh"**: tap every part said as "uh", then Check.
+  - **Same sound?**: do the marked letters in two words sound the same?
+  - It uses the learner's own words when they fit. Answers are worked out from the dictionary, not typed by hand.
+- `js/practice/lists.js` holds my own short lists until iiSurf's land, and `js/practice/puzzles.js` holds the logic, with no page.
+- Tour names: `data-tour="listen-play"` and `data-tour="read-puzzle"`.
+- New tests: `tests/practice/puzzles.test.js`, which checks every list word against the real dictionary.
+
+### Verified
+
+- `npm test` passes: 66 of 66.
+- In headless Chrome:
+  - each puzzle kind, answered right and wrong, plus Listen before and after answering;
+  - at 360 and 1280 wide, and in dark;
+  - in the real app at `#/practice/read` and `#/practice/listen`.
+
+### Not verified
+
+- Hearing the words. Headless Chrome has no voices, so the phone's voice wasn't heard, and Listen was checked with a stand-in voice.
+- A real phone.
