@@ -45,6 +45,7 @@ npm start
 | `npm run score-speed` | Times the model in Chrome, at full speed and slowed down as a stand-in for phones | Anywhere |
 | `npm run score-test` | The scoring test: colors on word pairs said by the Mac's voices | Mac only, because it uses the Mac's `say` voices |
 | `npm run score-try` | Checks the try-it page end to end in Chrome, with a stand-in microphone playing the scoring test's recordings | Mac only (it needs those recordings) |
+| `npm run check-resume` | The resumable download, end to end, with the real model: the connection breaks at piece 20 of 43, the pieces that came through are kept, the next try asks only for the rest, and the finished model loads and runs (about 30 seconds) | Anywhere, needs `npm run get-model` |
 | `npm run check-download` | Checks the window that asks before the 355 MB download: it opens, explains, closes, doesn't repeat, and handles a failed download | Anywhere |
 | `npm run check-tour` | Walks the whole first visit in Chrome, with the real sound model and a stand-in microphone: welcome, five steps, finish, skipping, Take me there, tips | Mac only (it needs the scoring test's recordings) |
 | `npm run check-words` | Clicks through My words and the word page in Chrome | Anywhere |
@@ -78,7 +79,7 @@ npm start
 
 ### Scoring (iiSurf)
 
-- [js/score/source.js](js/score/source.js): where the sound model comes from. It is pinned to one version on Hugging Face with its size and checksum, and the app looks for it in order: the local copy, then the browser's saved copy, then a download.
+- [js/score/source.js](js/score/source.js): where the sound model comes from. It is pinned to one version on Hugging Face, and the app looks for it in order: the local copy, then the browser's saved copy, then a download. The download is resumable: 43 pieces of 8 MB, each asked for with a range request and checked against its own checksum before it is kept. If the connection breaks or the page closes, the next try asks only for the pieces that are missing. A failed piece is tried again by itself three times, waiting longer each time. It also asks the browser to keep the saved model, so it isn't quietly deleted when the phone runs low on space.
 - [js/score/model.js](js/score/model.js): loads the model in the browser and runs it on a recording.
 - [js/score/score.js](js/score/score.js): from a recording to a grade for each sound. It cuts the silence, runs the model, grades each sound, and says what the model heard overall and how long it took.
 - [js/score/phones.js](js/score/phones.js): matches the dictionary's 39 sounds to the 38 sounds the model hears. The quick American "t" in "water" counts as a right t or d.

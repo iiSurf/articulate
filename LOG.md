@@ -675,3 +675,43 @@ iiSurf is worried about the 355 MB sound model download, and wants people to be 
 - A real download of the real file inside the window. Every download here was a stand-in, to avoid fetching 355 MB again. The same download code is covered by `tests/score/source.test.js`.
 - A real phone, and the mobile data note: Chrome on Android reports the connection type, but Safari doesn't.
 - Resuming a download that broke halfway: it starts over. Making it resumable is the next step.
+
+### Same evening: the download is resumable
+
+iiSurf asked for the resumable download, the next step after the window.
+
+### Changed
+
+- `js/score/source.js` downloads the model in 43 pieces of 8 MB instead of one stream:
+  - Each piece is asked for with a range request, checked against its own checksum (the 43 checksums are in `source.js`), and only then kept in the browser (Cache Storage, in a separate cache from the finished copy).
+  - If the connection breaks or the page closes, the next try asks **only for the pieces that are missing**, and progress starts where it stopped.
+  - A piece that fails is tried again by itself three times, waiting 1.5, 4, and 9 seconds. Then it gives up with a plain message: the error code, or "the connection dropped, it picks up where it stopped", or "came through damaged".
+  - A damaged piece is thrown away and never kept.
+  - When every piece is in, they're joined, saved whole as before, and the pieces are cleared.
+  - The checksum is per piece, not for the whole file, so a phone never has to hold a second 355 MB copy to check it.
+- It copes with trouble:
+  - A server that ignores ranges and sends the whole file still works, and is checked piece by piece.
+  - A browser with no Cache Storage, or one that refuses it (some private windows do), keeps pieces in memory so "Try again" still resumes in the same visit.
+  - Where a page can't compute checksums, pieces are checked by size.
+- `keepStorage()` asks the browser to keep what's been saved, when the download starts and when it finishes, so it isn't deleted when the phone runs low on space.
+- The download window: after an interrupted download it says "You already have 47% of it (168 MB). The rest picks up where it stopped." and its button reads "Continue (187 MB left)". It tells people during the download that a dropped connection is retried by itself, and after a failure that what came through is kept.
+- `ctx.model.partial()` (new): how much is already kept.
+- New: `npm run check-resume` (`tools/check-resume.mjs`).
+
+### Verified
+
+- Before building it, I checked that Hugging Face allows this: range requests work from a page in Chrome, cross origin, from the first byte to the last, and `Content-Range` is readable.
+- `npm test`: 88 of 88, with 9 more tests for the download (fresh, break and resume, retry with waits, last-try messages, a damaged piece, a kept piece of the wrong size, a server that ignores ranges, no Cache Storage, a refused cache, no checksums, the browser asked to keep the file), and one that checks all 43 piece checksums against the real model file.
+- `npm run check-resume`, 10 of 10, with the real model and the real download code in Chrome, answering each request from the local copy:
+  - the first try broke at piece 20, after 4 tries, with a plain message, and the 20 pieces were kept;
+  - on the next visit the window said "You already have 47%" and offered Continue;
+  - the second try asked for exactly the 23 missing pieces;
+  - the finished model was saved whole, the pieces were cleared, and the model loaded and ran.
+- `npm run check-download`, 16 of 16, six runs in a row. `check-shell` 10, `check-words` 12, `check-tour` 28.
+- Found by running it: a damaged whole file from a server that ignores ranges was being retried as if the network had dropped, and reported with the wrong message. It's reported as damaged at once now.
+
+### Not verified
+
+- The real internet. Every piece in `check-resume` came from the local copy. Range requests to the real server were checked with small ranges only.
+- A real phone: whether the browser actually grants "keep this file" depends on the browser and the phone, and Chrome decides by how much the site is used. If it doesn't, the file can still be deleted when storage runs low, and the window then offers to download again.
+- Safari and Firefox.

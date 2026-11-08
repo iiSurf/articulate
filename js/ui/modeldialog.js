@@ -7,19 +7,22 @@ import { html, raw } from "../html.js";
 const SIZE = "355 MB";
 
 // load(options): starts the download (ctx.model.load). go(hash): opens an address. onReady(): the model is ready.
-export function openModelDialog({ load, go, onReady }) {
+// partial: { done, total } in bytes when an earlier try was interrupted (ctx.model.partial), else null.
+export function openModelDialog({ load, go, onReady, partial = null }) {
   if (document.querySelector(".model-dialog")) return null;
   const d = document.createElement("dialog");
   d.className = "model-dialog";
   d.setAttribute("aria-labelledby", "md-title");
   document.body.append(d);
 
+  const mb = (bytes) => Math.round(bytes / 1e6);
+  const percent = partial ? Math.round((100 * partial.done) / partial.total) : 0;
   const cellular = !!navigator.connection && (navigator.connection.type === "cellular" || navigator.connection.saveData === true);
 
   function intro() {
     d.innerHTML = String(html`
       <h2 id="md-title">A one-time download for Speak</h2>
-      <p class="md-lead">Speak needs a helper file (${SIZE}). Read it first, then choose.</p>
+      <p class="md-lead">${partial ? `You already have ${percent}% of it (${mb(partial.done)} MB). The rest picks up where it stopped.` : `Speak needs a helper file (${SIZE}). Read it first, then choose.`}</p>
       ${cellular ? html`<p class="md-warn" role="note">It looks like you're on mobile data. A file this big is best on Wi-Fi.</p>` : ""}
       <dl class="md-facts">
         <div><dt>What it is</dt><dd>A small listening model, ${SIZE}, like a very big photo album. You download it once, and your browser keeps it.</dd></div>
@@ -29,7 +32,7 @@ export function openModelDialog({ load, go, onReady }) {
       </dl>
       <p class="md-hint">No download needed for <a href="#/practice/read" data-md-go>Read</a> or <a href="#/practice/listen" data-md-go>Listen</a>. You can come back to Speak and download any time.</p>
       <div class="md-buttons">
-        <button type="button" class="btn primary" id="md-download">Download (${SIZE})</button>
+        <button type="button" class="btn primary" id="md-download">${partial ? `Continue (${mb(partial.total - partial.done)} MB left)` : `Download (${SIZE})`}</button>
         <button type="button" class="btn" id="md-later">Not now</button>
       </div>`);
     d.querySelector("#md-download").addEventListener("click", start);
@@ -42,6 +45,7 @@ export function openModelDialog({ load, go, onReady }) {
     d.innerHTML = String(html`
       <h2 id="md-title">Downloading…</h2>
       <p class="md-lead">This happens once. You can close this window and keep using the app. It keeps going.</p>
+      <p class="md-hint">If your connection drops, it tries again by itself and keeps what it already has.</p>
       <progress id="md-bar" max="1" value="0" aria-label="Download progress"></progress>
       <p class="md-percent" id="md-percent" role="status" aria-live="polite">0%</p>
       <div class="md-buttons"><button type="button" class="btn" id="md-close">Close</button></div>`);
@@ -53,7 +57,7 @@ export function openModelDialog({ load, go, onReady }) {
     d.innerHTML = String(html`
       <h2 id="md-title">The download stopped</h2>
       <p class="md-lead">${message}</p>
-      <p class="md-hint">Nothing was saved or shared. You can try again, ideally on Wi-Fi.</p>
+      <p class="md-hint">What already came through is kept, so Try again picks up where it stopped. Nothing about you or your voice was shared.</p>
       <div class="md-buttons">
         <button type="button" class="btn primary" id="md-retry">Try again</button>
         <button type="button" class="btn" id="md-later">Not now</button>

@@ -106,7 +106,7 @@ export const speak = {
   `parts: [{ letters: "th", sounds: [2], grade: "red", heard: "d", unsure: false }, …]`
   Silent letters have grade `null`. `unsure` marks the vowels the app hears poorly (bad/bed, fool/full), which never show better than yellow, so say so on screen. `strong` is the part said strongest.
 - `ctx.lookUp(word)`: the word's sounds, the letters for each one, its stress, and its strong part. You don't have to record anything to use it.
-- `ctx.model.saved()`: is the sound model already here ("local", "saved", or null)? `ctx.model.load({ onProgress })` gets it ready. Use these to show the one-time 355 MB download before the first try. `design/tutorial.html`, phone 4, has the look.
+- `ctx.model.saved()`: is the sound model already here ("local", "saved", or null)? `ctx.model.load({ onProgress })` gets it ready, and `ctx.model.partial()` says how much of an interrupted download is already kept (`{ done, total }` in bytes, or null). The app's own download window opens before Speak first needs the model, so Speak doesn't have to ask itself. Use these to show the one-time 355 MB download before the first try. `design/tutorial.html`, phone 4, has the look.
 - `ctx.go(name, param)`: opens another screen, for example `ctx.go("practice", "speak")`.
 - `ctx.param`: what follows the screen's name in the address.
 - `ctx.state` and `ctx.save()`: what's saved.

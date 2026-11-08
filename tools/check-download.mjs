@@ -27,6 +27,9 @@ const check = (name, ok, detail = "") => results.push(`${ok ? "✓" : "✗"} ${n
 async function noModelBrowser() {
   const c = await openChrome();
   await c.send("Page.enable");
+  // A failed piece is tried again after 1.5, 4, and 9 seconds. Those three waits are cut to 10 ms here, so a failure
+  // shows up at once. (Other timers, like the one that clears the "ready" message, are left alone.)
+  await c.send("Page.addScriptToEvaluateOnNewDocument", { source: `(() => { const set = window.setTimeout; window.setTimeout = (f, ms, ...a) => set(f, [1500, 4000, 9000].includes(ms) ? 10 : ms, ...a); })()` });
   await c.send("Fetch.enable", { patterns: [{ urlPattern: "*/.models/*" }, { urlPattern: "*huggingface.co*" }] });
   c.on("Fetch.requestPaused", (p) => {
     const status = p.request.url.includes("huggingface.co") ? 503 : 404;
@@ -98,13 +101,14 @@ try {
     await visit(c, "#/practice/speak");
     await opens(c);
     await c.evaluate(`document.getElementById("md-download").click()`);
-    await sleep(1500);
+    for (let i = 0; i < 40 && !(await c.evaluate(`!!document.getElementById("md-retry")`)); i++) await sleep(150);
     const failed = await dialogText(c);
-    check("a failed download says so, and nothing was shared", failed?.includes("the download stopped") && failed.includes("nothing was saved or shared"), failed);
+    check("a failed download says so, says what is kept, and that nothing was shared", failed?.includes("the download stopped") && failed.includes("picks up where it stopped") && failed.includes("nothing about you or your voice was shared"), failed);
     check("it offers Try again", await c.evaluate(`!!document.getElementById("md-retry")`));
     await shot(c, "failed", 390);
     await c.evaluate(`document.getElementById("md-retry").click()`);
-    await sleep(1500);
+    await sleep(300);
+    for (let i = 0; i < 40 && !(await c.evaluate(`!!document.getElementById("md-retry")`)); i++) await sleep(150);
     check("Try again tries again, and can fail again politely", (await dialogText(c))?.includes("the download stopped"));
     await c.evaluate(`document.getElementById("md-later").click()`);
 

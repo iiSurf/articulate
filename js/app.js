@@ -48,6 +48,7 @@ function context(param = "") {
     model: {
       saved: async () => (await import("./score/source.js")).modelSaved(),
       load: async (options) => (await import("./score/model.js")).loadModel(options),
+      partial: async () => (await import("./score/source.js")).partialDownload(), // { done, total } kept from an interrupted download, or null
     },
     go: (name, param = "") => { location.hash = `#/${name}${param ? `/${encodeURIComponent(param)}` : ""}`; },
     tour: { did: (event) => tour.did(event) }, // the first visit moves on when a screen says what happened
@@ -108,11 +109,12 @@ function show() {
 // Reaching Speak without the sound model: a closeable window explains the one-time download and lets them choose.
 function askAboutModel() {
   if (askedAboutModel) return;
-  context().model.saved().then((where) => {
+  Promise.all([context().model.saved(), context().model.partial()]).then(([where, partial]) => {
     const onSpeak = location.hash.replace(/^#\/?/, "").startsWith("practice/speak") || (location.hash.replace(/^#\/?/, "") === "practice" && state.mode === "speak");
     if (where || askedAboutModel || !onSpeak) return;
     askedAboutModel = true;
     openModelDialog({
+      partial,
       load: (options) => context().model.load(options),
       go: (hash) => { location.hash = hash; },
       onReady: () => {
