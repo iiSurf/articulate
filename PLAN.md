@@ -77,6 +77,45 @@ How it colors: a free speech model that recognizes English sounds runs in the br
 - Whole sentences.
 - Other first languages. The Ukrainian tips live in their own file, so another language is a new file, not new code.
 
+## Known issues and future features
+
+One list both agents check before starting work. When you fix an issue or start an idea, update it here (the teammate suggests the update in a pull request, since iiSurf owns this file), and say so in your log.
+
+### Known issues
+
+- **Scoring is unproven on real people.** Every test recording came from the Mac's voices, and every mistake was a whole swapped sound, never the in-between sounds a real accent makes. The color cuts in `js/score/gop.js` need checking with real voices, on the try-it page ([docs/scoring-test.md](docs/scoring-test.md), "Still to prove").
+- **A Ukrainian accent itself** hasn't been tested at all. Only the friend can test that, at the handover.
+- **bad/bed and fool/full are caught poorly** (8 of 15 and 5 of 9). Speak already caps those vowels at yellow (`UNSURE` in `js/score/score.js`).
+- **Not tried on a real Android phone,** or in Safari or Firefox. Speed was measured with Chrome slowed down as a stand-in, and the 355 MB download hasn't happened on a phone.
+- **A real microphone** hasn't been tried on the try-it page or through `ctx.score` in the app.
+- **Long recordings are slow** (about 8 s for 2 s of audio with Chrome slowed down 6 times), so the silence must be cut before scoring.
+- **Hear it and Slowly** (the phone's own voice) haven't been heard: headless Chrome has no voices.
+- **Kokoro** (the model voice) hasn't been tried yet.
+- **The friend's answers** in [docs/needs.md](docs/needs.md) came from iiSurf. Confirm them at the handover.
+- **Still to come from iiSurf:** the Ukrainian tips, same-sound words, and sound-alike pairs, then the tour.
+
+### Future features and ideas
+
+The Stretch and Later lists above still hold. These ideas aren't in Must or Stretch yet, except where noted:
+
+- **American dialects:** the learner picks an accent to aim for (Southern, Boston, New York City, Pittsburgh, or Upper Midwest and Pacific Northwest), and scoring follows it. The dialect's way of saying a sound is green, and the General American way is yellow. Each region has plain notes for the learner, with words to try. General American stays the default. A working, tested version is in [docs/dialects.md](docs/dialects.md) as a proposal for Scoring (iiSurf's part). It has limits: the model can't hear vowel-only differences, and there are no dialect voices. It may not be worth it for this learner, so ask at the handover.
+- **On every platform, separately, with no accounts** (chosen by the teammate on November 1, keeping the app's rules: no accounts, no server, no paid services, and recordings never leave the phone). Each device keeps its own words, and a small save file moves them between devices.
+  - **Install and auto-update** (Stretch's "Home screen and offline"): a web app manifest and a service worker.
+    - Chrome on Android, and Chrome or Edge on a computer, offer "Install app". On an iPhone it's Share, then Add to Home Screen.
+    - Each launch picks up what's new on `main`.
+    - `index.html` exists now, so this can start. There are two traps:
+      - The service worker must never delete the `articulate.model` cache, which holds the 355 MB model.
+      - It must be scoped to `/articulate/`, since every iisurf.github.io site shares one origin.
+    - The model still downloads once on each device, the first time Speak is used.
+  - **A save file to move your words:**
+    - "Save my words" downloads a small file, like `articulate-save-2026-11-06.json`. It holds the word list, the looks, and where the tour is. It never holds recordings, because none are saved.
+    - On a phone, it can go through the share sheet (email, messages, Drive) with the Web Share API, so the file only travels where the learner sends it.
+    - "Open a save" reads the file through `sanitize()` in `js/store.js`, which already makes any broken or old save safe.
+    - The learner picks between two options: "Add these words" (keeps this device's settings) or "Replace everything".
+    - The file carries `version`, so a newer app can upgrade an older save.
+    - It lives in `js/store.js` and a screen like Your colors, which are iiSurf's files.
+  - **Maybe later:** a small Android app file (a Trusted Web Activity, made with PWABuilder) that opens the site, about 1 to 2 MB, and updates with the site. Installing it outside the Play Store takes allowing "unknown apps" once, so the web install is simpler.
+
 ## The scoring test
 
 One day, before anyone builds Speak on it (Saturday, October 31 to Monday, November 2, iiSurf):
@@ -205,7 +244,7 @@ A test (`tests/app/tour.test.js`, with the tour) will check that every `data-tou
 ## Branches, pull requests, and merging
 
 - `main` is what GitHub Pages puts live. Nobody pushes to it directly.
-- Each of us works on our own branch: iiSurf on `nicks-branch`, the teammate on theirs (they add its name here).
+- Each of us works on our own branch: iiSurf on `nicks-branch`, the teammate (ArthurJClack) on `arthurs-branch`.
 - Merge into `main` often, every day or two, through a pull request. Once the tests pass, whoever opened it merges it with **Create a merge commit**. GitHub requires no approval, so neither of us waits on the other. Changes to this file or to the handshake are the exception: they wait for the other person's OK. Not squash: our branches live on after each merge, and a squash merge makes the next pull request from the same branch conflict.
 - After anything merges into `main`, bring your branch up to date (the pull request's "Update branch" button, or `git merge origin/main`) before more work.
 - If a merge stops with a conflict, the person who owns the file decides how it ends up. An agent never settles a conflict in someone else's file.
