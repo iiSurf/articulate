@@ -60,8 +60,12 @@ function summarize(word, tries) {
 const all = (state) => Object.entries(state.history).filter(([, t]) => t.length).map(([w, t]) => summarize(w, t));
 const byWord = (a, b) => a.word.localeCompare(b.word);
 
-// Top words: the best of your last three tries, highest first.
-export const topWords = (state, n = 5) => all(state).sort((a, b) => b.best - a.best || b.tries - a.tries || byWord(a, b)).slice(0, n);
+// Which color a score gets: good from 80, close from 60, a little off from 40, then needs work.
+export const toneOf = (score) => (score >= 80 ? "good" : score >= 60 ? "close" : score >= 40 ? "off" : "work");
+
+// Top words: the best of your last three tries, highest first. A word has to be close (60) or better to be on it.
+export const TOP_FROM = 60;
+export const topWords = (state, n = 5) => all(state).filter((w) => w.best >= TOP_FROM).sort((a, b) => b.best - a.best || b.tries - a.tries || byWord(a, b)).slice(0, n);
 
 // Needs work: the average of your last three tries, lowest first, only for words not yet said well.
 export const needsWork = (state, n = 5) => all(state).filter((w) => w.recent < GOOD_ENOUGH).sort((a, b) => a.recent - b.recent || byWord(a, b)).slice(0, n);

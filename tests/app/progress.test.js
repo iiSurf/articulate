@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, mostImproved, needsWork, recordTry, roundWords, scoreOf, stars, topWords } from "../../js/progress.js";
+import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, mostImproved, needsWork, recordTry, roundWords, scoreOf, stars, toneOf, topWords } from "../../js/progress.js";
 import { fresh, sanitize } from "../../js/store.js";
 
 const tips = JSON.parse(readFileSync(new URL("../../data/tips/uk-en.json", import.meta.url), "utf8"));
@@ -51,6 +51,7 @@ test("Top words: the best of the last three tries, highest first", () => {
   const s = stateWith({ three: [60, 96, 90], world: [92], very: [50, 88, 40, 30], thirty: [84, 84] });
   assert.deepEqual(topWords(s).map((w) => [w.word, w.best]), [["three", 96], ["world", 92], ["very", 88], ["thirty", 84]], "very's 88 is within its last three tries; its first 50 is not counted");
   assert.equal(topWords(s, 2).length, 2);
+  assert.deepEqual(topWords(stateWith({ think: [22], vegetable: [55, 59], world: [60] })).map((w) => w.word), ["world"], "only words at 60 or more");
   assert.deepEqual(topWords(fresh()), []);
 });
 
@@ -119,4 +120,8 @@ test("the history saved on the phone is checked on the way back in: bad shapes a
   assert.deepEqual(fresh().history, {});
   const odd = sanitize({ history: { a: [{ at: "x", score: 50, bad: [["TH", "green", "th"], ["DH", "red", "th"], 5] }] } });
   assert.deepEqual(odd.history.a[0].bad, [["DH", "red", "th"]]);
+});
+
+test("a score's color: good from 80, close from 60, a little off from 40, then needs work", () => {
+  assert.deepEqual([100, 80, 79, 60, 59, 40, 39, 0].map(toneOf), ["good", "good", "close", "close", "off", "off", "work", "work"]);
 });

@@ -805,3 +805,23 @@ iiSurf picked "A: Say it round". Built in three small steps: (1) remember each g
 ### Not verified
 
 - No screen shows any of this yet (steps 2 and 3). The tour was not re-run, but it doesn't change; it records its first word like any other.
+
+## 2026-11-08 (Sunday, late): the Progress tab, with the three boards (step 2 of 3)
+
+### Plan
+
+Draw the boards from the history (step 1) the way `design/progress.html` showed them, with the sounds that cause the trouble under Needs work.
+
+### Changed
+
+- New `js/progress-screen.js` and `css/progress.css`: three boards as buttons (Top words, Needs work, Most improved), each row a link that makes that word the one to practice and opens Speak. Needs work shows the part that went worst last time with its mark (✕ or !), so color isn't the only signal. Under it, "Where you struggle most" lists the sounds that went orange or red most, named from the tips file ("th as in think"), with a button "Practice th" that goes to `#/round/TH` (the round is step 3, so that address is not drawn yet). A learner with no tries sees a short note and a button to Speak.
+- `js/progress.js`: Top words only lists words at 60 or more (a board of "best words" with a 22 on it felt wrong), and `toneOf` picks each score's color (80, 60, 40).
+- `js/app.js` loads the screen; `index.html` links `css/progress.css`. `tools/check-progress.mjs` (`npm run check-progress`) seeds a made-up history and checks the boards, the empty page, tapping a word, and no sideways scroll at 360, 390 and 1280; it takes pictures.
+
+### Verified
+
+- `npm test` 115 of 115, `check-progress` all green, and the pictures looked at: 360, 390, 1280, and the night look. The first pass had bars ending at different spots and sound names wrapping at 360; both were fixed.
+
+### Not verified
+
+- A real phone. The boards with real tries from a real microphone (the history recording was checked with the real model in `check-tips`, the screen with made-up tries). The other six looks. The round button leads nowhere until step 3.

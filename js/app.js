@@ -202,3 +202,6 @@ import("./practice/index.js").catch(() => {});
 
 // My words and the word page (iiSurf's Words part).
 import("./words/screens.js");
+
+// The Progress tab: the boards, and where to start a Say it round.
+import("./progress-screen.js");
