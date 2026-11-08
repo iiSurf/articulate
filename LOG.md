@@ -753,3 +753,12 @@ Fix this part had only "the th needs work, it sounded like an s. Listen slowly."
 - Hearing the tappable words and pairs: headless Chrome has no voices, and they use the phone's own English voice.
 - The patch isn't applied to the committed Speak yet, so on `main` the tips don't show until it is.
 - Tips for sounds beyond those 22 (there is none for l, s, z, f, and so on), so the panel stays as it was for them.
+
+### The tips are in Speak now
+
+iiSurf chose to apply the patch on their own branch instead of leaving it for the teammate.
+
+- Before applying, I checked that the teammate has no unmerged commits, and that their `js/practice/speak.js` on `main` is the same file the patch was made against. It applied cleanly.
+- The change in `js/practice/speak.js`, about 20 lines and nothing else: it imports `segments`, adds a `tipView` function, adds an `#fix-tips` box to the practice panel, and, when a part is opened, asks `ctx.tips(part, word)` and fills the box. This is the teammate's file, so it is its own commit, and the teammate is asked in `docs/practice-brief.md` to look it over and change it as they like.
+- `docs/fix-tips.patch` is deleted, as it said to do.
+- Verified with the patch applied: `check-tips` 21 of 21, `check-tour` 28, `check-shell` 10, `check-words` 12, `check-download` 16, and `npm test` 102 of 102.

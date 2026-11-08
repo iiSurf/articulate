@@ -1,7 +1,7 @@
 // Checks the tips in Fix this part, end to end in headless Chrome, with the REAL sound model: a stand-in microphone
 // plays a recording of "sink" for the word "think" (and "vest" for "west"), the real model scores it, the red part is
-// tapped, and the panel is read. It needs the tips to be hooked into Speak's panel, which is docs/fix-tips.patch (Speak
-// is the teammate's file), so this check only passes once that patch is applied. Takes pictures in .tmp/shots/.
+// tapped, and the panel is read. It needs the tips to be hooked into Speak's panel (about 20 lines in js/practice/speak.js, the teammate's file).
+// Takes pictures in .tmp/shots/.
 //
 //   npm run check-tips
 //
@@ -62,7 +62,7 @@ try {
       await chrome.evaluate(`document.querySelector('button[data-tour="part"]:not([data-grade="green"])').click()`);
       let panel = null;
       for (let i = 0; i < 60 && !(panel = await text("#fix-tips")); i++) await sleep(150);
-      check(`the tips appear in the panel for the ${c.part}`, !!panel, "the panel stayed empty (is docs/fix-tips.patch applied?)");
+      check(`the tips appear in the panel for the ${c.part}`, !!panel, "the panel stayed empty (is tipView still in js/practice/speak.js?)");
       if (panel) {
         check(`it names the sound: ${c.title}`, panel.includes(c.title), panel);
         for (const want of c.has) check(`it says "${want}"`, panel.includes(want), panel);
