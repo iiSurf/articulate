@@ -101,6 +101,8 @@ test("sounds are filed under the dictionary's name, and the small uh apart from 
 test("the tip for th said as s: the Ukrainian start, what they said, words from the same spot, and pairs", () => {
   const t = fixTip(data, { letters: "th", focusPhone: "TH", position: "start", heard: "s" }, "think");
   assert.equal(t.title, "th as in think");
+  assert.equal(t.sound, "TH", "the key of the sound, so a screen can open its round");
+  assert.equal(fixTip(data, { focusPhone: "AH0", position: "start", heard: "ɑ" }, "about").sound, "AH0");
   assert.deepEqual(t.uk, { letter: "с", word: "сам" });
   assert.match(t.tip, /Ukrainian с/);
   assert.match(t.swap, /^You said s/);

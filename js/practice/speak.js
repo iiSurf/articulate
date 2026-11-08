@@ -241,7 +241,8 @@ function tipView(t) {
   return html`<p><b>${t.title}</b></p><p>${text(t.tip)}</p>
     ${t.swap ? html`<p class="hint">${text(t.swap)}</p>` : ""}
     ${t.words.length ? html`<div class="sub">Same sound, same spot (tap to hear)</div><div class="chips">${t.words.map((w) => html`<button type="button" class="chip" data-say="${w}">${w}</button>`)}</div>` : ""}
-    ${t.pairs.length ? html`<div class="sub">Hear the difference</div><div class="chips">${t.pairs.map(([a, b]) => html`<button type="button" class="chip" data-say-pair="${a} ${b}">${a} · ${b}</button>`)}</div>` : ""}`;
+    ${t.pairs.length ? html`<div class="sub">Hear the difference</div><div class="chips">${t.pairs.map(([a, b]) => html`<button type="button" class="chip" data-say-pair="${a} ${b}">${a} · ${b}</button>`)}</div>` : ""}
+    ${t.sound ? html`<p><a class="btn" href="#/round/${t.sound}" data-round-link>Practice ${t.title.split(" as in ")[0]} in a round</a></p>` : ""}`;
 }
 
 function fixView(view, word) {
