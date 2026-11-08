@@ -48,7 +48,8 @@ export async function openChrome({ args = [] } = {}) {
   await new Promise((r) => (ws.onopen = r));
   let id = 0;
   const waiting = new Map();
-  ws.onmessage = (m) => { const d = JSON.parse(m.data); waiting.get(d.id)?.(d); waiting.delete(d.id); };
+  const listeners = new Map();
+  ws.onmessage = (m) => { const d = JSON.parse(m.data); if (d.method) listeners.get(d.method)?.(d.params); else { waiting.get(d.id)?.(d); waiting.delete(d.id); } };
   const send = (method, params = {}) => new Promise((r) => { const n = ++id; waiting.set(n, r); ws.send(JSON.stringify({ id: n, method, params })); });
   // Runs JavaScript in the page and returns its value (awaiting promises). Throws if the page threw.
   const evaluate = async (expression) => {
@@ -56,5 +57,7 @@ export async function openChrome({ args = [] } = {}) {
     if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || r.result.exceptionDetails.text);
     return r.result?.result?.value;
   };
-  return { send, evaluate, close: () => close(ws) };
+  // on("Fetch.requestPaused", fn): runs fn for each event of that kind (one handler per kind).
+  const on = (method, fn) => listeners.set(method, fn);
+  return { send, evaluate, on, close: () => close(ws) };
 }

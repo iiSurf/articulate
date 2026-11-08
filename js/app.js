@@ -7,12 +7,14 @@ import { MODES, load, save } from "./store.js";
 import { lookUp } from "./words/lookup.js";
 import { createTour } from "./tour-ui.js";
 import { tipFor } from "./tour.js";
+import { openModelDialog, toast } from "./ui/modeldialog.js";
 
 const state = load();
 const screens = new Map();
 const app = document.getElementById("app");
 const phoneDark = matchMedia("(prefers-color-scheme: dark)");
 let started = false;
+let askedAboutModel = false; // the download window opens at most once per visit
 const tour = createTour({ state, save: () => save(state), go: (hash) => { location.hash = hash; }, app });
 
 const ICONS = {
@@ -46,7 +48,11 @@ function context(param = "") {
     model: {
       saved: async () => (await import("./score/source.js")).modelSaved(),
       load: async (options) => (await import("./score/model.js")).loadModel(options),
+      partial: async () => (await import("./score/source.js")).partialDownload(), // { done, total } kept from an interrupted download, or null
     },
+    // tips(part, word): the tip for Fix this part. part is one of score()'s parts. Gives { title, uk, tip, swap, words, pairs },
+    // or null when there's nothing to say (js/words/tips.js, data/tips/uk-en.json)
+    tips: async (part, word) => { const t = await import("./words/tips.js"); return t.fixTip(await t.loadTips(), part, word); },
     go: (name, param = "") => { location.hash = `#/${name}${param ? `/${encodeURIComponent(param)}` : ""}`; },
     tour: { did: (event) => tour.did(event) }, // the first visit moves on when a screen says what happened
   };
@@ -100,6 +106,26 @@ function show() {
     show();
   });
   tour.refresh(true);
+  if (page === "practice" && state.mode === "speak") askAboutModel();
+}
+
+// Reaching Speak without the sound model: a closeable window explains the one-time download and lets them choose.
+function askAboutModel() {
+  if (askedAboutModel) return;
+  Promise.all([context().model.saved(), context().model.partial()]).then(([where, partial]) => {
+    const onSpeak = location.hash.replace(/^#\/?/, "").startsWith("practice/speak") || (location.hash.replace(/^#\/?/, "") === "practice" && state.mode === "speak");
+    if (where || askedAboutModel || !onSpeak) return;
+    askedAboutModel = true;
+    openModelDialog({
+      partial,
+      load: (options) => context().model.load(options),
+      go: (hash) => { location.hash = hash; },
+      onReady: () => {
+        toast("Speak is ready. You can record now.");
+        dispatchEvent(new HashChangeEvent("hashchange")); // draw Speak again, now that the model is here
+      },
+    });
+  }).catch(() => {});
 }
 
 // A plugged-in screen, or a plain note while it's being built.

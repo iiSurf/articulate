@@ -45,6 +45,9 @@ npm start
 | `npm run score-speed` | Times the model in Chrome, at full speed and slowed down as a stand-in for phones | Anywhere |
 | `npm run score-test` | The scoring test: colors on word pairs said by the Mac's voices | Mac only, because it uses the Mac's `say` voices |
 | `npm run score-try` | Checks the try-it page end to end in Chrome, with a stand-in microphone playing the scoring test's recordings | Mac only (it needs those recordings) |
+| `npm run check-tips` | The tips in Fix this part, end to end with the real model: "sink" said for "think" gets the Ukrainian с tip, "You said s", words and pairs. Needs the scoring test's recordings | Mac only (it needs the scoring test's recordings) |
+| `npm run check-resume` | The resumable download, end to end, with the real model: the connection breaks at piece 20 of 43, the pieces that came through are kept, the next try asks only for the rest, and the finished model loads and runs (about 30 seconds) | Anywhere, needs `npm run get-model` |
+| `npm run check-download` | Checks the window that asks before the 355 MB download: it opens, explains, closes, doesn't repeat, and handles a failed download | Anywhere |
 | `npm run check-tour` | Walks the whole first visit in Chrome, with the real sound model and a stand-in microphone: welcome, five steps, finish, skipping, Take me there, tips | Mac only (it needs the scoring test's recordings) |
 | `npm run check-words` | Clicks through My words and the word page in Chrome | Anywhere |
 | `npm run check-shell` | Clicks through the app shell in Chrome and checks the looks, dark mode, saving, and safe text | Anywhere |
@@ -68,6 +71,7 @@ npm start
 
 - [index.html](index.html): the page. Everything else is drawn by `js/app.js`.
 - [js/app.js](js/app.js): the band, one screen at a time, the tabs, Your colors, and "Right now I can…". Each part plugs its screens in with `registerScreen()` (PLAN.md, "Screens, and the hooks the tour needs"). Until a screen is plugged in, it says "This part is being built."
+- [js/ui/modeldialog.js](js/ui/modeldialog.js): the window that opens the first time someone reaches Speak without the sound model. It explains the one-time 355 MB download (what the file is, what it's for, how it's used, and that the voice never leaves the phone), then lets them download or close it with "Not now" and use Read and Listen instead. It shows once per visit, never when the model is already there, and has progress, a message when it's ready, and Try again if the download stops. Speak's own download card stays as the fallback.
 - [js/tour.js](js/tour.js) and [js/tour-ui.js](js/tour-ui.js) with [css/tour.css](css/tour.css): the first visit. A welcome, then five steps with the learner's own first word (add it, open and hear it, say it, fix a part that isn't green, say it again), then a finish. After that, each screen explains itself once with a tip, the "?" brings a tip back, and Your colors has Show me around again. Screens tell the tour what happened with `ctx.tour.did(...)`. The steps and words are in `tour.js`, with tests.
 - [js/looks.js](js/looks.js) and [css/looks.css](css/looks.css): the seven looks, and which one shows (the night look when the phone goes dark, if the learner wants that).
 - [js/store.js](js/store.js): what's saved on the phone, under one key, `articulate.v1`. Anything read back is checked first, so a broken save can't break the app.
@@ -76,7 +80,7 @@ npm start
 
 ### Scoring (iiSurf)
 
-- [js/score/source.js](js/score/source.js): where the sound model comes from. It is pinned to one version on Hugging Face with its size and checksum, and the app looks for it in order: the local copy, then the browser's saved copy, then a download.
+- [js/score/source.js](js/score/source.js): where the sound model comes from. It is pinned to one version on Hugging Face, and the app looks for it in order: the local copy, then the browser's saved copy, then a download. The download is resumable: 43 pieces of 8 MB, each asked for with a range request and checked against its own checksum before it is kept. If the connection breaks or the page closes, the next try asks only for the pieces that are missing. A failed piece is tried again by itself three times, waiting longer each time. It also asks the browser to keep the saved model, so it isn't quietly deleted when the phone runs low on space.
 - [js/score/model.js](js/score/model.js): loads the model in the browser and runs it on a recording.
 - [js/score/score.js](js/score/score.js): from a recording to a grade for each sound. It cuts the silence, runs the model, grades each sound, and says what the model heard overall and how long it took.
 - [js/score/phones.js](js/score/phones.js): matches the dictionary's 39 sounds to the 38 sounds the model hears. The quick American "t" in "water" counts as a right t or d.
@@ -86,6 +90,10 @@ npm start
 - [tools/score/](tools/score/): also the scoring test (`run.mjs`), the speed test (`speed.mjs` with `speed.html`), and the model in Node (`model.mjs`).
 
 ### Words (iiSurf)
+
+- [data/tips/uk-en.json](data/tips/uk-en.json): the Ukrainian tips for Fix this part. For 22 sounds: how to make it starting from a sound the learner already has (th as the Ukrainian с with the tongue between the teeth, w as a very short у, ship as the и of шип…), 21 "you said…" tips for what they said instead, words with the same sound in the same spot, and pairs to hear the difference. Another first language is another file like it. **Not yet read by a Ukrainian speaker**: the friend should check it.
+- [js/words/tips.js](js/words/tips.js): `fixTip(data, part, word)` picks what to show for a part that went wrong (the sound, what they said, up to 4 words, up to 2 pairs with their own word first), and `segments()` marks the Ukrainian letters so a screen reader reads them in Ukrainian. Screens get it as `ctx.tips(part, word)`.
+- The tips show in Speak's practice panel: tap a part that isn't green. (That is about 20 lines in `js/practice/speak.js`, which is the teammate's file. iiSurf applied them on November 8 with the teammate's branch fully merged, and the teammate should look over that commit.)
 
 - [js/words/screens.js](js/words/screens.js): My words (add a word you type or a suggested one, remove it with Undo, Practice it), and the word page (its letters with the strong part underlined and silent letters in gray, its sounds, Hear it, Slowly, and Practice it).
 - [js/words/lookup.js](js/words/lookup.js): `lookUp(word)`, which gives its sounds, the letters for each sound, the stress, and the strong part.

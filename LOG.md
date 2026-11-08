@@ -632,3 +632,133 @@ The first-visit tour from the tutorial drafts, now that the screens it points at
 - A real phone, and a real microphone. The microphone was a stand-in that plays a recording.
 - Hearing "Hear it" in step 2. Headless Chrome has no voices.
 - The tour with a real learner. Your friend is the one to try it.
+
+## 2026-11-08 (Sunday, evening): a window that asks before the download
+
+### Plan
+
+iiSurf is worried about the 355 MB sound model download, and wants people to be able to decide: a window that opens when someone reaches the page that needs it, that can be closed, and that says how big the file is, what it's for, how it's used, and that nothing leaves their phone. The first answer to "can it work with no download?": most of the app already does (Read, Listen, My words, Your colors, and the tour need nothing), and only Speak's colored letters need the model. No smaller ready-made model exists. The browser's own speech recognition would send recordings to Google or Samsung, so it was not chosen.
+
+### Changed
+
+- New: `js/ui/modeldialog.js`, a window that opens the first time someone reaches Speak without the model:
+  - **What it is:** a small listening model, 355 MB, downloaded once and kept by the browser.
+  - **What it's for:** it hears each sound, so each part can turn green, yellow, orange, or red.
+  - **How it's used:** it runs inside the app on the phone, and the recording is thrown away.
+  - **Your privacy:** the voice never leaves the phone, nothing is sent to anyone, and the words and settings stay on the phone. The file comes from Hugging Face, which can see that the phone asked for it and nothing about the person or their voice.
+  - Two buttons, **Download (355 MB)** and **Not now**, and a line saying Read and Listen need no download, with links to both.
+  - On mobile data, it adds a note to use Wi-Fi.
+  - After Download: a progress bar and a percentage, and it can be closed while the download goes on. When it finishes, a message says "Speak is ready." and Speak redraws.
+  - If the download stops: it says so, says nothing was saved or shared, and offers Try again.
+- `js/app.js` opens it (`askAboutModel`): at most once per visit, only on Speak, and never when the model is already here. Escape closes it too.
+- Speak (the teammate's file) is untouched. Its own "Get it (355 MB)" card stays as the fallback, so the download is always available there after closing the window.
+- New: `npm run check-download` (`tools/check-download.mjs`), and `tools/chrome.mjs` can now answer a page's network requests, so tests can pretend the model isn't here without downloading anything.
+- Styles in `css/app.css`: the window, its buttons pinned to the bottom, and a message bar.
+
+### Verified
+
+- `npm run check-download`, 16 of 16, ten runs in a row:
+  - opens without the model, says each of the four things above, and closes with Escape and with Not now;
+  - doesn't open twice in a visit, comes back the next visit;
+  - a failed download says so and offers Try again, which tries again;
+  - the Read link closes it and opens Read;
+  - a stand-in download shows 42%, then closes and says Speak is ready;
+  - doesn't open when the model is already here.
+- `npm test` 79 of 79, `check-shell` 10, `check-words` 12, `check-tour` 28.
+- At 390, 844 by 390 (a phone held sideways), and 1280, in light and dark.
+- Two things found by looking and by running it many times:
+  - The first version filled the whole phone screen, with the buttons cut off at the bottom. It's tighter now, with the buttons pinned.
+  - The check failed about one run in six, and the cause was the check, not the app: it reloaded before the new address had settled, and sometimes landed on the front page. It now waits.
+
+### Not verified
+
+- A real download of the real file inside the window. Every download here was a stand-in, to avoid fetching 355 MB again. The same download code is covered by `tests/score/source.test.js`.
+- A real phone, and the mobile data note: Chrome on Android reports the connection type, but Safari doesn't.
+- Resuming a download that broke halfway: it starts over. Making it resumable is the next step.
+
+### Same evening: the download is resumable
+
+iiSurf asked for the resumable download, the next step after the window.
+
+### Changed
+
+- `js/score/source.js` downloads the model in 43 pieces of 8 MB instead of one stream:
+  - Each piece is asked for with a range request, checked against its own checksum (the 43 checksums are in `source.js`), and only then kept in the browser (Cache Storage, in a separate cache from the finished copy).
+  - If the connection breaks or the page closes, the next try asks **only for the pieces that are missing**, and progress starts where it stopped.
+  - A piece that fails is tried again by itself three times, waiting 1.5, 4, and 9 seconds. Then it gives up with a plain message: the error code, or "the connection dropped, it picks up where it stopped", or "came through damaged".
+  - A damaged piece is thrown away and never kept.
+  - When every piece is in, they're joined, saved whole as before, and the pieces are cleared.
+  - The checksum is per piece, not for the whole file, so a phone never has to hold a second 355 MB copy to check it.
+- It copes with trouble:
+  - A server that ignores ranges and sends the whole file still works, and is checked piece by piece.
+  - A browser with no Cache Storage, or one that refuses it (some private windows do), keeps pieces in memory so "Try again" still resumes in the same visit.
+  - Where a page can't compute checksums, pieces are checked by size.
+- `keepStorage()` asks the browser to keep what's been saved, when the download starts and when it finishes, so it isn't deleted when the phone runs low on space.
+- The download window: after an interrupted download it says "You already have 47% of it (168 MB). The rest picks up where it stopped." and its button reads "Continue (187 MB left)". It tells people during the download that a dropped connection is retried by itself, and after a failure that what came through is kept.
+- `ctx.model.partial()` (new): how much is already kept.
+- New: `npm run check-resume` (`tools/check-resume.mjs`).
+
+### Verified
+
+- Before building it, I checked that Hugging Face allows this: range requests work from a page in Chrome, cross origin, from the first byte to the last, and `Content-Range` is readable.
+- `npm test`: 88 of 88, with 9 more tests for the download (fresh, break and resume, retry with waits, last-try messages, a damaged piece, a kept piece of the wrong size, a server that ignores ranges, no Cache Storage, a refused cache, no checksums, the browser asked to keep the file), and one that checks all 43 piece checksums against the real model file.
+- `npm run check-resume`, 10 of 10, with the real model and the real download code in Chrome, answering each request from the local copy:
+  - the first try broke at piece 20, after 4 tries, with a plain message, and the 20 pieces were kept;
+  - on the next visit the window said "You already have 47%" and offered Continue;
+  - the second try asked for exactly the 23 missing pieces;
+  - the finished model was saved whole, the pieces were cleared, and the model loaded and ran.
+- `npm run check-download`, 16 of 16, six runs in a row. `check-shell` 10, `check-words` 12, `check-tour` 28.
+- Found by running it: a damaged whole file from a server that ignores ranges was being retried as if the network had dropped, and reported with the wrong message. It's reported as damaged at once now.
+
+### Not verified
+
+- The real internet. Every piece in `check-resume` came from the local copy. Range requests to the real server were checked with small ranges only.
+- A real phone: whether the browser actually grants "keep this file" depends on the browser and the phone, and Chrome decides by how much the site is used. If it doesn't, the file can still be deleted when storage runs low, and the window then offers to download again.
+- Safari and Firefox.
+
+## 2026-11-08 (Sunday, night): the Ukrainian tips
+
+### Plan
+
+Fix this part had only "the th needs work, it sounded like an s. Listen slowly." The friend asked for tips that compare English sounds to Ukrainian ones (docs/needs.md). iiSurf said to build them.
+
+### Changed
+
+- New: `data/tips/uk-en.json`, the Ukrainian tips, as a data file (another language is another file):
+  - **22 sounds,** each with a title ("th as in think"), a tip that starts from a sound the learner already has, words with the same sound filed by where it sits (start, middle, end), and pairs to hear the difference. Examples:
+    - th as in think: start from the Ukrainian с (сам), then put the tongue tip between the teeth, and blow softly with no buzz;
+    - th as in this: start from з (зуб), tongue between the teeth, keep the buzz;
+    - w: a very short у (ум), so wet starts like у-ет;
+    - ng: the н in банк, and stop there, with no г;
+    - ship: the и of шип, and sheep: the і of ліс, held a little longer;
+    - r: don't roll it like р; h: a soft breath like х, not the buzzing г; p, t, k: a puff of air at the start of a word.
+  - **21 "you said…" tips** for what they said instead: th said as s, t, d, or f; this said as d or z; w as v and v as w; r as l; ng as n; ee and i; a and e; the two oo sounds; oh; p, t, and k as b, d, and g.
+  - **A note** in the file that it hasn't been read by a Ukrainian speaker.
+- New: `js/words/tips.js`: `fixTip()` picks what to show. Words are the same spot first, never the word itself, up to 4. Pairs with the learner's own word come first, up to 2, so "think · sink" shows up for "think" said as "sink". `segments()` marks Ukrainian letters so they can carry `lang="uk"`.
+- `js/score/score.js`: each part now says which sound was graded worst (`focusPhone`) and where it sits (`position`).
+- `js/app.js`: `ctx.tips(part, word)`.
+- `docs/fix-tips.patch`: the 20 lines that put the tips in Speak's practice panel: the sound's title and tip with Ukrainian letters marked, what they said, tappable words, and tappable pairs that say both words. Speak (`js/practice/speak.js`) is the teammate's file, so I did not commit it. I applied the patch, tested it, saved it, and put the file back.
+- New: `npm run check-tips` (`tools/check-tips.mjs`), and 14 new tests (102 in all).
+
+### Verified
+
+- Every example word and every pair is checked against the real dictionary: 200+ words really have the sound in the spot they're filed under, and 40+ pairs differ by exactly one sound. That caught five of my own mistakes (for example, "see" ends in its sound, and "around" starts with a different vowel in this dictionary), and they're fixed.
+- `npm run check-tips`, 21 of 21, with the patch applied: the real model scored a stand-in microphone playing "sink" for "think". Tapping the red th shows "th as in think", the tip with the Ukrainian с, "You said s", words (thank, thin, three, thing), and the pairs "think · sink" and "thin · tin". "vest" said for "west" shows the w tip and "You said v". Ukrainian letters carry `lang="uk"`, there's no IPA anywhere, and Back to the word closes the panel. Checked at 360, 390, and 1280 wide.
+- `docs/fix-tips.patch` applies cleanly to the committed `speak.js`, and `npm test` passes: 102 of 102.
+- A flaw found by running it: the first version hid any pair containing the learner's own word, which is backwards. Those come first now.
+
+### Not verified
+
+- **The Ukrainian itself.** No Ukrainian speaker has read the tips. They are common teaching advice, but a word choice or an explanation may be wrong. The friend should read them.
+- Hearing the tappable words and pairs: headless Chrome has no voices, and they use the phone's own English voice.
+- The patch isn't applied to the committed Speak yet, so on `main` the tips don't show until it is.
+- Tips for sounds beyond those 22 (there is none for l, s, z, f, and so on), so the panel stays as it was for them.
+
+### The tips are in Speak now
+
+iiSurf chose to apply the patch on their own branch instead of leaving it for the teammate.
+
+- Before applying, I checked that the teammate has no unmerged commits, and that their `js/practice/speak.js` on `main` is the same file the patch was made against. It applied cleanly.
+- The change in `js/practice/speak.js`, about 20 lines and nothing else: it imports `segments`, adds a `tipView` function, adds an `#fix-tips` box to the practice panel, and, when a part is opened, asks `ctx.tips(part, word)` and fills the box. This is the teammate's file, so it is its own commit, and the teammate is asked in `docs/practice-brief.md` to look it over and change it as they like.
+- `docs/fix-tips.patch` is deleted, as it said to do.
+- Verified with the patch applied: `check-tips` 21 of 21, `check-tour` 28, `check-shell` 10, `check-words` 12, `check-download` 16, and `npm test` 102 of 102.

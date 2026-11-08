@@ -16,7 +16,10 @@
     "score-try": "node tools/score/try-check.mjs",
     "check-shell": "node tools/check-shell.mjs",
     "check-words": "node tools/check-words.mjs",
-    "check-tour": "node tools/check-tour.mjs"
+    "check-tour": "node tools/check-tour.mjs",
+    "check-download": "node tools/check-download.mjs",
+    "check-resume": "node tools/check-resume.mjs",
+    "check-tips": "node tools/check-tips.mjs"
   },
   "devDependencies": {
     "onnxruntime-web": "1.31.1"

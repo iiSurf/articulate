@@ -105,14 +105,15 @@ export const speak = {
 - `ctx.score(recording, word, { onProgress })`: give it the recording (the Blob from `MediaRecorder`) and the word. You get back everything above, plus each part as it's spelled:
   `parts: [{ letters: "th", sounds: [2], grade: "red", heard: "d", unsure: false }, …]`
   Silent letters have grade `null`. `unsure` marks the vowels the app hears poorly (bad/bed, fool/full), which never show better than yellow, so say so on screen. `strong` is the part said strongest.
+- `ctx.tips(part, word)`: the Ukrainian tip for a part that went wrong in Fix this part (`{ title, uk, tip, swap, words, pairs }`, or null). Each part of `ctx.score()`'s result now has `focusPhone` (its worst sound) and `position` (start, middle, or end) for it. **It's already shown in Speak's practice panel:** iiSurf added about 20 lines to `js/practice/speak.js` (a `tipView` function, an `#fix-tips` box, and a call to `ctx.tips` when a part is opened) on November 8, from a clean copy of your merged branch. Please look over that commit and keep or change it as you like.
 - `ctx.lookUp(word)`: the word's sounds, the letters for each one, its stress, and its strong part. You don't have to record anything to use it.
-- `ctx.model.saved()`: is the sound model already here ("local", "saved", or null)? `ctx.model.load({ onProgress })` gets it ready. Use these to show the one-time 355 MB download before the first try. `design/tutorial.html`, phone 4, has the look.
+- `ctx.model.saved()`: is the sound model already here ("local", "saved", or null)? `ctx.model.load({ onProgress })` gets it ready, and `ctx.model.partial()` says how much of an interrupted download is already kept (`{ done, total }` in bytes, or null). The app's own download window opens before Speak first needs the model, so Speak doesn't have to ask itself. Use these to show the one-time 355 MB download before the first try. `design/tutorial.html`, phone 4, has the look.
 - `ctx.go(name, param)`: opens another screen, for example `ctx.go("practice", "speak")`.
 - `ctx.param`: what follows the screen's name in the address.
 - `ctx.state` and `ctx.save()`: what's saved.
 - `ctx.tour.did(...)`: tells the tour something happened.
 - `say(word, { slow })`, from `js/words/speech.js`: says a word with the phone's voice. It's useful for Listen.
-- **Coming next from iiSurf:** the Ukrainian tip for each sound, words with the same sound in the same spot, and sound-alike pairs. Until then, use a short list of your own, like feather, leather, together, or sheep/ship and west/vest, and swap it in when they land.
+- **Tips, same-sound words, and sound-alike pairs** are in (`ctx.tips`, above). Your own short lists in `js/practice/lists.js` can stay for Listen and Read.
 
 **The tour** points at your controls, so please give them these names:
 - `data-tour="record"` on the Record button;
