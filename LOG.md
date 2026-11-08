@@ -870,3 +870,25 @@ iiSurf asked for the improvements I suggested, and a grammar pass. Everything ex
 
 - A real phone and microphone, Safari, and Firefox. The cheer messages were tested as logic only, not seen in a browser (they need a real improving word). A Ukrainian speaker has not read the tips, including the two wordings I changed.
 - Not built: the silent "Which did you hear?" game.
+
+## 2026-11-08 (Sunday night, later): Which did you hear?, a phone checklist, and a review sheet
+
+### Plan
+
+Work through what was left: the silent listening game from the drafts (option B), a way for the real-phone testing to happen, and a way for a Ukrainian speaker to review the tips. The Portfolio card was pushed first (`8966d34` in the Portfolio repo), with the line about the boards and the round.
+
+### Changed
+
+- **Which did you hear?** (`js/hear.js`, `#/hear/TH`): eight questions from the sound's word pairs in the tips file, the learner's own word's pair first. The phone says one word, the learner taps which it was, with a streak, ✓ or ✕ on the buttons, "Hear both", and the tip when they're wrong. A pair that comes round again says the other word. It ends with "7 of 8 right", the longest streak, "Say th out loud" (the spoken round), Play again, and Back. No microphone, no download, and it never touches the boards. It starts from a "Hear the difference" button beside "Practice th" under Needs work, for sounds that have pairs (the small uh, ah, o, and er have none). A phone that can't speak gets a plain note and a link to Read. The question logic is `hearQuestions` in `js/progress.js`, tested.
+- **A name clash found and fixed:** the teammate's `practice.css` already uses `.choice` and `.choices` for Listen and dims disabled ones, so the first answered buttons looked washed out. Mine are `.hear-choice` and `.hear-choices`.
+- **`docs/device-test.md`:** a 20-minute checklist for the Samsung: the first visit, the download and an interrupted download, speaking, the boards, the round, the listening game, dark mode, and what to write down.
+- **`tools/tips-review.mjs`** (`npm run tips-review`) writes `design/tips-review.html`, a printable sheet of all 22 sounds with the Ukrainian sound, the tip, the "you said" tips, and OK or Change boxes. It is made from the tips file and names no app, purpose, or person, so it can go to any Ukrainian speaker.
+- `tools/check-hear.mjs` (`npm run check-hear`); the contrast check in `check-progress` also covers the new buttons in all seven looks.
+
+### Verified
+
+- `npm test` 119 of 119. All nine browser checks pass: shell, words, progress, hear (22 checks: right and wrong answers, streak, Hear both, the ending, the history unchanged, no pairs, no speech), download, resume, tips, tour, and round. Pictures looked at at 390, with no sideways scroll at 360, 390, and 1280. The review sheet looked at at 1280.
+
+### Not verified
+
+- A real phone, a real voice (the check uses a stand-in voice that records the word; the real phone voice, and whether think and sink sound clearly different in it, is untested), Safari, and Firefox. The checklist is the way to do it. The review sheet hasn't been read by anyone yet.

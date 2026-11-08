@@ -33,6 +33,8 @@ registerScreen("progress", {
         if (word) { ctx.state.current = word.dataset.word; ctx.save(); return; } // the link goes on to Speak
         const hard = e.target.closest("[data-round]");
         if (hard) ctx.go("round", hard.dataset.round);
+        const hear = e.target.closest("[data-hear]");
+        if (hear) ctx.go("hear", hear.dataset.hear);
       });
     };
     draw();
@@ -97,7 +99,7 @@ function hardest(state, tips) {
       <span class="bar" aria-hidden="true"><i style="width:${Math.round((100 * s.misses) / top)}%"></i></span>
       <span class="n">${s.misses} ${s.misses === 1 ? "miss" : "misses"}</span>
     </li>`)}</ul>
-    ${can(sounds[0]) ? html`<div class="row"><button type="button" class="btn primary" data-round="${sounds[0].sound}">Practice ${short(sounds[0])}</button></div>
-      <p class="hint">A round is five words with this sound, said out loud.</p>` : ""}
+    ${can(sounds[0]) ? html`<div class="row"><button type="button" class="btn primary" data-round="${sounds[0].sound}">Practice ${short(sounds[0])}</button>${tips.sounds[sounds[0].sound].pairs?.length ? html`<button type="button" class="btn" data-hear="${sounds[0].sound}">Hear the difference</button>` : ""}</div>
+      <p class="hint">A round is five words with this sound, said out loud. Hear the difference needs no microphone: listen, and tap which word it was.</p>` : ""}
   </section>`;
 }

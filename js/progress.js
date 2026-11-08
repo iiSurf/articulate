@@ -123,5 +123,25 @@ export function roundWords(tips, state, sound, size = 5) {
   return [own, ...listed].filter((w, i, xs) => w && xs.indexOf(w) === i).slice(0, size);
 }
 
+// The questions of "Which did you hear?" for one sound: pairs of words that differ by that sound (think and sink), the
+// learner's own word first, cycling through the pairs. Each question says one word of its pair; a pair that comes round
+// again says the other word, so both get heard. flip says which word is on the first button. rng is Math.random (a
+// test passes its own). Sounds with no pairs have no game: [].
+export const HEAR_QUESTIONS = 8;
+export function hearQuestions(tips, state, sound, n = HEAR_QUESTIONS, rng = Math.random) {
+  const pairs = tips?.sounds?.[sound]?.pairs ?? [];
+  if (!pairs.length) return [];
+  const own = ownWordFor(state, sound);
+  const shuffle = (xs) => xs.map((x) => [rng(), x]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
+  const order = [...shuffle(pairs.filter((p) => p.includes(own))), ...shuffle(pairs.filter((p) => !p.includes(own)))];
+  const last = new Map();
+  return Array.from({ length: n }, (_, i) => {
+    const pair = order[i % order.length], key = pair.join("|");
+    const said = pair[last.has(key) ? 1 - last.get(key) : rng() < 0.5 ? 0 : 1];
+    last.set(key, pair.indexOf(said));
+    return { pair, said, flip: rng() < 0.5 };
+  });
+}
+
 // Stars for a round: one for each word said well enough. results is [{ word, score }] (the best try of each word).
 export const stars = (results) => results.filter((r) => r.score >= GOOD_ENOUGH).length;
