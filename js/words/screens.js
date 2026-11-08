@@ -27,12 +27,12 @@ function myWords(container, ctx, note = "", undo = null) {
       <form class="add" id="add">
         <label class="visually-hidden" for="new-word">A word to practice</label>
         <input id="new-word" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Type a word" maxlength="40">
-        <button class="btn primary">Add</button>
+        <button class="btn primary" data-tour="add">Add</button>
       </form>
       <p class="hint" id="note" aria-live="polite">${note}${undo ? html` <button type="button" class="link" id="undo">Undo</button>` : ""}</p>
       ${words.length
         ? html`<ul class="word-list">${words.map((w) => html`<li>
-            <a class="word-name" href="#/words/${encodeURIComponent(w.text)}">${w.text}</a>
+            <a class="word-name" data-tour="word-link" href="#/words/${encodeURIComponent(w.text)}">${w.text}</a>
             <button type="button" class="btn" data-practice="${w.text}">Practice</button>
             <button type="button" class="remove" data-remove="${w.text}" aria-label="Remove ${w.text}">×</button>
           </li>`)}</ul>`
@@ -56,6 +56,7 @@ function myWords(container, ctx, note = "", undo = null) {
     words.push({ text, added: today() });
     ctx.save();
     myWords(container, ctx, `Added "${text}".`);
+    ctx.tour.did("added");
   };
 
   container.querySelector("#add").addEventListener("submit", (e) => {
@@ -87,6 +88,7 @@ function myWords(container, ctx, note = "", undo = null) {
 function practice(ctx, word) {
   ctx.state.current = word;
   ctx.save();
+  ctx.tour.did("practice");
   ctx.go("practice", "speak");
 }
 
@@ -115,10 +117,10 @@ async function wordPage(container, ctx, word) {
     ${strong ? html`<p class="hint">The strong part is "${strong}".</p>` : ""}
     ${found.parts.some((p) => !p.sounds.length) ? html`<p class="hint">Letters in light gray are silent.</p>` : ""}
     ${canSpeak() ? html`<div class="row">
-      <button type="button" class="btn" id="hear">Hear it</button>
+      <button type="button" class="btn" id="hear" data-tour="hear">Hear it</button>
       <button type="button" class="btn" id="slowly">Slowly</button>
     </div>` : html`<p class="hint">This browser can't say words out loud.</p>`}
-    <button type="button" class="btn primary wide" id="practice">Practice it</button>`);
+    <button type="button" class="btn primary wide" id="practice" data-tour="practice">Practice it</button>`);
   card.querySelector("#hear")?.addEventListener("click", () => say(found.word));
   card.querySelector("#slowly")?.addEventListener("click", () => say(found.word, { slow: true }));
   card.querySelector("#practice").addEventListener("click", () => {

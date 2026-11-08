@@ -155,7 +155,7 @@ The owner of a file is the only one who changes it. If you need a change in the 
 
 | Part | Owner | Files |
 | --- | --- | --- |
-| The app shell: the page, the look and the themes, moving between screens, saved settings, and the tour | iiSurf | `index.html`, `css/`, `js/app.js`, `js/looks.js`, `js/store.js`, `js/html.js`, `js/tour.js`, `tests/app/`, `design/` |
+| The app shell: the page, the look and the themes, moving between screens, saved settings, and the tour | iiSurf | `index.html`, `css/`, `js/app.js`, `js/looks.js`, `js/store.js`, `js/html.js`, `js/tour.js`, `js/tour-ui.js`, `tests/app/`, `design/` |
 | Words: my words, the dictionary, letters and sounds, suggestions, word pages, Ukrainian tips | iiSurf | `js/words/`, `data/words/`, `tools/words/`, `tests/words/` |
 | Scoring: the sound model and the color of each part | iiSurf | `js/score/`, `tools/score/`, `tests/score/`, `vendor/` |
 | Practice: the Read puzzles, Listen, the Speak screen (record, play back, show the colors, fix this part), and the voice clips | the teammate | `js/practice/`, `data/voice/`, `tools/voice/`, `tests/practice/` |
@@ -238,7 +238,7 @@ A test (`tests/app/tour.test.js`, with the tour) will check that every `data-tou
 1. **The app shell:** the page, the seven looks and Your colors (day, night, and following the phone's dark mode), the tabs (Words, Practice, Progress), "Right now I can…" with Read, Listen, and Speak, saved settings, and a safe way to put text on the page. Started November 1.
 2. **Words:** My words (add, remove, saved on the phone), and the word page (its sounds, the strong part, Hear it and Slowly with the phone's own voice until the voice clips exist). Built November 1, along with lining letters up with sounds.
 3. **Scoring hooked up:** `score(recording, word)` from the handshake, with the letters for each sound. Built November 1 as `ctx.score`, with `ctx.lookUp`, `ctx.model`, and `ctx.word`.
-4. **The tour:** the welcome, the step card, the ring, the one-time tips, the "?", and Show me around again. Steps 1 and 2 run on the Words screens. Steps 3 to 5 run on the Speak and Fix screens through the hooks above.
+4. **The tour** (built November 8, `js/tour.js` and `js/tour-ui.js`): the welcome, the step card, the ring, the one-time tips, the "?", and Show me around again. Steps 1 and 2 run on the Words screens. Steps 3 to 5 run on the Speak and Fix screens through the hooks above.
 5. **Words, finished:** suggestions, a smaller dictionary file, and lining up letters with sounds.
 
 ## Branches, pull requests, and merging
