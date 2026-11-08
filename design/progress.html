@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articulate progress drafts</title>
+<!--
+  Rough drafts of the Progress tab (iiSurf, November 8): three personal boards (top words, needs work, most improved),
+  the sounds that cause the trouble, and two ways a practice game could work. The words and numbers are MADE UP.
+  Self-contained on purpose: no fonts, scripts, or images from anywhere else. Uses the Sky over wheat look, and
+  Night flag for one phone. The script draws everything. After changing it, run `node tools/bake.mjs design/progress.html`.
+-->
+<style>
+  :root { --page: #E9E9E6; --page-ink: #1D1D1F; --page-muted: #55555A; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--page-ink); font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .intro, .section-head { max-width: 1232px; margin: 0 auto; padding: 32px 24px 8px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 10px; }
+  .section-head h2 { font-size: 26px; line-height: 1.2; margin: 0 0 8px; }
+  .intro p, .section-head p { margin: 0 0 10px; max-width: 780px; color: var(--page-muted); }
+  .intro p b, .section-head p b { color: var(--page-ink); }
+  .grid { max-width: 1232px; margin: 0 auto; padding: 20px 24px 56px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(372px, 100%), 1fr)); gap: 48px 28px; }
+  .option { display: flex; flex-direction: column; align-items: center; }
+  .option-head, .watch { width: 100%; max-width: 360px; }
+  .option h3 { margin: 0; font-size: 22px; line-height: 1.2; display: flex; align-items: center; gap: 10px; }
+  .num { display: inline-grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--page-ink); color: #fff; font-size: 17px; }
+  .from { margin: 8px 0 14px; color: var(--page-muted); font-size: 16px; min-height: 4.35em; }
+  .watch { margin: 14px 0 0; font-size: 16px; color: var(--page-muted); }
+  .watch b { color: var(--page-ink); }
+
+  .phone { width: 100%; max-width: 360px; border-radius: 36px; padding: 10px; background: #1B1B1D; box-shadow: 0 18px 40px rgba(0,0,0,.18); }
+  .screen { border-radius: 27px; overflow: hidden; background: var(--bg); color: var(--ink); display: flex; flex-direction: column; min-height: 760px; }
+  .band { background: var(--band); color: var(--band-ink); }
+  .band-top { display: flex; align-items: center; gap: 10px; padding: 20px 16px 18px; min-height: 76px; }
+  .brand { font-weight: 800; font-size: 23px; }
+  .pair { font-weight: 800; font-size: 13px; letter-spacing: .06em; background: var(--pair-bg); color: var(--pair-ink); border-radius: 999px; padding: 4px 9px; }
+  .back { font-weight: 800; font-size: 30px; line-height: 1; margin: -4px 0 0; }
+  .strip { display: block; width: 100%; }
+  .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .card { background: var(--surface); border-radius: 18px; padding: 14px 14px 16px; box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 6px 18px rgba(0,0,0,.07); }
+  .dark .card { box-shadow: none; }
+  .card p { margin: 6px 0 0; }
+  .label { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .hint { font-size: 15px; color: var(--muted); }
+  .sub { font-size: 14px; font-weight: 700; color: var(--muted); margin: 12px 0 6px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 7px; border-radius: 14px; padding: 12px 14px; font-weight: 800; font-size: 16px; text-align: center; background: var(--chip-bg); color: var(--chip-ink); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .row .btn { flex: 1; }
+  .chip { display: inline-block; background: var(--chip-bg); color: var(--chip-ink); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 15px; }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); padding: 9px 6px 13px; }
+  .tabs span { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 800; color: var(--muted); }
+  .tabs .on { color: var(--tab-on); }
+  .tabs svg { width: 24px; height: 24px; }
+  .aa { font-size: 19px; line-height: 24px; font-weight: 900; }
+
+  .good { --g: var(--good); --gb: var(--good-bar); --gm: var(--good-mark); }
+  .close { --g: var(--close); --gb: var(--close-bar); --gm: var(--close-mark); }
+  .off { --g: var(--off); --gb: var(--off-bar); --gm: var(--off-mark); }
+  .work { --g: var(--work); --gb: var(--work-bar); --gm: var(--work-mark); }
+
+  /* The three boards */
+  .boards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--mode-bg); border-radius: 15px; }
+  .boards span { text-align: center; padding: 9px 2px; border-radius: 11px; font-weight: 800; font-size: 14px; line-height: 1.2; color: var(--chip-ink); }
+  .boards .on { background: var(--mode-on); color: var(--mode-on-ink); }
+  .ranks { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .ranks li { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; background: var(--bg); border-radius: 14px; padding: 8px 12px 8px 8px; }
+  .rank { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; background: var(--chip-bg); color: var(--chip-ink); }
+  .ranks li:first-child .rank { background: var(--accent); color: var(--accent-ink); }
+  .w { font-size: 20px; font-weight: 800; line-height: 1.15; }
+  .w .p { color: var(--g, var(--ink)); }
+  .meter { height: 8px; border-radius: 4px; background: var(--chip-bg); margin-top: 6px; overflow: hidden; }
+  .meter i { display: block; height: 100%; border-radius: 4px; background: var(--gb, var(--tab-on)); }
+  .num2 { text-align: right; font-weight: 900; font-size: 20px; line-height: 1.1; }
+  .num2 small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .02em; }
+  .up { color: var(--good); }
+  .spot { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; margin-top: 4px; color: var(--g); }
+  .spot i { width: 26px; height: 16px; border-radius: 8px; background: var(--gb); color: var(--gm); display: grid; place-items: center; }
+  .spot svg { width: 11px; height: 11px; }
+  .how { font-size: 14px; color: var(--muted); margin-top: 10px; }
+
+  .hard { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .hard div { display: grid; grid-template-columns: 70px 1fr auto; align-items: center; gap: 10px; font-weight: 800; }
+  .hard .snd { font-size: 20px; }
+  .hard .bar { height: 12px; border-radius: 6px; background: var(--chip-bg); overflow: hidden; }
+  .hard .bar i { display: block; height: 100%; background: var(--work-bar); }
+  .hard .n { font-size: 14px; color: var(--muted); }
+
+  /* The game */
+  .dots { display: flex; justify-content: center; gap: 8px; margin: 4px 0 0; }
+  .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--chip-bg); }
+  .dots i.done { background: var(--good-bar); }
+  .dots i.now { background: var(--accent); outline: 3px solid var(--ring); outline-offset: 2px; }
+  .bigword { display: flex; justify-content: center; gap: 5px; margin: 14px 0 0; }
+  .bigword .part { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .bigword .l { font-size: 52px; font-weight: 800; line-height: 1; color: var(--g, var(--ink)); }
+  .bigword .m { width: 100%; min-width: 36px; height: 24px; border-radius: 12px; background: var(--gb, var(--chip-bg)); color: var(--gm); display: grid; place-items: center; }
+  .bigword .m svg { width: 17px; height: 17px; }
+  .stars { display: flex; justify-content: center; gap: 6px; font-size: 38px; line-height: 1; margin: 10px 0 4px; }
+  .stars .on { color: var(--accent); filter: drop-shadow(0 1px 0 rgba(0,0,0,.25)); }
+  .stars .off { color: var(--chip-bg); }
+  .center { text-align: center; }
+  .streak { display: flex; justify-content: center; align-items: baseline; gap: 6px; font-weight: 900; font-size: 34px; margin-top: 6px; }
+  .streak small { font-size: 15px; font-weight: 700; color: var(--muted); }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .choices span { background: var(--chip-bg); color: var(--chip-ink); border-radius: 16px; padding: 18px 8px; text-align: center; font-size: 24px; font-weight: 800; }
+  .choices .right { background: var(--good-bar); color: #fff; }
+  .recap { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .recap div { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--bg); border-radius: 12px; padding: 8px 12px; font-weight: 800; }
+  .recap .st { color: var(--muted); font-size: 14px; }
+
+  .foot { max-width: 1232px; margin: 0 auto; padding: 0 24px 48px; color: var(--page-muted); }
+  .foot p { max-width: 780px; margin: 0 0 8px; }
+  @media (max-width: 520px) { .intro, .section-head { padding: 24px 16px 4px; } h1 { font-size: 26px; } .grid { padding: 16px 16px 48px; } .foot { padding: 0 16px 40px; } .from { min-height: 0; } }
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>Articulate: the boards, and the practice game</h1>
+  <p>Rough drafts. <b>The words and numbers are made up.</b> The Progress tab holds three boards: <b>Top words</b>, <b>Needs work</b>, and <b>Most improved</b>. Under them, <b>the sounds that cause the trouble</b> lead to a short practice game.</p>
+  <p><b>The boards are personal:</b> they rank your friend's own words against each other. Everything stays on their phone, so nobody else can be on them.</p>
+</header>
+
+<section class="section-head">
+  <h2>The three boards</h2>
+  <p>Each word gets a score from 0 to 100 from its colored parts: green counts fully, yellow mostly, orange a little, red nothing.</p>
+</section>
+<main class="grid" id="boards"><article class="option"><div class="option-head"><h3><span class="num">1</span>Top words</h3><p class="from">Your best words, highest first: the best of your last three tries. Every part green is 100.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><div class="boards"><span class="on">Top words</span><span class="">Needs work</span><span class="">Most improved</span></div><section class="card"><div class="label">Your best words</div><ul class="ranks">
+        <li class="good"><span class="rank">1</span><div><div class="w"><span class="p good">th</span><span class="p good">r</span><span class="p good">ee</span></div><div class="meter"><i style="width:96%"></i></div></div><div class="num2">96<small>out of 100</small></div></li><li class="good"><span class="rank">2</span><div><div class="w"><span class="p good">w</span><span class="p good">or</span><span class="p good">l</span><span class="p close">d</span></div><div class="meter"><i style="width:92%"></i></div></div><div class="num2">92<small>out of 100</small></div></li>
+        <li class="good"><span class="rank">3</span><div><div class="w"><span class="p good">v</span><span class="p good">e</span><span class="p good">r</span><span class="p close">y</span></div><div class="meter"><i style="width:88%"></i></div></div><div class="num2">88<small>out of 100</small></div></li><li class="good"><span class="rank">4</span><div><div class="w"><span class="p good">th</span><span class="p close">ir</span><span class="p good">t</span><span class="p good">y</span></div><div class="meter"><i style="width:84%"></i></div></div><div class="num2">84<small>out of 100</small></div></li>
+        <li class="close"><span class="rank">5</span><div><div class="w"><span class="p close">w</span><span class="p good">ea</span><span class="p good">th</span><span class="p good">er</span></div><div class="meter"><i style="width:80%"></i></div></div><div class="num2">80<small>out of 100</small></div></li></ul>
+        <p class="how">Updates after every try. Tap a word to practice it.</p></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">2</span>Needs work</h3><p class="from">Your hardest words, lowest first, with the part that is the problem. This is where the game starts.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><div class="boards"><span class="">Top words</span><span class="on">Needs work</span><span class="">Most improved</span></div><section class="card"><div class="label">Needs the most work</div><ul class="ranks">
+        <li class="work"><span class="rank">1</span><div><div class="w"><span class="p work">th</span><span class="p good">i</span><span class="p good">n</span><span class="p good">k</span></div><span class="spot work"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></i>th</span><div class="meter"><i style="width:22%"></i></div></div><div class="num2">22<small>out of 100</small></div></li><li class="off"><span class="rank">2</span><div><div class="w"><span class="p off">v</span><span class="p good">e</span><span class="p close">ge</span><span class="p good">t</span><span class="p good">a</span><span class="p good">ble</span></div><span class="spot off"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></i>v</span><div class="meter"><i style="width:31%"></i></div></div><div class="num2">31<small>out of 100</small></div></li>
+        <li class="work"><span class="rank">3</span><div><div class="w"><span class="p work">th</span><span class="p good">i</span><span class="p good">s</span></div><span class="spot work"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></i>th</span><div class="meter"><i style="width:38%"></i></div></div><div class="num2">38<small>out of 100</small></div></li><li class="off"><span class="rank">4</span><div><div class="w"><span class="p off">w</span><span class="p good">a</span><span class="p good">t</span><span class="p close">er</span></div><span class="spot off"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></i>w</span><div class="meter"><i style="width:45%"></i></div></div><div class="num2">45<small>out of 100</small></div></li>
+        <li class="off"><span class="rank">5</span><div><div class="w"><span class="p good">sh</span><span class="p off">ee</span><span class="p good">p</span></div><span class="spot off"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"></path><circle cx="12" cy="19" r="2.1" fill="currentColor"></circle></svg></i>ee</span><div class="meter"><i style="width:52%"></i></div></div><div class="num2">52<small>out of 100</small></div></li></ul></section><section class="card"><div class="label">Where you struggle most</div>
+      <div class="hard"><div><span class="snd">th</span><span class="bar"><i style="width:100%"></i></span><span class="n">9 misses</span></div>
+      <div><span class="snd">w → v</span><span class="bar"><i style="width:66%"></i></span><span class="n">6</span></div>
+      <div><span class="snd">ee · i</span><span class="bar"><i style="width:44%"></i></span><span class="n">4</span></div>
+      <div><span class="snd">r</span><span class="bar"><i style="width:33%"></i></span><span class="n">3</span></div></div>
+      <div class="row"><span class="btn primary">Practice th</span></div></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">3</span>Most improved</h3><p class="from">Words that got better, biggest jump first: your recent tries against your first ones. A word needs two tries to show up.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><div class="boards"><span class="">Top words</span><span class="">Needs work</span><span class="on">Most improved</span></div><section class="card"><div class="label">Most improved</div><ul class="ranks">
+        <li class="good"><span class="rank">1</span><div><div class="w"><span class="p good">w</span><span class="p good">or</span><span class="p good">l</span><span class="p close">d</span></div><span class="hint up">54 → 92</span><div class="meter"><i style="width:92%"></i></div></div><div class="num2">+38<small>out of 100</small></div></li><li class="good"><span class="rank">2</span><div><div class="w"><span class="p good">v</span><span class="p good">e</span><span class="p good">r</span><span class="p close">y</span></div><span class="hint up">57 → 88</span><div class="meter"><i style="width:88%"></i></div></div><div class="num2">+31<small>out of 100</small></div></li>
+        <li class="good"><span class="rank">3</span><div><div class="w"><span class="p good">th</span><span class="p close">ir</span><span class="p good">t</span><span class="p good">y</span></div><span class="hint up">57 → 84</span><div class="meter"><i style="width:84%"></i></div></div><div class="num2">+27<small>out of 100</small></div></li><li class="close"><span class="rank">4</span><div><div class="w"><span class="p close">w</span><span class="p good">ea</span><span class="p good">th</span><span class="p good">er</span></div><span class="hint up">60 → 80</span><div class="meter"><i style="width:80%"></i></div></div><div class="num2">+20<small>out of 100</small></div></li></ul>
+        <p class="how">Practice a hard sound, then say the word again: it moves up here.</p></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article></main>
+
+<section class="section-head">
+  <h2>The practice game: pick one</h2>
+  <p>It starts from the sound they struggle with most, here <b>th</b>. Option A uses the microphone and the sound model. Option B is silent-ish and works with no download.</p>
+</section>
+<main class="grid" id="games"><article class="option"><div class="option-head"><h3><span class="num">4</span>A: Say it round</h3><p class="from">Five words with the hard sound, said out loud and scored by the real model. Needs the download and a microphone.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="back">‹</span><span class="brand">th round</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card center"><div class="label">Word 3 of 5</div><div class="dots"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+        <div class="bigword"><span class="part work"><span class="l">th</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span></span><span class="part good"><span class="l">in</span><span class="m"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span></div>
+        <p class="hint">The th sounded like an s. Try again, or move on.</p><div class="row"><span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn primary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Again</span></div></section>
+        <section class="card"><div class="label">Tip</div><p>Start from the Ukrainian с, then slide your tongue forward between your teeth.</p></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div><p class="watch"><b>Watch for:</b> it's the most useful practice, but it can't be played on the bus.</p></article><article class="option"><div class="option-head"><h3><span class="num">5</span>A: the round ends</h3><p class="from">Stars for the round (a star for each word that came out green), and the words go to My words if they want.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="back">‹</span><span class="brand">th round</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card center"><div class="label">Round done</div><div class="stars"><span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="off">★</span><span class="off">★</span></div>
+        <p><b>3 of 5 words came out green.</b> Last round: 1 of 5.</p>
+        <div class="recap"><div>thank<span class="st">green ✓</span></div><div>thin<span class="st">green ✓</span></div><div>three<span class="st">green ✓</span></div><div>thing<span class="st">close ≈</span></div><div>think<span class="st">needs work ✕</span></div></div>
+        <div class="row"><span class="btn">Add these words</span><span class="btn primary">Say think again</span></div></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">6</span>B: Which did you hear? (at night)</h3><p class="from">Hear a word, pick which one it was (think or sink), and keep a streak. No microphone and no download: it works on the bus, and it trains the ear, which trains the mouth.</p></div><div class="phone dark"><div class="screen" style="--bg:#0B1526;--surface:#14233B;--ink:#EAF1FB;--muted:#A9B9D0;--band:#0B1526;--band-ink:#EAF1FB;--accent:#FFD500;--accent-ink:#0B1526;--chip-bg:#1D3152;--chip-ink:#FFE36B;--mode-bg:#14233B;--mode-on:#FFD500;--mode-on-ink:#0B1526;--tab-on:#FFD500;--pair-bg:#1D3152;--pair-ink:#FFE36B;--ring:#FFD500;--good:#74E08F;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#FFD95A;--close-bar:#F2C200;--close-mark:#2B2100;--off:#FFA061;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#FF7D7D;--work-bar:#E5484D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="back">‹</span><span class="brand">th round</span></div><svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"></stop><stop offset="1" stop-color="#FFD500" stop-opacity=".35"></stop></linearGradient></defs><rect width="360" height="10" fill="url(#glow)"></rect><rect y="10" width="360" height="4" fill="#FFD500"></rect></svg></div><div class="body"><section class="card center"><div class="label">Which did you hear?</div><div class="streak">7<small>in a row</small></div>
+        <div class="row"><span class="btn primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Play it again</span></div><div class="choices"><span>think</span><span class="right">sink ✓</span></div>
+        <p class="hint">Yes, sink. The th has the tongue between the teeth.</p><div class="row"><span class="btn primary">Next</span></div></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div><p class="watch"><b>Watch for:</b> it doesn't grade their speaking, so "most improved" would only move when they say the word in Speak.</p></article></main>
+
+<footer class="foot">
+  <p><b>Not in these drafts yet:</b> the moving parts (stars popping in, the score bar filling), and how the boards look in the other six looks.</p>
+</footer>
+
+<script>
+  const GRADES = {
+    light: { good: ["#1B7A35", "#23843F", "#FFFFFF"], close: ["#8A6A00", "#F2C200", "#2B2100"], off: ["#C2410C", "#F07A1E", "#2B1300"], work: ["#B42318", "#D92D2D", "#FFFFFF"] },
+    dark: { good: ["#74E08F", "#23843F", "#FFFFFF"], close: ["#FFD95A", "#F2C200", "#2B2100"], off: ["#FFA061", "#F07A1E", "#2B1300"], work: ["#FF7D7D", "#E5484D", "#FFFFFF"] },
+  };
+  const MARKS = {
+    good: '<path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+    close: '<path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+    off: '<path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/><circle cx="12" cy="19" r="2.1" fill="currentColor"/>',
+    work: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>',
+  };
+  const mark = (g) => `<svg viewBox="0 0 24 24" aria-hidden="true">${MARKS[g]}</svg>`;
+  const ICONS = {
+    mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    ear: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    bars: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"/><rect x="16" y="3" width="4.5" height="18" rx="1.6"/></svg>',
+  };
+  const SKY = { c: { bg: "#F3F6FB", surface: "#FFFFFF", ink: "#0E1E36", muted: "#4A5A73", band: "#0057B7", "band-ink": "#FFFFFF", accent: "#FFD500", "accent-ink": "#0E1E36", "chip-bg": "#E3ECF8", "chip-ink": "#0B3D80", "mode-bg": "#E3ECF8", "mode-on": "#0057B7", "mode-on-ink": "#FFFFFF", "tab-on": "#0057B7", "pair-bg": "#FFD500", "pair-ink": "#0E1E36", ring: "#0057B7" }, strip: '<svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"/></svg>' };
+  const NIGHT = { dark: true, c: { bg: "#0B1526", surface: "#14233B", ink: "#EAF1FB", muted: "#A9B9D0", band: "#0B1526", "band-ink": "#EAF1FB", accent: "#FFD500", "accent-ink": "#0B1526", "chip-bg": "#1D3152", "chip-ink": "#FFE36B", "mode-bg": "#14233B", "mode-on": "#FFD500", "mode-on-ink": "#0B1526", "tab-on": "#FFD500", "pair-bg": "#1D3152", "pair-ink": "#FFE36B", ring: "#FFD500" }, strip: '<svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"/><stop offset="1" stop-color="#FFD500" stop-opacity=".35"/></linearGradient></defs><rect width="360" height="10" fill="url(#glow)"/><rect y="10" width="360" height="4" fill="#FFD500"/></svg>' };
+  const vars = (t) => [...Object.entries(t.c), ...Object.entries(GRADES[t.dark ? "dark" : "light"]).flatMap(([k, [x, b, m]]) => [[k, x], [`${k}-bar`, b], [`${k}-mark`, m]])].map(([k, v]) => `--${k}:${v}`).join(";");
+  const band = (t, { title = "", back = false } = {}) => `<div class="band"><div class="band-top">${back ? '<span class="back">‹</span>' : ""}${title ? `<span class="brand">${title}</span>` : '<span class="brand">Articulate</span><span class="pair">UA → EN</span>'}</div>${t.strip}</div>`;
+  const tabs = (on) => `<nav class="tabs"><span><span class="aa">Aa</span>Words</span><span>${ICONS.mic}Practice</span><span class="${on === "progress" ? "on" : ""}">${ICONS.bars}Progress</span></nav>`;
+  const phone = (t, inside) => `<div class="phone${t.dark ? " dark" : ""}"><div class="screen" style="${vars(t)}">${inside}</div></div>`;
+  // a word with its parts colored: parts is [["th","work"], ["i", "good"], ...]
+  const word = (parts) => parts.map(([l, g]) => `<span class="p ${g}">${l}</span>`).join("");
+  const boards = (on) => `<div class="boards">${["Top words", "Needs work", "Most improved"].map((b, i) => `<span class="${i === on ? "on" : ""}">${b}</span>`).join("")}</div>`;
+  const rank = (n, w, score, extra = "", cls = "", pct = score) => `<li class="${cls}"><span class="rank">${n}</span><div><div class="w">${w}</div>${extra}<div class="meter"><i style="width:${pct}%"></i></div></div><div class="num2">${score}<small>${score === "" ? "" : "out of 100"}</small></div></li>`;
+  const spot = (letters, g) => `<span class="spot ${g}"><i>${mark(g)}</i>${letters}</span>`;
+  const hardest = () => `<section class="card"><div class="label">Where you struggle most</div>
+      <div class="hard"><div><span class="snd">th</span><span class="bar"><i style="width:100%"></i></span><span class="n">9 misses</span></div>
+      <div><span class="snd">w → v</span><span class="bar"><i style="width:66%"></i></span><span class="n">6</span></div>
+      <div><span class="snd">ee · i</span><span class="bar"><i style="width:44%"></i></span><span class="n">4</span></div>
+      <div><span class="snd">r</span><span class="bar"><i style="width:33%"></i></span><span class="n">3</span></div></div>
+      <div class="row"><span class="btn primary">Practice th</span></div></section>`;
+
+  const BOARDS = [
+    { title: "Top words", what: "Your best words, highest first: the best of your last three tries. Every part green is 100.",
+      draw: () => phone(SKY, `${band(SKY)}<div class="body">${boards(0)}<section class="card"><div class="label">Your best words</div><ul class="ranks">
+        ${rank(1, word([["th", "good"], ["r", "good"], ["ee", "good"]]), 96, "", "good", 96)}${rank(2, word([["w", "good"], ["or", "good"], ["l", "good"], ["d", "close"]]), 92, "", "good", 92)}
+        ${rank(3, word([["v", "good"], ["e", "good"], ["r", "good"], ["y", "close"]]), 88, "", "good", 88)}${rank(4, word([["th", "good"], ["ir", "close"], ["t", "good"], ["y", "good"]]), 84, "", "good", 84)}
+        ${rank(5, word([["w", "close"], ["ea", "good"], ["th", "good"], ["er", "good"]]), 80, "", "close", 80)}</ul>
+        <p class="how">Updates after every try. Tap a word to practice it.</p></section></div>${tabs("progress")}`) },
+    { title: "Needs work", what: "Your hardest words, lowest first, with the part that is the problem. This is where the game starts.",
+      draw: () => phone(SKY, `${band(SKY)}<div class="body">${boards(1)}<section class="card"><div class="label">Needs the most work</div><ul class="ranks">
+        ${rank(1, word([["th", "work"], ["i", "good"], ["n", "good"], ["k", "good"]]), 22, spot("th", "work"), "work", 22)}${rank(2, word([["v", "off"], ["e", "good"], ["ge", "close"], ["t", "good"], ["a", "good"], ["ble", "good"]]), 31, spot("v", "off"), "off", 31)}
+        ${rank(3, word([["th", "work"], ["i", "good"], ["s", "good"]]), 38, spot("th", "work"), "work", 38)}${rank(4, word([["w", "off"], ["a", "good"], ["t", "good"], ["er", "close"]]), 45, spot("w", "off"), "off", 45)}
+        ${rank(5, word([["sh", "good"], ["ee", "off"], ["p", "good"]]), 52, spot("ee", "off"), "off", 52)}</ul></section>${hardest()}</div>${tabs("progress")}`) },
+    { title: "Most improved", what: "Words that got better, biggest jump first: your recent tries against your first ones. A word needs two tries to show up.",
+      draw: () => phone(SKY, `${band(SKY)}<div class="body">${boards(2)}<section class="card"><div class="label">Most improved</div><ul class="ranks">
+        ${rank(1, word([["w", "good"], ["or", "good"], ["l", "good"], ["d", "close"]]), "+38", '<span class="hint up">54 → 92</span>', "good", 92)}${rank(2, word([["v", "good"], ["e", "good"], ["r", "good"], ["y", "close"]]), "+31", '<span class="hint up">57 → 88</span>', "good", 88)}
+        ${rank(3, word([["th", "good"], ["ir", "close"], ["t", "good"], ["y", "good"]]), "+27", '<span class="hint up">57 → 84</span>', "good", 84)}${rank(4, word([["w", "close"], ["ea", "good"], ["th", "good"], ["er", "good"]]), "+20", '<span class="hint up">60 → 80</span>', "close", 80)}</ul>
+        <p class="how">Practice a hard sound, then say the word again: it moves up here.</p></section></div>${tabs("progress")}`) },
+  ];
+
+  const GAMES = [
+    { title: "A: Say it round", what: "Five words with the hard sound, said out loud and scored by the real model. Needs the download and a microphone.", watch: "<b>Watch for:</b> it's the most useful practice, but it can't be played on the bus.",
+      draw: () => phone(SKY, `${band(SKY, { title: "th round", back: true })}<div class="body"><section class="card center"><div class="label">Word 3 of 5</div><div class="dots"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+        <div class="bigword"><span class="part work"><span class="l">th</span><span class="m">${mark("work")}</span></span><span class="part good"><span class="l">in</span><span class="m">${mark("good")}</span></span></div>
+        <p class="hint">The th sounded like an s. Try again, or move on.</p><div class="row"><span class="btn">${ICONS.ear}Hear it</span><span class="btn primary">${ICONS.mic}Again</span></div></section>
+        <section class="card"><div class="label">Tip</div><p>Start from the Ukrainian с, then slide your tongue forward between your teeth.</p></section></div>${tabs("progress")}`) },
+    { title: "A: the round ends", what: "Stars for the round (a star for each word that came out green), and the words go to My words if they want.",
+      draw: () => phone(SKY, `${band(SKY, { title: "th round", back: true })}<div class="body"><section class="card center"><div class="label">Round done</div><div class="stars"><span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="off">★</span><span class="off">★</span></div>
+        <p><b>3 of 5 words came out green.</b> Last round: 1 of 5.</p>
+        <div class="recap"><div>thank<span class="st">green ✓</span></div><div>thin<span class="st">green ✓</span></div><div>three<span class="st">green ✓</span></div><div>thing<span class="st">close ≈</span></div><div>think<span class="st">needs work ✕</span></div></div>
+        <div class="row"><span class="btn">Add these words</span><span class="btn primary">Say think again</span></div></section></div>${tabs("progress")}`) },
+    { title: "B: Which did you hear? (at night)", what: "Hear a word, pick which one it was (think or sink), and keep a streak. No microphone and no download: it works on the bus, and it trains the ear, which trains the mouth.", watch: "<b>Watch for:</b> it doesn't grade their speaking, so \"most improved\" would only move when they say the word in Speak.",
+      draw: () => phone(NIGHT, `${band(NIGHT, { title: "th round", back: true })}<div class="body"><section class="card center"><div class="label">Which did you hear?</div><div class="streak">7<small>in a row</small></div>
+        <div class="row"><span class="btn primary">${ICONS.ear}Play it again</span></div><div class="choices"><span>think</span><span class="right">sink ✓</span></div>
+        <p class="hint">Yes, sink. The th has the tongue between the teeth.</p><div class="row"><span class="btn primary">Next</span></div></section></div>${tabs("progress")}`) },
+  ];
+
+  const draw = (list, start) => list.map((s, i) => `<article class="option"><div class="option-head"><h3><span class="num">${start + i}</span>${s.title}</h3><p class="from">${s.what}</p></div>${s.draw()}${s.watch ? `<p class="watch">${s.watch}</p>` : ""}</article>`).join("");
+  document.getElementById("boards").innerHTML = draw(BOARDS, 1);
+  document.getElementById("games").innerHTML = draw(GAMES, 4);
+</script>
+</body></html>

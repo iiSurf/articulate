@@ -762,3 +762,88 @@ iiSurf chose to apply the patch on their own branch instead of leaving it for th
 - The change in `js/practice/speak.js`, about 20 lines and nothing else: it imports `segments`, adds a `tipView` function, adds an `#fix-tips` box to the practice panel, and, when a part is opened, asks `ctx.tips(part, word)` and fills the box. This is the teammate's file, so it is its own commit, and the teammate is asked in `docs/practice-brief.md` to look it over and change it as they like.
 - `docs/fix-tips.patch` is deleted, as it said to do.
 - Verified with the patch applied: `check-tips` 21 of 21, `check-tour` 28, `check-shell` 10, `check-words` 12, `check-download` 16, and `npm test` 102 of 102.
+
+## 2026-11-08 (Sunday, late): drafts for the boards and a practice game
+
+### Plan
+
+iiSurf asked for three boards (best words said correctly, words that need the most work, and the most improved), and a game built from the parts of words the learner struggles with, so those words can climb the third board. Drawn first, as with the looks and the tour.
+
+### Decisions so far
+
+- **The boards are personal.** Everything stays on the phone, so they rank the learner's own words against each other. A board with other people would need a server and accounts, which the app doesn't have.
+- **A word's score is 0 to 100** from its colored parts: green counts fully, yellow 70%, orange 40%, red 0, silent letters skipped. Top words and Needs work use the average of the last three tries. Most improved compares the latest three against the first three, and a word needs two tries.
+- **Where it lives:** the Progress tab, which is an empty placeholder now.
+- **The sounds that cause the trouble** come from the history: every graded try records which sound was worst, so the app can count which sounds go orange or red most. That feeds the game.
+- **Recording tries** would happen inside `ctx.score` in `js/app.js`, my file, so the teammate's screens don't change.
+
+### Changed
+
+- New: `design/progress.html`, six phones with made-up words: the three boards, "where you struggle most", and two game options (A: say five words with the hard sound, scored by the real model, with stars for the round; B: hear a word and pick which one it was, with a streak, no microphone and no download).
+
+### Not verified
+
+- Nothing is built. These are drawings with made-up numbers.
+
+## 2026-11-08 (Sunday, late): every try is remembered, and the boards' math (step 1 of 3)
+
+### Plan
+
+iiSurf picked "A: Say it round". Built in three small steps: (1) remember each graded try and work out the boards, (2) the Progress screen with the three boards, (3) the Say it round. This is step 1: logic and tests only, no new screen.
+
+### Changed
+
+- New `js/progress.js`, pure logic: `scoreOf` (green 100%, yellow 70%, orange 40%, red 0, silent letters skipped), `recordTry`, `topWords` (the best of the last three tries), `needsWork` (the average of the last three, only words under 80), `mostImproved` (the first tries against the last ones, never overlapping, needs two tries and a gain of 10), `hardestSounds` (which sounds went orange or red most, with the words that had them), `roundWords` (the learner's own trouble word first, then words with that sound from `data/tips/uk-en.json`), and `stars` (one for each word at 80 or more).
+- `js/store.js`: a new optional `history` field (each word's last 30 tries, at most 80 words). `sanitize` drops anything shaped wrong, so no version bump is needed and old backups load with an empty history.
+- `js/app.js`: `ctx.score` remembers each graded try and saves. The teammate's screens didn't change.
+- `tools/check-tips.mjs` also checks that a try lands in the saved history.
+
+### Verified
+
+- `npm test` 114 of 114 (12 new, covering scoring, the three boards, ties, the caps, the hardest sounds, a round's words, and bad saved shapes), `check-shell` and `check-words` pass, and `check-tips` passes with the real model, including that "think" said as "sink" and "west" said as "vest" were each saved with a score and a trouble spot.
+
+### Not verified
+
+- No screen shows any of this yet (steps 2 and 3). The tour was not re-run, but it doesn't change; it records its first word like any other.
+
+## 2026-11-08 (Sunday, late): the Progress tab, with the three boards (step 2 of 3)
+
+### Plan
+
+Draw the boards from the history (step 1) the way `design/progress.html` showed them, with the sounds that cause the trouble under Needs work.
+
+### Changed
+
+- New `js/progress-screen.js` and `css/progress.css`: three boards as buttons (Top words, Needs work, Most improved), each row a link that makes that word the one to practice and opens Speak. Needs work shows the part that went worst last time with its mark (✕ or !), so color isn't the only signal. Under it, "Where you struggle most" lists the sounds that went orange or red most, named from the tips file ("th as in think"), with a button "Practice th" that goes to `#/round/TH` (the round is step 3, so that address is not drawn yet). A learner with no tries sees a short note and a button to Speak.
+- `js/progress.js`: Top words only lists words at 60 or more (a board of "best words" with a 22 on it felt wrong), and `toneOf` picks each score's color (80, 60, 40).
+- `js/app.js` loads the screen; `index.html` links `css/progress.css`. `tools/check-progress.mjs` (`npm run check-progress`) seeds a made-up history and checks the boards, the empty page, tapping a word, and no sideways scroll at 360, 390 and 1280; it takes pictures.
+
+### Verified
+
+- `npm test` 115 of 115, `check-progress` all green, and the pictures looked at: 360, 390, 1280, and the night look. The first pass had bars ending at different spots and sound names wrapping at 360; both were fixed.
+
+### Not verified
+
+- A real phone. The boards with real tries from a real microphone (the history recording was checked with the real model in `check-tips`, the screen with made-up tries). The other six looks. The round button leads nowhere until step 3.
+
+## 2026-11-08 (Sunday, late): Say it round (step 3 of 3)
+
+### Plan
+
+Option A from the drafts: five words with the sound the learner struggles with most, said out loud and scored by the real model, stars for the round, a recap, "Add these words", and "Say <word> again" so the word can climb Most improved.
+
+### Changed
+
+- New `js/round.js` (`#/round/TH`): the five words come from `roundWords` (their own trouble word for that sound first, then words with the sound from the tips file). Each word shows its parts with the same colors and marks as Speak after a try, the sentence about what it sounded like, the sound's tip (Ukrainian letters marked `lang="uk"`), Hear it, Slowly, and Skip this word or Next word. Every try goes through `ctx.score`, so it's remembered and the boards move. The end shows stars (one for each word at 80 or more), a recap that names the part that went wrong ("th needs work ✕") or "good ✓" or "skipped", "Last round: N of 5" (saved as the optional `rounds` field in the saved data, which `sanitize` checks), Add these words (only the ones not in My words yet), Say <word> again (their own trouble word, or the worst word of the round, opened in Speak), Play again, and Back to Progress. Without the sound model it offers the same one-time download window as Speak. If they leave while it's recording, nothing is scored.
+- `js/app.js`: the `round` address, a band with a back arrow to Progress, and the Progress tab stays lit. `js/progress.js`: `ownWordFor`. `css/progress.css`: the round's pieces, with star pop-ins that turn off for reduced motion.
+- It uses the teammate's `recorder.js` and `feedback.js` (documented in `docs/practice-brief.md`, which now also says every graded try is remembered).
+- `tools/check-round.mjs` (`npm run check-round`), README, PLAN.md.
+
+### Verified
+
+- `npm test` 117 of 117, and every browser check passes: `check-shell`, `check-words`, `check-progress`, `check-download`, `check-resume`, `check-tips`, `check-tour`, and the new `check-round` with the real model: a stand-in microphone said "sink" for think, thank, thin, tree for three, and thing; the marks, hint, tip, button labels, two stars, recap, history (think has two tries), the saved stars, Add these words (four new words), Play again, Last round, skipped words, Say think again opening Speak, a sound with no words, and the download window without the model. Pictures looked at at 390, 360 (no sideways scroll), and 1280.
+- The first pass showed think (th red) as just "close" in the recap, because one red part in four still averages 75; the recap now names the part instead. The buttons also moved to their own rows.
+
+### Not verified
+
+- A real phone and a real microphone, and a real person saying the words (the stand-in plays recordings of the Mac's voices). Safari and Firefox. The other six looks. Whether 80 is the right line for a star: it is my choice, not agreed. One red part in a short word still averages close (75), so a word can reach Top words with a red part; the boards and the recap say which part. A Ukrainian speaker has not read the tips the round shows.
