@@ -632,3 +632,46 @@ The first-visit tour from the tutorial drafts, now that the screens it points at
 - A real phone, and a real microphone. The microphone was a stand-in that plays a recording.
 - Hearing "Hear it" in step 2. Headless Chrome has no voices.
 - The tour with a real learner. Your friend is the one to try it.
+
+## 2026-11-08 (Sunday, evening): a window that asks before the download
+
+### Plan
+
+iiSurf is worried about the 355 MB sound model download, and wants people to be able to decide: a window that opens when someone reaches the page that needs it, that can be closed, and that says how big the file is, what it's for, how it's used, and that nothing leaves their phone. The first answer to "can it work with no download?": most of the app already does (Read, Listen, My words, Your colors, and the tour need nothing), and only Speak's colored letters need the model. No smaller ready-made model exists. The browser's own speech recognition would send recordings to Google or Samsung, so it was not chosen.
+
+### Changed
+
+- New: `js/ui/modeldialog.js`, a window that opens the first time someone reaches Speak without the model:
+  - **What it is:** a small listening model, 355 MB, downloaded once and kept by the browser.
+  - **What it's for:** it hears each sound, so each part can turn green, yellow, orange, or red.
+  - **How it's used:** it runs inside the app on the phone, and the recording is thrown away.
+  - **Your privacy:** the voice never leaves the phone, nothing is sent to anyone, and the words and settings stay on the phone. The file comes from Hugging Face, which can see that the phone asked for it and nothing about the person or their voice.
+  - Two buttons, **Download (355 MB)** and **Not now**, and a line saying Read and Listen need no download, with links to both.
+  - On mobile data, it adds a note to use Wi-Fi.
+  - After Download: a progress bar and a percentage, and it can be closed while the download goes on. When it finishes, a message says "Speak is ready." and Speak redraws.
+  - If the download stops: it says so, says nothing was saved or shared, and offers Try again.
+- `js/app.js` opens it (`askAboutModel`): at most once per visit, only on Speak, and never when the model is already here. Escape closes it too.
+- Speak (the teammate's file) is untouched. Its own "Get it (355 MB)" card stays as the fallback, so the download is always available there after closing the window.
+- New: `npm run check-download` (`tools/check-download.mjs`), and `tools/chrome.mjs` can now answer a page's network requests, so tests can pretend the model isn't here without downloading anything.
+- Styles in `css/app.css`: the window, its buttons pinned to the bottom, and a message bar.
+
+### Verified
+
+- `npm run check-download`, 16 of 16, ten runs in a row:
+  - opens without the model, says each of the four things above, and closes with Escape and with Not now;
+  - doesn't open twice in a visit, comes back the next visit;
+  - a failed download says so and offers Try again, which tries again;
+  - the Read link closes it and opens Read;
+  - a stand-in download shows 42%, then closes and says Speak is ready;
+  - doesn't open when the model is already here.
+- `npm test` 79 of 79, `check-shell` 10, `check-words` 12, `check-tour` 28.
+- At 390, 844 by 390 (a phone held sideways), and 1280, in light and dark.
+- Two things found by looking and by running it many times:
+  - The first version filled the whole phone screen, with the buttons cut off at the bottom. It's tighter now, with the buttons pinned.
+  - The check failed about one run in six, and the cause was the check, not the app: it reloaded before the new address had settled, and sometimes landed on the front page. It now waits.
+
+### Not verified
+
+- A real download of the real file inside the window. Every download here was a stand-in, to avoid fetching 355 MB again. The same download code is covered by `tests/score/source.test.js`.
+- A real phone, and the mobile data note: Chrome on Android reports the connection type, but Safari doesn't.
+- Resuming a download that broke halfway: it starts over. Making it resumable is the next step.

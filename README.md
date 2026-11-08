@@ -45,6 +45,7 @@ npm start
 | `npm run score-speed` | Times the model in Chrome, at full speed and slowed down as a stand-in for phones | Anywhere |
 | `npm run score-test` | The scoring test: colors on word pairs said by the Mac's voices | Mac only, because it uses the Mac's `say` voices |
 | `npm run score-try` | Checks the try-it page end to end in Chrome, with a stand-in microphone playing the scoring test's recordings | Mac only (it needs those recordings) |
+| `npm run check-download` | Checks the window that asks before the 355 MB download: it opens, explains, closes, doesn't repeat, and handles a failed download | Anywhere |
 | `npm run check-tour` | Walks the whole first visit in Chrome, with the real sound model and a stand-in microphone: welcome, five steps, finish, skipping, Take me there, tips | Mac only (it needs the scoring test's recordings) |
 | `npm run check-words` | Clicks through My words and the word page in Chrome | Anywhere |
 | `npm run check-shell` | Clicks through the app shell in Chrome and checks the looks, dark mode, saving, and safe text | Anywhere |
@@ -68,6 +69,7 @@ npm start
 
 - [index.html](index.html): the page. Everything else is drawn by `js/app.js`.
 - [js/app.js](js/app.js): the band, one screen at a time, the tabs, Your colors, and "Right now I can…". Each part plugs its screens in with `registerScreen()` (PLAN.md, "Screens, and the hooks the tour needs"). Until a screen is plugged in, it says "This part is being built."
+- [js/ui/modeldialog.js](js/ui/modeldialog.js): the window that opens the first time someone reaches Speak without the sound model. It explains the one-time 355 MB download (what the file is, what it's for, how it's used, and that the voice never leaves the phone), then lets them download or close it with "Not now" and use Read and Listen instead. It shows once per visit, never when the model is already there, and has progress, a message when it's ready, and Try again if the download stops. Speak's own download card stays as the fallback.
 - [js/tour.js](js/tour.js) and [js/tour-ui.js](js/tour-ui.js) with [css/tour.css](css/tour.css): the first visit. A welcome, then five steps with the learner's own first word (add it, open and hear it, say it, fix a part that isn't green, say it again), then a finish. After that, each screen explains itself once with a tip, the "?" brings a tip back, and Your colors has Show me around again. Screens tell the tour what happened with `ctx.tour.did(...)`. The steps and words are in `tour.js`, with tests.
 - [js/looks.js](js/looks.js) and [css/looks.css](css/looks.css): the seven looks, and which one shows (the night look when the phone goes dark, if the learner wants that).
 - [js/store.js](js/store.js): what's saved on the phone, under one key, `articulate.v1`. Anything read back is checked first, so a broken save can't break the app.
