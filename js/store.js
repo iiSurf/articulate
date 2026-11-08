@@ -10,7 +10,7 @@ const DAY = new Set(LOOKS.filter((l) => !l.dark).map((l) => l.id));
 const NIGHT = new Set(LOOKS.filter((l) => l.dark).map((l) => l.id));
 
 export function fresh() {
-  return { version: VERSION, words: [], current: null, mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [] };
+  return { version: VERSION, words: [], current: null, mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [], history: {} };
 }
 
 // Everything read back from storage goes through here. Whatever is missing or wrong becomes the starting value,
@@ -38,6 +38,19 @@ export function sanitize(saved) {
   if (Number.isInteger(tour.step) && tour.step >= 0 && tour.step <= 6) s.tour.step = tour.step;
   if (typeof tour.done === "boolean") s.tour.done = tour.done;
   if (Array.isArray(saved.tipsSeen)) s.tipsSeen = [...new Set(saved.tipsSeen.filter((t) => typeof t === "string"))];
+  // What each graded try left behind (js/progress.js). Anything that isn't shaped right is dropped, not repaired.
+  if (saved.history && typeof saved.history === "object" && !Array.isArray(saved.history)) {
+    for (const [word, tries] of Object.entries(saved.history).slice(0, 200)) {
+      if (!/^[a-z' -]{1,40}$/.test(word) || !Array.isArray(tries)) continue;
+      const kept = tries.filter((t) => t && typeof t.at === "string" && Number.isFinite(t.score) && t.score >= 0 && t.score <= 100 && Array.isArray(t.bad))
+        .slice(-30).map((t) => ({
+          at: t.at.slice(0, 30), score: Math.round(t.score),
+          bad: t.bad.filter((b) => Array.isArray(b) && typeof b[0] === "string" && ["orange", "red"].includes(b[1])).slice(0, 12)
+            .map((b) => [b[0].slice(0, 4), b[1], typeof b[2] === "string" ? b[2].slice(0, 12) : ""]),
+        }));
+      if (kept.length) s.history[word] = kept;
+    }
+  }
   return s;
 }
 

@@ -784,3 +784,24 @@ iiSurf asked for three boards (best words said correctly, words that need the mo
 ### Not verified
 
 - Nothing is built. These are drawings with made-up numbers.
+
+## 2026-11-08 (Sunday, late): every try is remembered, and the boards' math (step 1 of 3)
+
+### Plan
+
+iiSurf picked "A: Say it round". Built in three small steps: (1) remember each graded try and work out the boards, (2) the Progress screen with the three boards, (3) the Say it round. This is step 1: logic and tests only, no new screen.
+
+### Changed
+
+- New `js/progress.js`, pure logic: `scoreOf` (green 100%, yellow 70%, orange 40%, red 0, silent letters skipped), `recordTry`, `topWords` (the best of the last three tries), `needsWork` (the average of the last three, only words under 80), `mostImproved` (the first tries against the last ones, never overlapping, needs two tries and a gain of 10), `hardestSounds` (which sounds went orange or red most, with the words that had them), `roundWords` (the learner's own trouble word first, then words with that sound from `data/tips/uk-en.json`), and `stars` (one for each word at 80 or more).
+- `js/store.js`: a new optional `history` field (each word's last 30 tries, at most 80 words). `sanitize` drops anything shaped wrong, so no version bump is needed and old backups load with an empty history.
+- `js/app.js`: `ctx.score` remembers each graded try and saves. The teammate's screens didn't change.
+- `tools/check-tips.mjs` also checks that a try lands in the saved history.
+
+### Verified
+
+- `npm test` 114 of 114 (12 new, covering scoring, the three boards, ties, the caps, the hardest sounds, a round's words, and bad saved shapes), `check-shell` and `check-words` pass, and `check-tips` passes with the real model, including that "think" said as "sink" and "west" said as "vest" were each saved with a score and a trouble spot.
+
+### Not verified
+
+- No screen shows any of this yet (steps 2 and 3). The tour was not re-run, but it doesn't change; it records its first word like any other.

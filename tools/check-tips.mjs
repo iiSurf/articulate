@@ -59,6 +59,8 @@ try {
       for (let i = 0; i < 200 && !(await chrome.evaluate(`!!document.querySelector('button[data-tour="part"]:not([data-grade="green"])')`)); i++) await sleep(250);
       const grade = await chrome.evaluate(`document.querySelector('button[data-tour="part"]:not([data-grade="green"])')?.dataset.grade ?? null`);
       check(`"${c.word}" said as ${c.plays.split("/")[1]}: a part isn't green`, !!grade, "nothing was graded");
+      const kept = await chrome.evaluate(`JSON.parse(localStorage.getItem("articulate.v1")).history?.[${JSON.stringify(c.word)}] ?? null`);
+      check(`the try is remembered for the boards (score ${kept?.[0]?.score})`, kept?.length === 1 && kept[0].score < 100 && kept[0].bad.length >= 1, JSON.stringify(kept));
       await chrome.evaluate(`document.querySelector('button[data-tour="part"]:not([data-grade="green"])').click()`);
       let panel = null;
       for (let i = 0; i < 60 && !(panel = await text("#fix-tips")); i++) await sleep(150);
