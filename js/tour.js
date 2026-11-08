@@ -70,23 +70,23 @@ export function copy(step, kind) {
         ? { text: "Tap <b>Hear it</b> to listen, and <b>Slowly</b> to hear each sound. Then tap <b>Practice it</b>.", targets: ['[data-tour="hear"]', '[data-tour="practice"]'] }
         : { text: "Tap your word to open it.", targets: ['[data-tour="word-link"]'] };
     case 3:
-      return { text: "Tap <b>Record</b>, say your word, then tap again. The first time, Articulate downloads its sound model once (355 MB, Wi-Fi is best).", targets: ['[data-tour="record"]', "#get-model"] };
+      return { text: "Tap <b>Record</b>, say your word, then tap <b>Stop</b>. The first time, Articulate downloads its sound model once (355 MB, Wi-Fi is best).", targets: ['[data-tour="record"]', "#get-model"] };
     case 4:
-      return { text: "Here's how it went. Each part of the word got a color, and a mark:", key: true,
+      return { text: "Here's how it went. Each part of the word got a color and a mark:", key: true,
         more: "Tap a part that isn't green to practice it, then tap <b>Back to the word</b>.",
         targets: ['button[data-tour="part"]:not([data-grade="green"])', '[data-tour="fix-back"]'] };
     case 5:
       return { text: "Now say it again, and see what changes. Tap <b>Record</b>.", targets: ['[data-tour="record"]'] };
     default:
       return { title: "You did it!", text: "You practiced your first word. Next time, choose how you want to practice:",
-        list: ["Read: no sound, for anywhere", "Listen: with headphones", "Speak: out loud, with colors"], targets: [] };
+        list: ["Read: no sound, works anywhere", "Listen: with headphones", "Speak: out loud, with colors"], targets: [] };
   }
 }
 
 // The one-time tips: one line for each screen the first time it opens. The "?" in the band brings one back.
 export const TIPS = {
   words: "Add the words you want to work on, or tap one of the suggestions. Tap a word to see how it's said.",
-  read: "<b>Read</b> is practice with no sound, for anywhere. Each puzzle is about how English words sound.",
+  read: "<b>Read</b> is practice with no sound, so it works anywhere. Each puzzle is about how English words sound.",
   listen: "<b>Listen</b> works best with headphones. Hear a word, then tap the one you heard.",
   speak: "<b>Speak</b>: say the word, and each part of it turns green, yellow, orange, or red. Tap a part that isn't green to practice it.",
   colors: "Pick a look for the day and one for night. Articulate switches when your phone goes dark.",

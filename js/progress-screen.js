@@ -9,9 +9,9 @@ import { GRADES } from "./practice/feedback.js";
 import { hardestSounds, mostImproved, needsWork, toneOf, topWords } from "./progress.js";
 
 const BOARDS = [
-  { id: "top", name: "Top words", title: "Your best words", empty: "Words you say well show up here. Say a word in Speak, and keep going: 60 out of 100 gets a word on this board." },
-  { id: "needs", name: "Needs work", title: "Needs the most work", empty: "Nothing needs work right now. Nice! Say a new word in Speak and it will show up here if it's tricky." },
-  { id: "better", name: "Most improved", title: "Most improved", empty: "Say a word a few times. When it gets better, it shows up here with how far it came." },
+  { id: "top", name: "Top words", title: "Your best words", empty: "Words you say well show up here. Say words in Speak. A word needs 60 out of 100 to get on this board." },
+  { id: "needs", name: "Needs work", title: "Needs the most work", empty: "Nothing needs work right now. Nice! Say a new word in Speak, and it shows up here if it's tricky." },
+  { id: "better", name: "Most improved", title: "Most improved", empty: "Say a word a few times. When it gets better, it shows up here, with how much it improved." },
 ];
 const TONE_MARK = Object.fromEntries(Object.values(GRADES).map((g) => [g.tone, g.mark]));
 let board = "top"; // the board last looked at, kept while the app is open
