@@ -45,6 +45,7 @@ npm start
 | `npm run score-speed` | Times the model in Chrome, at full speed and slowed down as a stand-in for phones | Anywhere |
 | `npm run score-test` | The scoring test: colors on word pairs said by the Mac's voices | Mac only, because it uses the Mac's `say` voices |
 | `npm run score-try` | Checks the try-it page end to end in Chrome, with a stand-in microphone playing the scoring test's recordings | Mac only (it needs those recordings) |
+| `npm run check-tips` | The tips in Fix this part, end to end with the real model: "sink" said for "think" gets the Ukrainian с tip, "You said s", words and pairs. Only passes once `docs/fix-tips.patch` is applied to Speak | Mac only (it needs the scoring test's recordings) |
 | `npm run check-resume` | The resumable download, end to end, with the real model: the connection breaks at piece 20 of 43, the pieces that came through are kept, the next try asks only for the rest, and the finished model loads and runs (about 30 seconds) | Anywhere, needs `npm run get-model` |
 | `npm run check-download` | Checks the window that asks before the 355 MB download: it opens, explains, closes, doesn't repeat, and handles a failed download | Anywhere |
 | `npm run check-tour` | Walks the whole first visit in Chrome, with the real sound model and a stand-in microphone: welcome, five steps, finish, skipping, Take me there, tips | Mac only (it needs the scoring test's recordings) |
@@ -89,6 +90,10 @@ npm start
 - [tools/score/](tools/score/): also the scoring test (`run.mjs`), the speed test (`speed.mjs` with `speed.html`), and the model in Node (`model.mjs`).
 
 ### Words (iiSurf)
+
+- [data/tips/uk-en.json](data/tips/uk-en.json): the Ukrainian tips for Fix this part. For 22 sounds: how to make it starting from a sound the learner already has (th as the Ukrainian с with the tongue between the teeth, w as a very short у, ship as the и of шип…), 21 "you said…" tips for what they said instead, words with the same sound in the same spot, and pairs to hear the difference. Another first language is another file like it. **Not yet read by a Ukrainian speaker**: the friend should check it.
+- [js/words/tips.js](js/words/tips.js): `fixTip(data, part, word)` picks what to show for a part that went wrong (the sound, what they said, up to 4 words, up to 2 pairs with their own word first), and `segments()` marks the Ukrainian letters so a screen reader reads them in Ukrainian. Screens get it as `ctx.tips(part, word)`.
+- [docs/fix-tips.patch](docs/fix-tips.patch): the 20 lines that show the tips in Speak's practice panel. Speak is the teammate's file, so this is a tested patch to apply (`git apply docs/fix-tips.patch`), then delete.
 
 - [js/words/screens.js](js/words/screens.js): My words (add a word you type or a suggested one, remove it with Undo, Practice it), and the word page (its letters with the strong part underlined and silent letters in gray, its sounds, Hear it, Slowly, and Practice it).
 - [js/words/lookup.js](js/words/lookup.js): `lookUp(word)`, which gives its sounds, the letters for each sound, the stress, and the strong part.

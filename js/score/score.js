@@ -46,8 +46,11 @@ const WORSE = { green: 0, yellow: 1, orange: 2, red: 3 };
 // to a grade for each part of the word as it's spelled. lookUp and loadModel come from the app (ctx.score passes
 // them in, and the tests pass stand-ins). Everything scoreSounds() returns, plus:
 //   word: "weather", strong: 1 (the part said strongest),
-//   parts: [{ letters: "th", sounds: [2], grade: "red", heard: "d", unsure: false }, ...]
-// A part's grade is its worst sound's grade; a silent letter has grade null.
+//   parts: [{ letters: "th", sounds: [2], grade: "red", heard: "d", unsure: false,
+//             focusPhone: "DH", position: "start" }, ...]
+// A part's grade is its worst sound's grade; a silent letter has grade null. focusPhone is that worst sound as the
+// dictionary writes it (with its stress number, like "AH0"), and position is where it sits in the word: start, middle,
+// or end. js/words/tips.js uses them to pick the tip for Fix this part.
 export async function scoreRecording(recording, typed, { lookUp, loadModel, onProgress } = {}) {
   const found = await lookUp(typed);
   if (!found) throw new Error(`"${typed}" isn't in our word list yet.`);
@@ -59,7 +62,12 @@ export async function scoreRecording(recording, typed, { lookUp, loadModel, onPr
     const worst = sounds.reduce((w, s) => (!w || WORSE[s.grade] > WORSE[w.grade] ? s : w), null);
     const unsure = sounds.some((s) => UNSURE.has(s.cmu));
     const grade = worst && unsure && worst.grade === "green" ? "yellow" : worst?.grade ?? null;
-    return { letters: p.letters, sounds: p.sounds, grade, heard: worst?.heard ?? null, unsure };
+    const at = worst ? result.sounds.indexOf(worst) : -1;
+    return {
+      letters: p.letters, sounds: p.sounds, grade, heard: worst?.heard ?? null, unsure,
+      focusPhone: at >= 0 ? found.phones[at] : null,
+      position: at < 0 ? null : at === 0 ? "start" : at === found.phones.length - 1 ? "end" : "middle",
+    };
   });
   return { ...result, word: found.word, strong: found.strong, parts };
 }

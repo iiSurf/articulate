@@ -1,0 +1,52 @@
+diff --git a/js/practice/speak.js b/js/practice/speak.js
+index f82424a..469239f 100644
+--- a/js/practice/speak.js
++++ b/js/practice/speak.js
+@@ -3,6 +3,7 @@
+ // The recording is scored in the page and dropped: it is never saved or sent anywhere.
+ import { html, raw } from "../html.js";
+ import { say, canSpeak } from "../words/speech.js";
++import { segments } from "../words/tips.js";
+ import { GRADES, heardSentence, headline, heardNothing, plainSound, likeSound, MIN_SECONDS, MAX_SECONDS } from "./feedback.js";
+ import { canRecord, micProblem, startRecording } from "./recorder.js";
+ 
+@@ -60,6 +61,14 @@ export const speak = {
+         view.open = view.open === i ? null : i;
+         draw();
+         root.querySelector(view.open === null ? `[data-part="${i}"]` : "#fix")?.focus();
++        // The tip for this sound (iiSurf's Words part, data/tips/uk-en.json), filled in when it has loaded.
++        if (view.open === i) ctx.tips(view.result.parts[i], word).then((tip) => {
++          const box = root.querySelector("#fix-tips");
++          if (!tip || !box || view.open !== i) return;
++          box.innerHTML = String(tipView(tip));
++          box.querySelectorAll("[data-say]").forEach((b) => b.addEventListener("click", () => say(b.dataset.say)));
++          box.querySelectorAll("[data-say-pair]").forEach((b) => b.addEventListener("click", () => { const [x, y] = b.dataset.sayPair.split(" "); say(x).then(() => say(y)); }));
++        }).catch(() => {});
+       }));
+     }
+ 
+@@ -225,6 +234,16 @@ function controls(view) {
+ 
+ // Practicing one part: what it sounded like, hear it slowly, and back to the word. iiSurf's tips and
+ // same-sound word lists plug in here when they land (PLAN.md, "Still to come from iiSurf").
++// The tip for a sound: how to make it, what they said instead, words to practice, and pairs to hear. Ukrainian letters are
++// marked lang="uk" so a screen reader reads them in Ukrainian.
++function tipView(t) {
++  const text = (str) => segments(str).map((x) => (x.uk ? html`<span lang="uk">${x.text}</span>` : x.text));
++  return html`<p><b>${t.title}</b></p><p>${text(t.tip)}</p>
++    ${t.swap ? html`<p class="hint">${text(t.swap)}</p>` : ""}
++    ${t.words.length ? html`<div class="sub">Same sound, same spot (tap to hear)</div><div class="chips">${t.words.map((w) => html`<button type="button" class="chip" data-say="${w}">${w}</button>`)}</div>` : ""}
++    ${t.pairs.length ? html`<div class="sub">Hear the difference</div><div class="chips">${t.pairs.map(([a, b]) => html`<button type="button" class="chip" data-say-pair="${a} ${b}">${a} · ${b}</button>`)}</div>` : ""}`;
++}
++
+ function fixView(view, word) {
+   const p = view.result.parts[view.open];
+   const g = GRADES[p.grade];
+@@ -232,6 +251,7 @@ function fixView(view, word) {
+     <h2 class="label" id="fix-title">Practice the ${p.letters}</h2>
+     <p>The <b>${p.letters}</b> in <b>${word}</b> ${g.was}${p.heard ? html`: it sounded like <b>${likeSound(p.heard)}</b>` : p.heard === "" ? ": it was left out" : ""}.</p>
+     ${p.unsure ? html`<p class="hint">${UNSURE_NOTE}</p>` : ""}
++    <div id="fix-tips" aria-live="polite"></div>
+     <p class="hint">Listen slowly, then say the whole word again.</p>
+     <div class="row">
+       ${canSpeak() ? html`<button type="button" class="btn" id="fix-slow">${raw(EAR)}Hear it slowly</button>` : ""}

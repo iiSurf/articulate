@@ -715,3 +715,41 @@ iiSurf asked for the resumable download, the next step after the window.
 - The real internet. Every piece in `check-resume` came from the local copy. Range requests to the real server were checked with small ranges only.
 - A real phone: whether the browser actually grants "keep this file" depends on the browser and the phone, and Chrome decides by how much the site is used. If it doesn't, the file can still be deleted when storage runs low, and the window then offers to download again.
 - Safari and Firefox.
+
+## 2026-11-08 (Sunday, night): the Ukrainian tips
+
+### Plan
+
+Fix this part had only "the th needs work, it sounded like an s. Listen slowly." The friend asked for tips that compare English sounds to Ukrainian ones (docs/needs.md). iiSurf said to build them.
+
+### Changed
+
+- New: `data/tips/uk-en.json`, the Ukrainian tips, as a data file (another language is another file):
+  - **22 sounds,** each with a title ("th as in think"), a tip that starts from a sound the learner already has, words with the same sound filed by where it sits (start, middle, end), and pairs to hear the difference. Examples:
+    - th as in think: start from the Ukrainian с (сам), then put the tongue tip between the teeth, and blow softly with no buzz;
+    - th as in this: start from з (зуб), tongue between the teeth, keep the buzz;
+    - w: a very short у (ум), so wet starts like у-ет;
+    - ng: the н in банк, and stop there, with no г;
+    - ship: the и of шип, and sheep: the і of ліс, held a little longer;
+    - r: don't roll it like р; h: a soft breath like х, not the buzzing г; p, t, k: a puff of air at the start of a word.
+  - **21 "you said…" tips** for what they said instead: th said as s, t, d, or f; this said as d or z; w as v and v as w; r as l; ng as n; ee and i; a and e; the two oo sounds; oh; p, t, and k as b, d, and g.
+  - **A note** in the file that it hasn't been read by a Ukrainian speaker.
+- New: `js/words/tips.js`: `fixTip()` picks what to show. Words are the same spot first, never the word itself, up to 4. Pairs with the learner's own word come first, up to 2, so "think · sink" shows up for "think" said as "sink". `segments()` marks Ukrainian letters so they can carry `lang="uk"`.
+- `js/score/score.js`: each part now says which sound was graded worst (`focusPhone`) and where it sits (`position`).
+- `js/app.js`: `ctx.tips(part, word)`.
+- `docs/fix-tips.patch`: the 20 lines that put the tips in Speak's practice panel: the sound's title and tip with Ukrainian letters marked, what they said, tappable words, and tappable pairs that say both words. Speak (`js/practice/speak.js`) is the teammate's file, so I did not commit it. I applied the patch, tested it, saved it, and put the file back.
+- New: `npm run check-tips` (`tools/check-tips.mjs`), and 14 new tests (102 in all).
+
+### Verified
+
+- Every example word and every pair is checked against the real dictionary: 200+ words really have the sound in the spot they're filed under, and 40+ pairs differ by exactly one sound. That caught five of my own mistakes (for example, "see" ends in its sound, and "around" starts with a different vowel in this dictionary), and they're fixed.
+- `npm run check-tips`, 21 of 21, with the patch applied: the real model scored a stand-in microphone playing "sink" for "think". Tapping the red th shows "th as in think", the tip with the Ukrainian с, "You said s", words (thank, thin, three, thing), and the pairs "think · sink" and "thin · tin". "vest" said for "west" shows the w tip and "You said v". Ukrainian letters carry `lang="uk"`, there's no IPA anywhere, and Back to the word closes the panel. Checked at 360, 390, and 1280 wide.
+- `docs/fix-tips.patch` applies cleanly to the committed `speak.js`, and `npm test` passes: 102 of 102.
+- A flaw found by running it: the first version hid any pair containing the learner's own word, which is backwards. Those come first now.
+
+### Not verified
+
+- **The Ukrainian itself.** No Ukrainian speaker has read the tips. They are common teaching advice, but a word choice or an explanation may be wrong. The friend should read them.
+- Hearing the tappable words and pairs: headless Chrome has no voices, and they use the phone's own English voice.
+- The patch isn't applied to the committed Speak yet, so on `main` the tips don't show until it is.
+- Tips for sounds beyond those 22 (there is none for l, s, z, f, and so on), so the panel stays as it was for them.

@@ -50,6 +50,9 @@ function context(param = "") {
       load: async (options) => (await import("./score/model.js")).loadModel(options),
       partial: async () => (await import("./score/source.js")).partialDownload(), // { done, total } kept from an interrupted download, or null
     },
+    // tips(part, word): the tip for Fix this part. part is one of score()'s parts. Gives { title, uk, tip, swap, words, pairs },
+    // or null when there's nothing to say (js/words/tips.js, data/tips/uk-en.json)
+    tips: async (part, word) => { const t = await import("./words/tips.js"); return t.fixTip(await t.loadTips(), part, word); },
     go: (name, param = "") => { location.hash = `#/${name}${param ? `/${encodeURIComponent(param)}` : ""}`; },
     tour: { did: (event) => tour.did(event) }, // the first visit moves on when a screen says what happened
   };

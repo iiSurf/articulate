@@ -92,7 +92,7 @@ One list both agents check before starting work. When you fix an issue or start 
 - **Hear it and Slowly** (the phone's own voice) haven't been heard: headless Chrome has no voices.
 - **Kokoro** (the model voice) hasn't been tried yet.
 - **The friend's answers** in [docs/needs.md](docs/needs.md) came from iiSurf. Confirm them at the handover.
-- **Still to come from iiSurf:** the Ukrainian tips, same-sound words, and sound-alike pairs, then the tour.
+- **The Ukrainian tips** (`data/tips/uk-en.json`) were written by Claude from general teaching knowledge and **haven't been read by a Ukrainian speaker**. Ask the friend at the handover, and fix whatever is wrong. They show in Speak's practice panel once `docs/fix-tips.patch` is applied (Speak is the teammate's file).
 
 ### Future features and ideas
 

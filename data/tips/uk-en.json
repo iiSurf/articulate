@@ -1,0 +1,183 @@
+{
+  "language": "uk",
+  "name": "Ukrainian",
+  "review": "Written by Claude from general teaching knowledge about Ukrainian speakers learning American English (docs/needs.md has the sources). It has not been checked by a Ukrainian speaker yet. The friend, or any Ukrainian speaker, should read it and correct it.",
+  "missing": "That sound was left out. Say it slowly and clearly, then say the whole word again.",
+  "sounds": {
+    "TH": {
+      "title": "th as in think",
+      "uk": { "letter": "с", "word": "сам" },
+      "tip": "Start from the Ukrainian с (as in сам), then slide the tip of your tongue forward between your teeth. Blow air softly, with no buzz.",
+      "words": { "start": ["thank", "thin", "three", "thing", "think", "thick", "thumb", "thirty"], "middle": ["nothing", "birthday", "healthy", "method", "author"], "end": ["both", "path", "mouth", "month", "teeth", "bath", "math", "north"] },
+      "pairs": [["think", "sink"], ["thin", "tin"], ["three", "free"], ["thank", "tank"], ["both", "boat"], ["mouth", "mouse"]]
+    },
+    "DH": {
+      "title": "th as in this",
+      "uk": { "letter": "з", "word": "зуб" },
+      "tip": "Start from the Ukrainian з (as in зуб), then slide the tip of your tongue forward between your teeth. Keep the buzz going.",
+      "words": { "start": ["this", "that", "they", "then", "there", "those", "these", "the"], "middle": ["mother", "brother", "weather", "other", "father", "together"], "end": ["breathe", "bathe", "smooth"] },
+      "pairs": [["they", "day"], ["then", "den"], ["breathe", "breeze"], ["there", "dare"], ["those", "doze"]]
+    },
+    "W": {
+      "title": "w as in wet",
+      "uk": { "letter": "у", "word": "ум" },
+      "tip": "Make it a very short у (as in ум): round your lips and glide quickly into the next vowel, so wet starts like у-ет. Keep your teeth off your lip.",
+      "words": { "start": ["west", "wine", "wet", "water", "week", "work", "world", "window"], "middle": ["away", "always", "between", "twelve", "language", "quick"], "end": [] },
+      "pairs": [["west", "vest"], ["wine", "vine"], ["wet", "vet"], ["while", "vile"]]
+    },
+    "V": {
+      "title": "v as in very",
+      "uk": { "letter": "в", "word": "вона" },
+      "tip": "Press your top teeth on your lower lip and let the air buzz through. It is a bit stronger than the Ukrainian в, with the teeth really touching.",
+      "words": { "start": ["very", "vest", "vine", "voice", "visit", "village"], "middle": ["seven", "never", "over", "river", "every", "even"], "end": ["love", "have", "five", "give", "move"] },
+      "pairs": [["vest", "west"], ["vine", "wine"], ["very", "wary"], ["vet", "wet"]]
+    },
+    "R": {
+      "title": "r as in red",
+      "uk": { "letter": "р", "word": "рука" },
+      "tip": "Don't roll or tap it like the Ukrainian р. Pull the tip of your tongue back without touching anything, and round your lips a little.",
+      "words": { "start": ["red", "right", "road", "run", "rice", "ready"], "middle": ["sorry", "bring", "three", "very", "story"], "end": ["car", "for", "here", "far", "door"] },
+      "pairs": [["right", "light"], ["road", "load"], ["rice", "lice"], ["pray", "play"]]
+    },
+    "NG": {
+      "title": "ng as in sing",
+      "uk": { "letter": "н", "word": "банк" },
+      "tip": "Use the н you say in банк (before к), then stop right there. Sing ends with that sound, and there is no г at the end.",
+      "words": { "start": [], "middle": ["singer", "ringing", "hanging", "bringing"], "end": ["sing", "thing", "song", "long", "morning", "evening", "wrong"] },
+      "pairs": [["sing", "sin"], ["thing", "thin"], ["wing", "win"], ["rang", "ran"]]
+    },
+    "AE": {
+      "title": "a as in cat",
+      "uk": { "letter": "е", "word": "мене" },
+      "tip": "It sits between the Ukrainian е and а. Say е (as in мене), then open your mouth wider, as for а, and keep your tongue forward.",
+      "words": { "start": ["apple", "at", "add", "ask"], "middle": ["cat", "bad", "man", "hand", "back", "bag", "happy"], "end": [] },
+      "pairs": [["bad", "bed"], ["man", "men"], ["sad", "said"], ["pan", "pen"]]
+    },
+    "EH": {
+      "title": "e as in bed",
+      "uk": { "letter": "е", "word": "день" },
+      "tip": "Like the Ukrainian е in день. Keep your mouth only half open, not as wide as in cat.",
+      "words": { "start": ["egg", "end", "any"], "middle": ["bed", "ten", "pen", "red", "west", "better"], "end": [] },
+      "pairs": [["bed", "bad"], ["men", "man"], ["said", "sad"], ["pen", "pan"]]
+    },
+    "IH": {
+      "title": "i as in sit",
+      "uk": { "letter": "и", "word": "шип" },
+      "tip": "Like the Ukrainian и in шип (ship is almost шип). It is short and relaxed, with your lips loose.",
+      "words": { "start": ["it", "in", "if", "is"], "middle": ["sit", "ship", "big", "fish", "give", "bit"], "end": [] },
+      "pairs": [["ship", "sheep"], ["live", "leave"], ["sit", "seat"], ["fill", "feel"]]
+    },
+    "IY": {
+      "title": "ee as in see",
+      "uk": { "letter": "і", "word": "ліс" },
+      "tip": "Like the Ukrainian і in ліс, but hold it a little longer, with your lips spread in a smile.",
+      "words": { "start": ["eat", "each", "east", "easy"], "middle": ["sheep", "green", "team", "feel", "seat"], "end": ["see", "me", "we", "key", "tree", "three", "free"] },
+      "pairs": [["sheep", "ship"], ["leave", "live"], ["seat", "sit"], ["feel", "fill"]]
+    },
+    "UH": {
+      "title": "oo as in book",
+      "uk": { "letter": "у", "word": "ум" },
+      "tip": "A short, relaxed у, with your lips only a little round. Don't hold it long, like in food.",
+      "words": { "start": [], "middle": ["book", "good", "look", "put", "foot", "could", "would"], "end": [] },
+      "pairs": [["full", "fool"], ["pull", "pool"], ["soot", "suit"]]
+    },
+    "UW": {
+      "title": "oo as in food",
+      "uk": { "letter": "у", "word": "ум" },
+      "tip": "A long у with round lips, held a little longer than you would in Ukrainian.",
+      "words": { "start": [], "middle": ["food", "school", "soon", "fool", "room"], "end": ["blue", "true", "you", "two", "new", "who", "shoe", "do"] },
+      "pairs": [["fool", "full"], ["pool", "pull"], ["suit", "soot"]]
+    },
+    "OW": {
+      "title": "oh as in go",
+      "uk": { "letter": "о", "word": "сон" },
+      "tip": "Say the Ukrainian о, then slide your lips into у before you finish: о-у. English oh is not a pure vowel.",
+      "words": { "start": ["open", "only", "over", "own"], "middle": ["coat", "road", "home", "phone", "boat"], "end": ["go", "no", "so", "show", "know", "low"] },
+      "pairs": [["coat", "caught"], ["boat", "bought"], ["low", "law"], ["so", "saw"]]
+    },
+    "AO": {
+      "title": "aw as in caught",
+      "uk": { "letter": "о", "word": "сон" },
+      "tip": "Like the Ukrainian о in сон, with no glide at the end. Hold your lips still. It is not oh.",
+      "words": { "start": ["all", "also", "always", "awful"], "middle": ["caught", "bought", "talk", "walk", "dog"], "end": ["law", "saw", "draw", "straw"] },
+      "pairs": [["caught", "coat"], ["bought", "boat"], ["law", "low"], ["saw", "so"]]
+    },
+    "AA": {
+      "title": "o as in hot",
+      "uk": { "letter": "а", "word": "мама" },
+      "tip": "Like the Ukrainian а in мама, with your mouth wide open. It is not о.",
+      "words": { "start": ["odd", "on", "operate"], "middle": ["hot", "not", "stop", "lot", "job", "top", "father"], "end": [] },
+      "pairs": []
+    },
+    "AH1": {
+      "title": "u as in cut",
+      "uk": { "letter": "а", "word": "мама" },
+      "tip": "Like a short, relaxed а (as in мама), with your mouth only half open. It is shorter than the Ukrainian а.",
+      "words": { "start": ["up", "us", "under"], "middle": ["cut", "but", "sun", "run", "love", "much"], "end": [] },
+      "pairs": []
+    },
+    "AH0": {
+      "title": "the small uh",
+      "tip": "In a weak syllable, English relaxes the vowel into a short uh in the middle of your mouth. Don't say a clear а or о: make it quick and lazy.",
+      "words": { "start": ["about", "above", "again", "away"], "middle": ["today", "lemon", "family", "problem", "support"], "end": ["sofa", "banana", "camera", "pizza", "extra"] },
+      "pairs": []
+    },
+    "ER": {
+      "title": "er as in her",
+      "tip": "There is no Ukrainian match. Say the English r, but hold it like a vowel: tongue tip pulled back, lips a little round, no tapping.",
+      "words": { "start": [], "middle": ["bird", "word", "work", "learn", "turn"], "end": ["her", "teacher", "water", "better", "letter", "never"] },
+      "pairs": []
+    },
+    "HH": {
+      "title": "h as in home",
+      "uk": { "letter": "х", "word": "хата" },
+      "tip": "A soft breath, like a whisper of х, from the throat. Don't use the Ukrainian г, which buzzes. This sound has no buzz.",
+      "words": { "start": ["he", "her", "hello", "home", "house", "hot", "have"], "middle": ["ahead", "behind", "perhaps"], "end": [] },
+      "pairs": [["heat", "eat"], ["hold", "old"], ["hair", "air"]]
+    },
+    "P": {
+      "title": "p as in pin",
+      "uk": { "letter": "п", "word": "пан" },
+      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian п has none.",
+      "words": { "start": ["pin", "pen", "park", "pay", "people"], "middle": ["happy", "paper", "apple", "important"], "end": ["stop", "top", "help", "cup", "map"] },
+      "pairs": [["pin", "bin"], ["pear", "bear"], ["pie", "buy"], ["pack", "back"]]
+    },
+    "T": {
+      "title": "t as in ten",
+      "uk": { "letter": "т", "word": "тато" },
+      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian т has none.",
+      "words": { "start": ["ten", "time", "take", "table", "town"], "middle": ["later", "city", "better", "water"], "end": ["cat", "eat", "hot", "night", "what", "it"] },
+      "pairs": [["tie", "die"], ["ten", "den"], ["time", "dime"], ["town", "down"]]
+    },
+    "K": {
+      "title": "k as in key",
+      "uk": { "letter": "к", "word": "кіт" },
+      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian к has none.",
+      "words": { "start": ["cat", "key", "car", "coffee", "can"], "middle": ["taking", "pocket", "asking"], "end": ["back", "book", "make", "look", "work"] },
+      "pairs": [["coat", "goat"], ["cold", "gold"], ["came", "game"]]
+    }
+  },
+  "swaps": {
+    "TH>s": "You said s: your tongue stayed behind your teeth. Move the tip forward until it touches the edge of your top teeth.",
+    "TH>t": "You said t: your tongue stopped the air. Let it rest lightly between your teeth and keep the air flowing.",
+    "TH>d": "You said d: your tongue stopped the air and buzzed. This th has no buzz, just soft air between your teeth.",
+    "TH>f": "You said f: your lip touched your teeth. Keep your lips apart and put the tongue between your teeth.",
+    "DH>d": "You said d: your tongue tapped behind your teeth. Let it stay between your teeth, and let the air buzz through.",
+    "DH>z": "You said z: your tongue stayed behind your teeth. Move the tip forward, between your teeth.",
+    "W>v": "You said v: your teeth touched your lip. Keep them apart, and round your lips like for у.",
+    "V>w": "You said w: your lips were round. Put your top teeth on your lower lip and let the air buzz.",
+    "R>l": "You said l: your tongue touched the roof of your mouth. For r, the tip of your tongue stays free, pulled back.",
+    "NG>n": "You said n: your tongue tip touched behind your teeth. For ng, the back of your tongue lifts to the roof, like the н in банк.",
+    "IY>ɪ": "You said the short i of ship. Smile, and hold it a little longer, like the Ukrainian і.",
+    "IH>i": "You said the long ee of sheep. Relax your lips and make it short, like the Ukrainian и.",
+    "AE>ɛ": "You said e (as in bed). Open your mouth wider, as for а.",
+    "EH>æ": "You said a (as in cat). Open your mouth less, like the Ukrainian е.",
+    "UW>ʊ": "You said the short oo of book. Round your lips and hold it a little longer.",
+    "UH>u": "You said the long oo of food. Relax your lips and make it short.",
+    "OW>ɑ": "You said it with no glide. Start with о and finish with у.",
+    "AO>oʊ": "You glided at the end. Caught is a pure vowel, like the о in сон: keep your lips still.",
+    "P>b": "You said b: your voice buzzed. For p there is no voice, just a puff of air.",
+    "T>d": "You said d: your voice buzzed. For t there is no voice, just a puff of air.",
+    "K>g": "You said g: your voice buzzed. For k there is no voice, just a puff of air."
+  }
+}
