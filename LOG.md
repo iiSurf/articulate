@@ -762,3 +762,25 @@ iiSurf chose to apply the patch on their own branch instead of leaving it for th
 - The change in `js/practice/speak.js`, about 20 lines and nothing else: it imports `segments`, adds a `tipView` function, adds an `#fix-tips` box to the practice panel, and, when a part is opened, asks `ctx.tips(part, word)` and fills the box. This is the teammate's file, so it is its own commit, and the teammate is asked in `docs/practice-brief.md` to look it over and change it as they like.
 - `docs/fix-tips.patch` is deleted, as it said to do.
 - Verified with the patch applied: `check-tips` 21 of 21, `check-tour` 28, `check-shell` 10, `check-words` 12, `check-download` 16, and `npm test` 102 of 102.
+
+## 2026-11-08 (Sunday, late): drafts for the boards and a practice game
+
+### Plan
+
+iiSurf asked for three boards (best words said correctly, words that need the most work, and the most improved), and a game built from the parts of words the learner struggles with, so those words can climb the third board. Drawn first, as with the looks and the tour.
+
+### Decisions so far
+
+- **The boards are personal.** Everything stays on the phone, so they rank the learner's own words against each other. A board with other people would need a server and accounts, which the app doesn't have.
+- **A word's score is 0 to 100** from its colored parts: green counts fully, yellow 70%, orange 40%, red 0, silent letters skipped. Top words and Needs work use the average of the last three tries. Most improved compares the latest three against the first three, and a word needs two tries.
+- **Where it lives:** the Progress tab, which is an empty placeholder now.
+- **The sounds that cause the trouble** come from the history: every graded try records which sound was worst, so the app can count which sounds go orange or red most. That feeds the game.
+- **Recording tries** would happen inside `ctx.score` in `js/app.js`, my file, so the teammate's screens don't change.
+
+### Changed
+
+- New: `design/progress.html`, six phones with made-up words: the three boards, "where you struggle most", and two game options (A: say five words with the hard sound, scored by the real model, with stars for the round; B: hear a word and pick which one it was, with a streak, no microphone and no download).
+
+### Not verified
+
+- Nothing is built. These are drawings with made-up numbers.
