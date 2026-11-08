@@ -7,7 +7,7 @@ import { MODES, load, save } from "./store.js";
 import { lookUp } from "./words/lookup.js";
 import { createTour } from "./tour-ui.js";
 import { tipFor } from "./tour.js";
-import { recordTry } from "./progress.js";
+import { milestone, recordTry } from "./progress.js";
 import { openModelDialog, toast } from "./ui/modeldialog.js";
 
 const state = load();
@@ -45,7 +45,12 @@ function context(param = "") {
       const [{ scoreRecording }, { loadModel }] = await Promise.all([import("./score/score.js"), import("./score/model.js")]);
       const result = await scoreRecording(recording, word, { lookUp, loadModel, ...options });
       // Every graded try is remembered (js/progress.js) for the boards on Progress. It stays on this phone.
-      if (recordTry(state, result)) save(state);
+      const before = [...(state.history[result.word] ?? [])];
+      if (recordTry(state, result)) {
+        save(state);
+        const cheer = milestone(result.word, before, state.history[result.word] ?? []);
+        if (cheer) toast(cheer); // a word coming out good for the first time, or improving
+      }
       return result;
     },
     // The sound model: saved() says whether it's already here ("local", "saved", or null), load() gets it ready.

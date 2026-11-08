@@ -15,11 +15,16 @@ export const GOOD_ENOUGH = 80; // a word at or above this counts as said well (a
 // How much each grade counts. Silent letters have no grade and are skipped.
 export const POINTS = { green: 1, yellow: 0.7, orange: 0.4, red: 0 };
 
+// A part that needs work (red) holds the whole word at a little off or lower: one red part in four averages 75, which
+// would read as "close", and a word with a sound that's plainly wrong isn't close.
+export const RED_CAP = 59;
+
 // 0 to 100 for a word's parts, or null if none of them was graded.
 export function scoreOf(parts) {
   const graded = parts.filter((p) => p.grade in POINTS);
   if (!graded.length) return null;
-  return Math.round((100 * graded.reduce((sum, p) => sum + POINTS[p.grade], 0)) / graded.length);
+  const average = Math.round((100 * graded.reduce((sum, p) => sum + POINTS[p.grade], 0)) / graded.length);
+  return graded.some((p) => p.grade === "red") ? Math.min(average, RED_CAP) : average;
 }
 
 const avg = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -76,6 +81,17 @@ export const mostImproved = (state, n = 5) => all(state)
   .filter((w) => w.first !== null && w.latest - w.first >= MIN_GAIN)
   .map((w) => ({ ...w, gain: w.latest - w.first }))
   .sort((a, b) => b.gain - a.gain || byWord(a, b)).slice(0, n);
+
+// Something worth a cheer after a try, or null. before and after are the word's tries without and with the new one:
+// the word coming out good for the first time, or its first-to-last gain reaching the Most improved line.
+export function milestone(word, before, after) {
+  if (!after.length) return null;
+  if (after.at(-1).score >= GOOD_ENOUGH && !before.some((t) => t.score >= GOOD_ENOUGH)) return `${word} came out good for the first time!`;
+  const a = before.length ? summarize(word, before) : null, b = summarize(word, after);
+  const gain = (s) => (s && s.first !== null ? s.latest - s.first : 0);
+  if (gain(b) >= MIN_GAIN && gain(a) < MIN_GAIN) return `${word} is up ${gain(b)} points!`;
+  return null;
+}
 
 // The sounds that went orange or red most often, across every kept try: [{ sound, misses, words }].
 export function hardestSounds(state, n = 4) {
