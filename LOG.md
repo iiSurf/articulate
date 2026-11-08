@@ -847,3 +847,26 @@ Option A from the drafts: five words with the sound the learner struggles with m
 ### Not verified
 
 - A real phone and a real microphone, and a real person saying the words (the stand-in plays recordings of the Mac's voices). Safari and Firefox. The other six looks. Whether 80 is the right line for a star: it is my choice, not agreed. One red part in a short word still averages close (75), so a word can reach Top words with a red part; the boards and the recap say which part. A Ukrainian speaker has not read the tips the round shows.
+
+## 2026-11-08 (Sunday night): polish after the merge
+
+### Plan
+
+iiSurf asked for the improvements I suggested, and a grammar pass. Everything except the silent "Which did you hear?" game.
+
+### Changed
+
+- **Grammar and wording.** I read every sentence the learner can see. Fixed: the tour's "then tap again" (it says Stop now), "for anywhere" (now "works anywhere"), a stray comma, three Progress messages that read awkwardly, "a whisper of х" (now "a quiet х"), and "Ukrainian п has none" (now "has no puff", for п, т, and к). The download window said "Read it first", which could be taken for the Read mode, so it now says "Look it over", and it no longer says "for Speak" only: it says "for speaking practice (Speak and Say it round)". Nothing was wrong in the teammate's screens, so none of their text changed.
+- **A red part holds a word at 59.** One red part in four averaged 75, which read as "close". A word with a sound that's plainly wrong is now at most "a little off", can't earn a star, and stays off Top words. Scores already saved keep the old numbers (nobody has used it yet).
+- **Cheers on the boards.** After a try, a small message when a word comes out good for the first time ("think came out good for the first time!") or when its gain reaches Most improved ("world is up 20 points!"). It's `milestone` in `js/progress.js`, shown with the same `toast` as the download window.
+- **A way into the round from Speak.** The tips box in Fix this part ends with "Practice th in a round". `ctx.tips()` now also returns the sound's key. This is one more line in the teammate's `js/practice/speak.js`, in its own commit, and `docs/practice-brief.md` says so.
+- **The boards and the round in all seven looks.** `check-progress` now measures text against its background in each look (4.5 to 1; the mark in a pill 3 to 1) and takes a picture of each. Only the small ✕ in the dark looks was short, and its glyph is now bigger and bolder.
+
+### Verified
+
+- `npm test` 118 of 118. `check-shell`, `check-words`, `check-progress` (with the seven looks), `check-download`, `check-resume`, `check-tips` (now also the round link), `check-tour`, and `check-round` all pass. Looked at the pictures for sunflower, petrykivka, and pysanka.
+
+### Not verified
+
+- A real phone and microphone, Safari, and Firefox. The cheer messages were tested as logic only, not seen in a browser (they need a real improving word). A Ukrainian speaker has not read the tips, including the two wordings I changed.
+- Not built: the silent "Which did you hear?" game.
