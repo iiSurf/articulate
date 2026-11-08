@@ -1,6 +1,6 @@
 // The app shell (iiSurf): the band, one screen at a time, the tabs, the looks, and Your colors.
 // Each part plugs its screens in with registerScreen() (PLAN.md, "Screens, and the hooks the tour needs").
-// Addresses: #/words, #/practice/read, #/practice/listen, #/practice/speak, #/progress, #/colors.
+// Addresses: #/words, #/practice/read, #/practice/listen, #/practice/speak, #/progress, #/round/<sound>, #/colors.
 import { html, raw } from "./html.js";
 import { LOOKS, byId, lookFor } from "./looks.js";
 import { MODES, load, save } from "./store.js";
@@ -73,22 +73,22 @@ function applyLook() {
 
 function where() {
   const [page = "words", sub = ""] = location.hash.replace(/^#\/?/, "").split("/");
-  return { page: ["words", "practice", "progress", "colors"].includes(page) ? page : "words", sub: decodeURIComponent(sub) };
+  return { page: ["words", "practice", "progress", "round", "colors"].includes(page) ? page : "words", sub: decodeURIComponent(sub) };
 }
 
 function show() {
   started = true;
   const look = applyLook();
   const { page, sub } = where();
-  const tab = page === "colors" ? "" : page;
+  const tab = page === "colors" ? "" : page === "round" ? "progress" : page; // a round belongs to Progress
   // Opening Practice from an address picks its way too, so the tip is for that way, not the last one used.
   const tipId = tipFor(page, page === "practice" && MODES.includes(sub) ? sub : state.mode, sub);
   const tabLink = (id) => (id === "practice" ? `#/practice/${state.mode}` : `#/${id}`);
   app.innerHTML = String(html`
     <header class="band">
       <div class="band-in">
-        ${page === "colors"
-          ? html`<a class="back" href="#/words" aria-label="Back">‹</a><h1 class="brand">Your colors</h1>`
+        ${page === "colors" || page === "round"
+          ? html`<a class="back" href="${page === "round" ? "#/progress" : "#/words"}" aria-label="Back">‹</a><h1 class="brand">${page === "round" ? "Say it round" : "Your colors"}</h1>`
           : html`<h1 class="brand">Articulate</h1><a class="pair" href="#/colors" aria-label="Your language and colors: Ukrainian to English">UA → EN</a>`}
         ${tipId ? html`<button type="button" class="help" id="help" aria-label="Help for this screen">?</button>` : ""}
       </div>
@@ -205,3 +205,5 @@ import("./words/screens.js");
 
 // The Progress tab: the boards, and where to start a Say it round.
 import("./progress-screen.js");
+// Say it round: five words with a hard sound, from the Progress tab.
+import("./round.js");

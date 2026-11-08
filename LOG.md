@@ -825,3 +825,25 @@ Draw the boards from the history (step 1) the way `design/progress.html` showed 
 ### Not verified
 
 - A real phone. The boards with real tries from a real microphone (the history recording was checked with the real model in `check-tips`, the screen with made-up tries). The other six looks. The round button leads nowhere until step 3.
+
+## 2026-11-08 (Sunday, late): Say it round (step 3 of 3)
+
+### Plan
+
+Option A from the drafts: five words with the sound the learner struggles with most, said out loud and scored by the real model, stars for the round, a recap, "Add these words", and "Say <word> again" so the word can climb Most improved.
+
+### Changed
+
+- New `js/round.js` (`#/round/TH`): the five words come from `roundWords` (their own trouble word for that sound first, then words with the sound from the tips file). Each word shows its parts with the same colors and marks as Speak after a try, the sentence about what it sounded like, the sound's tip (Ukrainian letters marked `lang="uk"`), Hear it, Slowly, and Skip this word or Next word. Every try goes through `ctx.score`, so it's remembered and the boards move. The end shows stars (one for each word at 80 or more), a recap that names the part that went wrong ("th needs work ✕") or "good ✓" or "skipped", "Last round: N of 5" (saved as the optional `rounds` field in the saved data, which `sanitize` checks), Add these words (only the ones not in My words yet), Say <word> again (their own trouble word, or the worst word of the round, opened in Speak), Play again, and Back to Progress. Without the sound model it offers the same one-time download window as Speak. If they leave while it's recording, nothing is scored.
+- `js/app.js`: the `round` address, a band with a back arrow to Progress, and the Progress tab stays lit. `js/progress.js`: `ownWordFor`. `css/progress.css`: the round's pieces, with star pop-ins that turn off for reduced motion.
+- It uses the teammate's `recorder.js` and `feedback.js` (documented in `docs/practice-brief.md`, which now also says every graded try is remembered).
+- `tools/check-round.mjs` (`npm run check-round`), README, PLAN.md.
+
+### Verified
+
+- `npm test` 117 of 117, and every browser check passes: `check-shell`, `check-words`, `check-progress`, `check-download`, `check-resume`, `check-tips`, `check-tour`, and the new `check-round` with the real model: a stand-in microphone said "sink" for think, thank, thin, tree for three, and thing; the marks, hint, tip, button labels, two stars, recap, history (think has two tries), the saved stars, Add these words (four new words), Play again, Last round, skipped words, Say think again opening Speak, a sound with no words, and the download window without the model. Pictures looked at at 390, 360 (no sideways scroll), and 1280.
+- The first pass showed think (th red) as just "close" in the recap, because one red part in four still averages 75; the recap now names the part instead. The buttons also moved to their own rows.
+
+### Not verified
+
+- A real phone and a real microphone, and a real person saying the words (the stand-in plays recordings of the Mac's voices). Safari and Firefox. The other six looks. Whether 80 is the right line for a star: it is my choice, not agreed. One red part in a short word still averages close (75), so a word can reach Top words with a red part; the boards and the recap say which part. A Ukrainian speaker has not read the tips the round shows.

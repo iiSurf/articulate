@@ -240,6 +240,7 @@ A test (`tests/app/tour.test.js`, with the tour) will check that every `data-tou
 3. **Scoring hooked up:** `score(recording, word)` from the handshake, with the letters for each sound. Built November 1 as `ctx.score`, with `ctx.lookUp`, `ctx.model`, and `ctx.word`.
 4. **The tour** (built November 8, `js/tour.js` and `js/tour-ui.js`): the welcome, the step card, the ring, the one-time tips, the "?", and Show me around again. Steps 1 and 2 run on the Words screens. Steps 3 to 5 run on the Speak and Fix screens through the hooks above.
 5. **Words, finished:** suggestions, a smaller dictionary file, and lining up letters with sounds.
+6. **Progress and Say it round** (built November 8, `js/progress.js`, `js/progress-screen.js`, `js/round.js`): every graded try is remembered, three personal boards (Top words, Needs work, Most improved), the sounds that cause the most trouble, and a five-word round for one sound with stars and a recap. It rides on `ctx.score`, so the Practice screens didn't change.
 
 ## Branches, pull requests, and merging
 

@@ -10,7 +10,7 @@ const DAY = new Set(LOOKS.filter((l) => !l.dark).map((l) => l.id));
 const NIGHT = new Set(LOOKS.filter((l) => l.dark).map((l) => l.id));
 
 export function fresh() {
-  return { version: VERSION, words: [], current: null, mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [], history: {} };
+  return { version: VERSION, words: [], current: null, mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [], history: {}, rounds: {} };
 }
 
 // Everything read back from storage goes through here. Whatever is missing or wrong becomes the starting value,
@@ -49,6 +49,12 @@ export function sanitize(saved) {
             .map((b) => [b[0].slice(0, 4), b[1], typeof b[2] === "string" ? b[2].slice(0, 12) : ""]),
         }));
       if (kept.length) s.history[word] = kept;
+    }
+  }
+  // How many stars the last round of each sound got (js/round.js), to say "Last round: 1 of 5".
+  if (saved.rounds && typeof saved.rounds === "object" && !Array.isArray(saved.rounds)) {
+    for (const [sound, r] of Object.entries(saved.rounds).slice(0, 40)) {
+      if (/^[A-Z]{1,2}[01]?$/.test(sound) && r && Number.isInteger(r.stars) && r.stars >= 0 && r.stars <= 5 && typeof r.at === "string") s.rounds[sound] = { at: r.at.slice(0, 30), stars: r.stars };
     }
   }
   return s;

@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, mostImproved, needsWork, recordTry, roundWords, scoreOf, stars, toneOf, topWords } from "../../js/progress.js";
+import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, mostImproved, needsWork, ownWordFor, recordTry, roundWords, scoreOf, stars, toneOf, topWords } from "../../js/progress.js";
 import { fresh, sanitize } from "../../js/store.js";
 
 const tips = JSON.parse(readFileSync(new URL("../../data/tips/uk-en.json", import.meta.url), "utf8"));
@@ -124,4 +124,21 @@ test("the history saved on the phone is checked on the way back in: bad shapes a
 
 test("a score's color: good from 80, close from 60, a little off from 40, then needs work", () => {
   assert.deepEqual([100, 80, 79, 60, 59, 40, 39, 0].map(toneOf), ["good", "good", "close", "close", "off", "off", "work", "work"]);
+});
+
+test("their own trouble word for a sound is the one that went wrong with it most", () => {
+  const s = fresh();
+  recordTry(s, result("this", part("th", "red", "DH")));
+  recordTry(s, result("that", part("th", "red", "DH")));
+  recordTry(s, result("that", part("th", "red", "DH")));
+  assert.equal(ownWordFor(s, "DH"), "that");
+  assert.equal(ownWordFor(s, "TH"), undefined);
+});
+
+test("the last round of each sound is kept as a number of stars from 0 to 5, and bad shapes are dropped", () => {
+  const s = sanitize({ rounds: { TH: { at: "2026-11-08T10:00:00.000Z", stars: 3 }, AH0: { at: "x", stars: 0 }, W: { at: "x", stars: 6 }, V: { at: "x", stars: 2.5 }, "<b>": { at: "x", stars: 1 }, R: { stars: 1 }, T: null } });
+  assert.deepEqual(Object.keys(s.rounds).sort(), ["AH0", "TH"]);
+  assert.deepEqual(s.rounds.TH, { at: "2026-11-08T10:00:00.000Z", stars: 3 });
+  assert.deepEqual(sanitize({ rounds: [1] }).rounds, {});
+  assert.deepEqual(fresh().rounds, {});
 });

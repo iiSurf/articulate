@@ -94,12 +94,15 @@ export function hardestSounds(state, n = 4) {
     .sort((a, b) => b.misses - a.misses || a.sound.localeCompare(b.sound)).slice(0, n);
 }
 
+// The learner's own word that gave them the most trouble with a sound, or undefined if none has.
+export const ownWordFor = (state, sound) => hardestSounds(state, 99).find((h) => h.sound === sound)?.words[0];
+
 // The five words of a round for one sound: the learner's own word that gave them the most trouble with it first (so it
 // can climb the boards), then words with that sound from the tips file, the start of a word first.
 export function roundWords(tips, state, sound, size = 5) {
   const entry = tips?.sounds?.[sound];
   if (!entry) return [];
-  const own = hardestSounds(state, 99).find((h) => h.sound === sound)?.words[0];
+  const own = ownWordFor(state, sound);
   const listed = ["start", "middle", "end"].flatMap((spot) => entry.words?.[spot] ?? []);
   return [own, ...listed].filter((w, i, xs) => w && xs.indexOf(w) === i).slice(0, size);
 }
