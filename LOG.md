@@ -587,3 +587,48 @@ iiSurf said to start on what the teammate needs, but without a deadline. So the 
 - Hear it and Slowly were not heard. Headless Chrome has no voices, so they need a real phone.
 - `ctx.score` hasn't run with a real recording inside the app. Its parts are the same code the try-it page uses, and the parts-by-letters step has tests.
 - Still to come from iiSurf: the Ukrainian tips, same-sound words, and sound-alike pairs. Then the tour.
+
+## 2026-11-08 (Sunday): the tour
+
+### Plan
+
+The first-visit tour from the tutorial drafts, now that the screens it points at exist (your teammate's Speak, Listen, and Read merged into `main` this morning).
+
+### Changed
+
+- New, the tour's logic (`js/tour.js`): the five steps, the finish, which event moves each step on, where each step happens, what each card says, and the one-time tips.
+- New, the drawing (`js/tour-ui.js`, `css/tour.css`):
+  - **Welcome:** "Привіт! Welcome to Articulate", with Let's start and Skip.
+  - **Step card** above the tabs: "Step 2 of 5", five dots, one sentence, Skip the tour. A ring on the next thing to tap pulses gently, and stands still when motion is turned off.
+  - **Step 4** shows the four colors with their marks.
+  - **The finish:** "You did it!", with Read, Listen, and Speak explained.
+  - **One-time tips,** with Got it. The "?" in the band brings a screen's tip back.
+  - **Your colors** has Help, with Show me around again.
+  - **Away from the step,** the card says so and has Take me there.
+  - **Step 4 with every part green** shows a Next button instead.
+- The steps move on from the hooks in the plan: My words says `added` and `practice`, and your teammate's Speak says `said` and `fixed`. The tour finds controls by the `data-tour` names in the code. A test checks every name the tour points at still exists.
+- `js/app.js`: the tour is hooked in (`ctx.tour.did`, the "?", the tips), and the saved tour can now reach the finish step, 6. `js/store.js` allows it. It's an optional field, so no new version.
+- New: `npm run check-tour` (`tools/check-tour.mjs`).
+
+### Verified
+
+- `npm test`: 79 of 79, with 13 new tests for the tour.
+- `npm run check-tour`, 28 of 28, three runs in a row. It walks the whole tour for real: the real sound model scored a stand-in microphone playing "sink" for the word "think", the th came out red ("The th sounded like an s"), the tour pointed at it, and "Back to the word" and a second try reached the finish. It also covers:
+  - skipping at the welcome, and Skip the tour in the middle;
+  - Take me there;
+  - Show me around again;
+  - the tips and the "?";
+  - no recording in storage after it all.
+- `npm run check-shell` (10) and `npm run check-words` (12) still pass.
+- Pictures of every moment at 390, and step 4 at 360 and 1280: nothing scrolls sideways.
+- Bugs found by the check, and fixed:
+  - the Next button showed on every step, because `hidden` lost to the button's style;
+  - the ring came back on Add for a moment after step 1;
+  - opening Read from an address showed the tip for the screen used last;
+  - after skipping, the screen's tip didn't show until the next screen.
+
+### Not verified
+
+- A real phone, and a real microphone. The microphone was a stand-in that plays a recording.
+- Hearing "Hear it" in step 2. Headless Chrome has no voices.
+- The tour with a real learner. Your friend is the one to try it.

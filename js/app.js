@@ -5,12 +5,15 @@ import { html, raw } from "./html.js";
 import { LOOKS, byId, lookFor } from "./looks.js";
 import { MODES, load, save } from "./store.js";
 import { lookUp } from "./words/lookup.js";
+import { createTour } from "./tour-ui.js";
+import { tipFor } from "./tour.js";
 
 const state = load();
 const screens = new Map();
 const app = document.getElementById("app");
 const phoneDark = matchMedia("(prefers-color-scheme: dark)");
 let started = false;
+const tour = createTour({ state, save: () => save(state), go: (hash) => { location.hash = hash; }, app });
 
 const ICONS = {
   words: '<span class="aa" aria-hidden="true">Aa</span>',
@@ -45,7 +48,7 @@ function context(param = "") {
       load: async (options) => (await import("./score/model.js")).loadModel(options),
     },
     go: (name, param = "") => { location.hash = `#/${name}${param ? `/${encodeURIComponent(param)}` : ""}`; },
-    tour: { did() {} },
+    tour: { did: (event) => tour.did(event) }, // the first visit moves on when a screen says what happened
   };
 }
 
@@ -68,6 +71,8 @@ function show() {
   const look = applyLook();
   const { page, sub } = where();
   const tab = page === "colors" ? "" : page;
+  // Opening Practice from an address picks its way too, so the tip is for that way, not the last one used.
+  const tipId = tipFor(page, page === "practice" && MODES.includes(sub) ? sub : state.mode, sub);
   const tabLink = (id) => (id === "practice" ? `#/practice/${state.mode}` : `#/${id}`);
   app.innerHTML = String(html`
     <header class="band">
@@ -75,6 +80,7 @@ function show() {
         ${page === "colors"
           ? html`<a class="back" href="#/words" aria-label="Back">‹</a><h1 class="brand">Your colors</h1>`
           : html`<h1 class="brand">Articulate</h1><a class="pair" href="#/colors" aria-label="Your language and colors: Ukrainian to English">UA → EN</a>`}
+        ${tipId ? html`<button type="button" class="help" id="help" aria-label="Help for this screen">?</button>` : ""}
       </div>
       ${raw(look.art())}
     </header>
@@ -87,6 +93,13 @@ function show() {
   if (page === "colors") yourColors(main);
   else if (page === "practice") practice(main, sub);
   else screen(main, page, page, sub);
+  tour.tip(main, tipId, page === "practice" ? main.querySelector(".modes") : null);
+  document.getElementById("help")?.addEventListener("click", () => {
+    state.tipsSeen = state.tipsSeen.filter((t) => t !== tipId); // bring this screen's tip back
+    save(state);
+    show();
+  });
+  tour.refresh(true);
 }
 
 // A plugged-in screen, or a plain note while it's being built.
@@ -126,7 +139,13 @@ function yourColors(main) {
       <h2 class="label">Night look</h2>
       <div class="tiles">${LOOKS.filter((l) => l.dark).map((l) => tile(l, "night"))}</div>
       <label class="toggle"><span>Switch when my phone goes dark</span><input type="checkbox" id="follow" ${state.looks.followDark ? raw("checked") : ""}></label>
+    </section>
+    <section class="card">
+      <h2 class="label">Help</h2>
+      <p><button type="button" class="btn" id="tour-again">Show me around again</button></p>
+      <p class="hint">Practice one word again, step by step.</p>
     </section>`);
+  main.querySelector("#tour-again").addEventListener("click", () => tour.restart());
   main.addEventListener("click", (e) => {
     const t = e.target.closest("[data-for]");
     if (!t) return;

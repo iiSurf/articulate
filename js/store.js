@@ -35,7 +35,7 @@ export function sanitize(saved) {
   if (NIGHT.has(looks.night)) s.looks.night = looks.night;
   if (typeof looks.followDark === "boolean") s.looks.followDark = looks.followDark;
   const tour = saved.tour && typeof saved.tour === "object" ? saved.tour : {};
-  if (Number.isInteger(tour.step) && tour.step >= 0 && tour.step <= 5) s.tour.step = tour.step;
+  if (Number.isInteger(tour.step) && tour.step >= 0 && tour.step <= 6) s.tour.step = tour.step;
   if (typeof tour.done === "boolean") s.tour.done = tour.done;
   if (Array.isArray(saved.tipsSeen)) s.tipsSeen = [...new Set(saved.tipsSeen.filter((t) => typeof t === "string"))];
   return s;
