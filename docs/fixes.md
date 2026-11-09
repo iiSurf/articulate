@@ -1,6 +1,6 @@
-# Four fixes for the handover (a patch for iiSurf)
+# Four fixes for the handover
 
-The four bugs from the improvements list that could show up in front of the learner. They're all in iiSurf's files, so they're a patch, not a change on this branch. To take them, run `git apply docs/fixes.patch` on `nicks-branch`. Then delete this file and the patch.
+The four bugs from the improvements list that could show up in front of the learner. They're in iiSurf's files, so this pull request needs iiSurf's OK before it's merged. The fixes are made straight in the code, after `main` as of November 8 (PR #9).
 
 | Bug | What the learner would see | Fix | File |
 | --- | --- | --- | --- |

@@ -198,3 +198,28 @@ Fix the four bugs from the improvements list most likely to show at the handover
 ### Not verified
 
 - Real recordings, and whether `UNSURE_MARGIN` (1) is the right size.
+
+## 2026-11-08 (Sunday, before the deadline): the four fixes, made straight in the code
+
+### Plan
+
+PR #5 merged before the fixes were pushed, and the patch no longer applied to `main` after PR #9. So the four fixes are now made directly in iiSurf's files, in a pull request for iiSurf to review.
+
+### Changed
+
+- `js/app.js`, `js/score/score.js`, `js/score/gop.js`, `js/words/lookup.js`, and their tests: the four fixes from `docs/fixes.md`.
+  - These are iiSurf's files, so the pull request says so and waits for iiSurf.
+  - One merge fix: `focusPhone` and `position` (new in PR #9) now use the way of saying the word that was actually heard.
+- `docs/fixes.patch` is removed, since the fixes are in the code now.
+
+### Verified
+
+- `npm test`: 123 of 123.
+- In headless Chrome:
+  - `#/words/50%` shows "isn't in our word list";
+  - a Read answer stays on screen when the phone switches to dark.
+
+### Not verified
+
+- Real recordings.
+- A real phone.
