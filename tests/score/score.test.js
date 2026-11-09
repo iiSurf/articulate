@@ -78,6 +78,8 @@ test("a recording of a word: each part as it's spelled, with its color", async (
     ["er", "green", null],
   ]);
   assert.equal(result.parts[1].unsure, true);
+  // which sound was worst in each part, as the dictionary writes it, and where it sits in the word
+  assert.deepEqual(result.parts.map((p) => [p.focusPhone, p.position]), [["W", "start"], ["EH1", "middle"], ["DH", "middle"], ["ER0", "end"]]);
 });
 
 test("a word that isn't in the word list says so", async () => {

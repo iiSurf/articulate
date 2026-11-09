@@ -92,7 +92,7 @@ One list both agents check before starting work. When you fix an issue or start 
 - **Hear it and Slowly** (the phone's own voice) haven't been heard: headless Chrome has no voices.
 - **Kokoro** (the model voice) hasn't been tried yet.
 - **The friend's answers** in [docs/needs.md](docs/needs.md) came from iiSurf. Confirm them at the handover.
-- **Still to come from iiSurf:** the Ukrainian tips, same-sound words, and sound-alike pairs, then the tour.
+- **The Ukrainian tips** (`data/tips/uk-en.json`) were written by Claude from general teaching knowledge and **haven't been read by a Ukrainian speaker**. Ask the friend at the handover, and fix whatever is wrong. They show in Speak's practice panel (about 20 lines iiSurf added to the teammate's `js/practice/speak.js` on November 8, for the teammate to look over).
 
 ### Future features and ideas
 
@@ -144,7 +144,7 @@ Both happen on the try-it page, `tools/score/try.html` (built November 1). Anyon
 - **Pronunciations:** the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (American English, about 135,000 words, BSD license). It is in the repository at `data/words/cmudict.dict`, with its license, and a script will turn it into a compact file for the app. It gives each word's sounds and stress. A script also lines up each word's letters with its sounds. Code finds the similar words and the puzzle answers.
 - **Everyday words:** a list of common words keeps suggestions to words people actually use. Which list depends on its license (to check).
 - **The model voice:** clips made ahead of time, on a computer, with [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), a free voice model (Apache 2.0) with American voices, for the most common words. Any other word plays in the phone's own voice. To try first.
-- **The sound model** (Speak only): 355 MB, too big for GitHub, so it comes from Hugging Face, pinned to one version (`js/score/source.js`). The app downloads it once on first use, ideally over Wi-Fi, and keeps it in the browser. Hugging Face allows downloads from both GitHub Pages and localhost (checked October 31). That download is the app's only outside request, and it sends nothing about the learner. While developing, `npm run get-model` keeps a checked copy in `.models/`, and the app uses that copy instead.
+- **The sound model** (Speak only): 355 MB, too big for GitHub, so it comes from Hugging Face, pinned to one version (`js/score/source.js`). The app downloads it once on first use, ideally over Wi-Fi, and keeps it in the browser. Hugging Face allows downloads from both GitHub Pages and localhost (checked October 31). That download is the app's only outside request, and it sends nothing about the learner. It comes in checked 8 MB pieces and is resumable (November 8), and a window asks first (`js/ui/modeldialog.js`). While developing, `npm run get-model` keeps a checked copy in `.models/`, and the app uses that copy instead.
 - **The engine that runs it:** onnxruntime-web (Microsoft, MIT), copied into `vendor/` by `npm run vendor` and committed, so the app works on GitHub Pages and from a fresh clone without npm.
 - **Working from a fresh clone:** both of us get everything with `npm install` and `npm run get-model`, on a Mac, Windows, or Linux (README.md, "Getting started"). The only exception is the scoring test's recordings, which use the Mac's voices.
 - **Privacy:** the learner's words and recordings stay in the browser on their phone. No accounts, no server, no analytics, no paid services, no API keys. Saved data uses keys that start with `articulate.`, because every iisurf.github.io site shares one browser storage.
@@ -155,7 +155,7 @@ The owner of a file is the only one who changes it. If you need a change in the 
 
 | Part | Owner | Files |
 | --- | --- | --- |
-| The app shell: the page, the look and the themes, moving between screens, saved settings, and the tour | iiSurf | `index.html`, `css/`, `js/app.js`, `js/looks.js`, `js/store.js`, `js/html.js`, `js/tour.js`, `tests/app/`, `design/` |
+| The app shell: the page, the look and the themes, moving between screens, saved settings, and the tour | iiSurf | `index.html`, `css/`, `js/app.js`, `js/looks.js`, `js/store.js`, `js/html.js`, `js/tour.js`, `js/tour-ui.js`, `tests/app/`, `design/` |
 | Words: my words, the dictionary, letters and sounds, suggestions, word pages, Ukrainian tips | iiSurf | `js/words/`, `data/words/`, `tools/words/`, `tests/words/` |
 | Scoring: the sound model and the color of each part | iiSurf | `js/score/`, `tools/score/`, `tests/score/`, `vendor/` |
 | Practice: the Read puzzles, Listen, the Speak screen (record, play back, show the colors, fix this part), and the voice clips | the teammate | `js/practice/`, `data/voice/`, `tools/voice/`, `tests/practice/` |
@@ -238,8 +238,9 @@ A test (`tests/app/tour.test.js`, with the tour) will check that every `data-tou
 1. **The app shell:** the page, the seven looks and Your colors (day, night, and following the phone's dark mode), the tabs (Words, Practice, Progress), "Right now I can…" with Read, Listen, and Speak, saved settings, and a safe way to put text on the page. Started November 1.
 2. **Words:** My words (add, remove, saved on the phone), and the word page (its sounds, the strong part, Hear it and Slowly with the phone's own voice until the voice clips exist). Built November 1, along with lining letters up with sounds.
 3. **Scoring hooked up:** `score(recording, word)` from the handshake, with the letters for each sound. Built November 1 as `ctx.score`, with `ctx.lookUp`, `ctx.model`, and `ctx.word`.
-4. **The tour:** the welcome, the step card, the ring, the one-time tips, the "?", and Show me around again. Steps 1 and 2 run on the Words screens. Steps 3 to 5 run on the Speak and Fix screens through the hooks above.
+4. **The tour** (built November 8, `js/tour.js` and `js/tour-ui.js`): the welcome, the step card, the ring, the one-time tips, the "?", and Show me around again. Steps 1 and 2 run on the Words screens. Steps 3 to 5 run on the Speak and Fix screens through the hooks above.
 5. **Words, finished:** suggestions, a smaller dictionary file, and lining up letters with sounds.
+6. **Progress and Say it round** (built November 8, `js/progress.js`, `js/progress-screen.js`, `js/round.js`): every graded try is remembered, three personal boards (Top words, Needs work, Most improved), the sounds that cause the most trouble, and a five-word round for one sound with stars and a recap. It rides on `ctx.score`, so the Practice screens didn't change. Later the same night: a cheer when a word comes out good or improves, a red part holding a word at 59, a "Practice th in a round" link in Fix this part, and Which did you hear? (`js/hear.js`), the silent listening game for a sound's word pairs.
 
 ## Branches, pull requests, and merging
 

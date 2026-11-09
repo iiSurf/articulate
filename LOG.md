@@ -587,3 +587,308 @@ iiSurf said to start on what the teammate needs, but without a deadline. So the 
 - Hear it and Slowly were not heard. Headless Chrome has no voices, so they need a real phone.
 - `ctx.score` hasn't run with a real recording inside the app. Its parts are the same code the try-it page uses, and the parts-by-letters step has tests.
 - Still to come from iiSurf: the Ukrainian tips, same-sound words, and sound-alike pairs. Then the tour.
+
+## 2026-11-08 (Sunday): the tour
+
+### Plan
+
+The first-visit tour from the tutorial drafts, now that the screens it points at exist (your teammate's Speak, Listen, and Read merged into `main` this morning).
+
+### Changed
+
+- New, the tour's logic (`js/tour.js`): the five steps, the finish, which event moves each step on, where each step happens, what each card says, and the one-time tips.
+- New, the drawing (`js/tour-ui.js`, `css/tour.css`):
+  - **Welcome:** "Привіт! Welcome to Articulate", with Let's start and Skip.
+  - **Step card** above the tabs: "Step 2 of 5", five dots, one sentence, Skip the tour. A ring on the next thing to tap pulses gently, and stands still when motion is turned off.
+  - **Step 4** shows the four colors with their marks.
+  - **The finish:** "You did it!", with Read, Listen, and Speak explained.
+  - **One-time tips,** with Got it. The "?" in the band brings a screen's tip back.
+  - **Your colors** has Help, with Show me around again.
+  - **Away from the step,** the card says so and has Take me there.
+  - **Step 4 with every part green** shows a Next button instead.
+- The steps move on from the hooks in the plan: My words says `added` and `practice`, and your teammate's Speak says `said` and `fixed`. The tour finds controls by the `data-tour` names in the code. A test checks every name the tour points at still exists.
+- `js/app.js`: the tour is hooked in (`ctx.tour.did`, the "?", the tips), and the saved tour can now reach the finish step, 6. `js/store.js` allows it. It's an optional field, so no new version.
+- New: `npm run check-tour` (`tools/check-tour.mjs`).
+
+### Verified
+
+- `npm test`: 79 of 79, with 13 new tests for the tour.
+- `npm run check-tour`, 28 of 28, three runs in a row. It walks the whole tour for real: the real sound model scored a stand-in microphone playing "sink" for the word "think", the th came out red ("The th sounded like an s"), the tour pointed at it, and "Back to the word" and a second try reached the finish. It also covers:
+  - skipping at the welcome, and Skip the tour in the middle;
+  - Take me there;
+  - Show me around again;
+  - the tips and the "?";
+  - no recording in storage after it all.
+- `npm run check-shell` (10) and `npm run check-words` (12) still pass.
+- Pictures of every moment at 390, and step 4 at 360 and 1280: nothing scrolls sideways.
+- Bugs found by the check, and fixed:
+  - the Next button showed on every step, because `hidden` lost to the button's style;
+  - the ring came back on Add for a moment after step 1;
+  - opening Read from an address showed the tip for the screen used last;
+  - after skipping, the screen's tip didn't show until the next screen.
+
+### Not verified
+
+- A real phone, and a real microphone. The microphone was a stand-in that plays a recording.
+- Hearing "Hear it" in step 2. Headless Chrome has no voices.
+- The tour with a real learner. Your friend is the one to try it.
+
+## 2026-11-08 (Sunday, evening): a window that asks before the download
+
+### Plan
+
+iiSurf is worried about the 355 MB sound model download, and wants people to be able to decide: a window that opens when someone reaches the page that needs it, that can be closed, and that says how big the file is, what it's for, how it's used, and that nothing leaves their phone. The first answer to "can it work with no download?": most of the app already does (Read, Listen, My words, Your colors, and the tour need nothing), and only Speak's colored letters need the model. No smaller ready-made model exists. The browser's own speech recognition would send recordings to Google or Samsung, so it was not chosen.
+
+### Changed
+
+- New: `js/ui/modeldialog.js`, a window that opens the first time someone reaches Speak without the model:
+  - **What it is:** a small listening model, 355 MB, downloaded once and kept by the browser.
+  - **What it's for:** it hears each sound, so each part can turn green, yellow, orange, or red.
+  - **How it's used:** it runs inside the app on the phone, and the recording is thrown away.
+  - **Your privacy:** the voice never leaves the phone, nothing is sent to anyone, and the words and settings stay on the phone. The file comes from Hugging Face, which can see that the phone asked for it and nothing about the person or their voice.
+  - Two buttons, **Download (355 MB)** and **Not now**, and a line saying Read and Listen need no download, with links to both.
+  - On mobile data, it adds a note to use Wi-Fi.
+  - After Download: a progress bar and a percentage, and it can be closed while the download goes on. When it finishes, a message says "Speak is ready." and Speak redraws.
+  - If the download stops: it says so, says nothing was saved or shared, and offers Try again.
+- `js/app.js` opens it (`askAboutModel`): at most once per visit, only on Speak, and never when the model is already here. Escape closes it too.
+- Speak (the teammate's file) is untouched. Its own "Get it (355 MB)" card stays as the fallback, so the download is always available there after closing the window.
+- New: `npm run check-download` (`tools/check-download.mjs`), and `tools/chrome.mjs` can now answer a page's network requests, so tests can pretend the model isn't here without downloading anything.
+- Styles in `css/app.css`: the window, its buttons pinned to the bottom, and a message bar.
+
+### Verified
+
+- `npm run check-download`, 16 of 16, ten runs in a row:
+  - opens without the model, says each of the four things above, and closes with Escape and with Not now;
+  - doesn't open twice in a visit, comes back the next visit;
+  - a failed download says so and offers Try again, which tries again;
+  - the Read link closes it and opens Read;
+  - a stand-in download shows 42%, then closes and says Speak is ready;
+  - doesn't open when the model is already here.
+- `npm test` 79 of 79, `check-shell` 10, `check-words` 12, `check-tour` 28.
+- At 390, 844 by 390 (a phone held sideways), and 1280, in light and dark.
+- Two things found by looking and by running it many times:
+  - The first version filled the whole phone screen, with the buttons cut off at the bottom. It's tighter now, with the buttons pinned.
+  - The check failed about one run in six, and the cause was the check, not the app: it reloaded before the new address had settled, and sometimes landed on the front page. It now waits.
+
+### Not verified
+
+- A real download of the real file inside the window. Every download here was a stand-in, to avoid fetching 355 MB again. The same download code is covered by `tests/score/source.test.js`.
+- A real phone, and the mobile data note: Chrome on Android reports the connection type, but Safari doesn't.
+- Resuming a download that broke halfway: it starts over. Making it resumable is the next step.
+
+### Same evening: the download is resumable
+
+iiSurf asked for the resumable download, the next step after the window.
+
+### Changed
+
+- `js/score/source.js` downloads the model in 43 pieces of 8 MB instead of one stream:
+  - Each piece is asked for with a range request, checked against its own checksum (the 43 checksums are in `source.js`), and only then kept in the browser (Cache Storage, in a separate cache from the finished copy).
+  - If the connection breaks or the page closes, the next try asks **only for the pieces that are missing**, and progress starts where it stopped.
+  - A piece that fails is tried again by itself three times, waiting 1.5, 4, and 9 seconds. Then it gives up with a plain message: the error code, or "the connection dropped, it picks up where it stopped", or "came through damaged".
+  - A damaged piece is thrown away and never kept.
+  - When every piece is in, they're joined, saved whole as before, and the pieces are cleared.
+  - The checksum is per piece, not for the whole file, so a phone never has to hold a second 355 MB copy to check it.
+- It copes with trouble:
+  - A server that ignores ranges and sends the whole file still works, and is checked piece by piece.
+  - A browser with no Cache Storage, or one that refuses it (some private windows do), keeps pieces in memory so "Try again" still resumes in the same visit.
+  - Where a page can't compute checksums, pieces are checked by size.
+- `keepStorage()` asks the browser to keep what's been saved, when the download starts and when it finishes, so it isn't deleted when the phone runs low on space.
+- The download window: after an interrupted download it says "You already have 47% of it (168 MB). The rest picks up where it stopped." and its button reads "Continue (187 MB left)". It tells people during the download that a dropped connection is retried by itself, and after a failure that what came through is kept.
+- `ctx.model.partial()` (new): how much is already kept.
+- New: `npm run check-resume` (`tools/check-resume.mjs`).
+
+### Verified
+
+- Before building it, I checked that Hugging Face allows this: range requests work from a page in Chrome, cross origin, from the first byte to the last, and `Content-Range` is readable.
+- `npm test`: 88 of 88, with 9 more tests for the download (fresh, break and resume, retry with waits, last-try messages, a damaged piece, a kept piece of the wrong size, a server that ignores ranges, no Cache Storage, a refused cache, no checksums, the browser asked to keep the file), and one that checks all 43 piece checksums against the real model file.
+- `npm run check-resume`, 10 of 10, with the real model and the real download code in Chrome, answering each request from the local copy:
+  - the first try broke at piece 20, after 4 tries, with a plain message, and the 20 pieces were kept;
+  - on the next visit the window said "You already have 47%" and offered Continue;
+  - the second try asked for exactly the 23 missing pieces;
+  - the finished model was saved whole, the pieces were cleared, and the model loaded and ran.
+- `npm run check-download`, 16 of 16, six runs in a row. `check-shell` 10, `check-words` 12, `check-tour` 28.
+- Found by running it: a damaged whole file from a server that ignores ranges was being retried as if the network had dropped, and reported with the wrong message. It's reported as damaged at once now.
+
+### Not verified
+
+- The real internet. Every piece in `check-resume` came from the local copy. Range requests to the real server were checked with small ranges only.
+- A real phone: whether the browser actually grants "keep this file" depends on the browser and the phone, and Chrome decides by how much the site is used. If it doesn't, the file can still be deleted when storage runs low, and the window then offers to download again.
+- Safari and Firefox.
+
+## 2026-11-08 (Sunday, night): the Ukrainian tips
+
+### Plan
+
+Fix this part had only "the th needs work, it sounded like an s. Listen slowly." The friend asked for tips that compare English sounds to Ukrainian ones (docs/needs.md). iiSurf said to build them.
+
+### Changed
+
+- New: `data/tips/uk-en.json`, the Ukrainian tips, as a data file (another language is another file):
+  - **22 sounds,** each with a title ("th as in think"), a tip that starts from a sound the learner already has, words with the same sound filed by where it sits (start, middle, end), and pairs to hear the difference. Examples:
+    - th as in think: start from the Ukrainian с (сам), then put the tongue tip between the teeth, and blow softly with no buzz;
+    - th as in this: start from з (зуб), tongue between the teeth, keep the buzz;
+    - w: a very short у (ум), so wet starts like у-ет;
+    - ng: the н in банк, and stop there, with no г;
+    - ship: the и of шип, and sheep: the і of ліс, held a little longer;
+    - r: don't roll it like р; h: a soft breath like х, not the buzzing г; p, t, k: a puff of air at the start of a word.
+  - **21 "you said…" tips** for what they said instead: th said as s, t, d, or f; this said as d or z; w as v and v as w; r as l; ng as n; ee and i; a and e; the two oo sounds; oh; p, t, and k as b, d, and g.
+  - **A note** in the file that it hasn't been read by a Ukrainian speaker.
+- New: `js/words/tips.js`: `fixTip()` picks what to show. Words are the same spot first, never the word itself, up to 4. Pairs with the learner's own word come first, up to 2, so "think · sink" shows up for "think" said as "sink". `segments()` marks Ukrainian letters so they can carry `lang="uk"`.
+- `js/score/score.js`: each part now says which sound was graded worst (`focusPhone`) and where it sits (`position`).
+- `js/app.js`: `ctx.tips(part, word)`.
+- `docs/fix-tips.patch`: the 20 lines that put the tips in Speak's practice panel: the sound's title and tip with Ukrainian letters marked, what they said, tappable words, and tappable pairs that say both words. Speak (`js/practice/speak.js`) is the teammate's file, so I did not commit it. I applied the patch, tested it, saved it, and put the file back.
+- New: `npm run check-tips` (`tools/check-tips.mjs`), and 14 new tests (102 in all).
+
+### Verified
+
+- Every example word and every pair is checked against the real dictionary: 200+ words really have the sound in the spot they're filed under, and 40+ pairs differ by exactly one sound. That caught five of my own mistakes (for example, "see" ends in its sound, and "around" starts with a different vowel in this dictionary), and they're fixed.
+- `npm run check-tips`, 21 of 21, with the patch applied: the real model scored a stand-in microphone playing "sink" for "think". Tapping the red th shows "th as in think", the tip with the Ukrainian с, "You said s", words (thank, thin, three, thing), and the pairs "think · sink" and "thin · tin". "vest" said for "west" shows the w tip and "You said v". Ukrainian letters carry `lang="uk"`, there's no IPA anywhere, and Back to the word closes the panel. Checked at 360, 390, and 1280 wide.
+- `docs/fix-tips.patch` applies cleanly to the committed `speak.js`, and `npm test` passes: 102 of 102.
+- A flaw found by running it: the first version hid any pair containing the learner's own word, which is backwards. Those come first now.
+
+### Not verified
+
+- **The Ukrainian itself.** No Ukrainian speaker has read the tips. They are common teaching advice, but a word choice or an explanation may be wrong. The friend should read them.
+- Hearing the tappable words and pairs: headless Chrome has no voices, and they use the phone's own English voice.
+- The patch isn't applied to the committed Speak yet, so on `main` the tips don't show until it is.
+- Tips for sounds beyond those 22 (there is none for l, s, z, f, and so on), so the panel stays as it was for them.
+
+### The tips are in Speak now
+
+iiSurf chose to apply the patch on their own branch instead of leaving it for the teammate.
+
+- Before applying, I checked that the teammate has no unmerged commits, and that their `js/practice/speak.js` on `main` is the same file the patch was made against. It applied cleanly.
+- The change in `js/practice/speak.js`, about 20 lines and nothing else: it imports `segments`, adds a `tipView` function, adds an `#fix-tips` box to the practice panel, and, when a part is opened, asks `ctx.tips(part, word)` and fills the box. This is the teammate's file, so it is its own commit, and the teammate is asked in `docs/practice-brief.md` to look it over and change it as they like.
+- `docs/fix-tips.patch` is deleted, as it said to do.
+- Verified with the patch applied: `check-tips` 21 of 21, `check-tour` 28, `check-shell` 10, `check-words` 12, `check-download` 16, and `npm test` 102 of 102.
+
+## 2026-11-08 (Sunday, late): drafts for the boards and a practice game
+
+### Plan
+
+iiSurf asked for three boards (best words said correctly, words that need the most work, and the most improved), and a game built from the parts of words the learner struggles with, so those words can climb the third board. Drawn first, as with the looks and the tour.
+
+### Decisions so far
+
+- **The boards are personal.** Everything stays on the phone, so they rank the learner's own words against each other. A board with other people would need a server and accounts, which the app doesn't have.
+- **A word's score is 0 to 100** from its colored parts: green counts fully, yellow 70%, orange 40%, red 0, silent letters skipped. Top words and Needs work use the average of the last three tries. Most improved compares the latest three against the first three, and a word needs two tries.
+- **Where it lives:** the Progress tab, which is an empty placeholder now.
+- **The sounds that cause the trouble** come from the history: every graded try records which sound was worst, so the app can count which sounds go orange or red most. That feeds the game.
+- **Recording tries** would happen inside `ctx.score` in `js/app.js`, my file, so the teammate's screens don't change.
+
+### Changed
+
+- New: `design/progress.html`, six phones with made-up words: the three boards, "where you struggle most", and two game options (A: say five words with the hard sound, scored by the real model, with stars for the round; B: hear a word and pick which one it was, with a streak, no microphone and no download).
+
+### Not verified
+
+- Nothing is built. These are drawings with made-up numbers.
+
+## 2026-11-08 (Sunday, late): every try is remembered, and the boards' math (step 1 of 3)
+
+### Plan
+
+iiSurf picked "A: Say it round". Built in three small steps: (1) remember each graded try and work out the boards, (2) the Progress screen with the three boards, (3) the Say it round. This is step 1: logic and tests only, no new screen.
+
+### Changed
+
+- New `js/progress.js`, pure logic: `scoreOf` (green 100%, yellow 70%, orange 40%, red 0, silent letters skipped), `recordTry`, `topWords` (the best of the last three tries), `needsWork` (the average of the last three, only words under 80), `mostImproved` (the first tries against the last ones, never overlapping, needs two tries and a gain of 10), `hardestSounds` (which sounds went orange or red most, with the words that had them), `roundWords` (the learner's own trouble word first, then words with that sound from `data/tips/uk-en.json`), and `stars` (one for each word at 80 or more).
+- `js/store.js`: a new optional `history` field (each word's last 30 tries, at most 80 words). `sanitize` drops anything shaped wrong, so no version bump is needed and old backups load with an empty history.
+- `js/app.js`: `ctx.score` remembers each graded try and saves. The teammate's screens didn't change.
+- `tools/check-tips.mjs` also checks that a try lands in the saved history.
+
+### Verified
+
+- `npm test` 114 of 114 (12 new, covering scoring, the three boards, ties, the caps, the hardest sounds, a round's words, and bad saved shapes), `check-shell` and `check-words` pass, and `check-tips` passes with the real model, including that "think" said as "sink" and "west" said as "vest" were each saved with a score and a trouble spot.
+
+### Not verified
+
+- No screen shows any of this yet (steps 2 and 3). The tour was not re-run, but it doesn't change; it records its first word like any other.
+
+## 2026-11-08 (Sunday, late): the Progress tab, with the three boards (step 2 of 3)
+
+### Plan
+
+Draw the boards from the history (step 1) the way `design/progress.html` showed them, with the sounds that cause the trouble under Needs work.
+
+### Changed
+
+- New `js/progress-screen.js` and `css/progress.css`: three boards as buttons (Top words, Needs work, Most improved), each row a link that makes that word the one to practice and opens Speak. Needs work shows the part that went worst last time with its mark (✕ or !), so color isn't the only signal. Under it, "Where you struggle most" lists the sounds that went orange or red most, named from the tips file ("th as in think"), with a button "Practice th" that goes to `#/round/TH` (the round is step 3, so that address is not drawn yet). A learner with no tries sees a short note and a button to Speak.
+- `js/progress.js`: Top words only lists words at 60 or more (a board of "best words" with a 22 on it felt wrong), and `toneOf` picks each score's color (80, 60, 40).
+- `js/app.js` loads the screen; `index.html` links `css/progress.css`. `tools/check-progress.mjs` (`npm run check-progress`) seeds a made-up history and checks the boards, the empty page, tapping a word, and no sideways scroll at 360, 390 and 1280; it takes pictures.
+
+### Verified
+
+- `npm test` 115 of 115, `check-progress` all green, and the pictures looked at: 360, 390, 1280, and the night look. The first pass had bars ending at different spots and sound names wrapping at 360; both were fixed.
+
+### Not verified
+
+- A real phone. The boards with real tries from a real microphone (the history recording was checked with the real model in `check-tips`, the screen with made-up tries). The other six looks. The round button leads nowhere until step 3.
+
+## 2026-11-08 (Sunday, late): Say it round (step 3 of 3)
+
+### Plan
+
+Option A from the drafts: five words with the sound the learner struggles with most, said out loud and scored by the real model, stars for the round, a recap, "Add these words", and "Say <word> again" so the word can climb Most improved.
+
+### Changed
+
+- New `js/round.js` (`#/round/TH`): the five words come from `roundWords` (their own trouble word for that sound first, then words with the sound from the tips file). Each word shows its parts with the same colors and marks as Speak after a try, the sentence about what it sounded like, the sound's tip (Ukrainian letters marked `lang="uk"`), Hear it, Slowly, and Skip this word or Next word. Every try goes through `ctx.score`, so it's remembered and the boards move. The end shows stars (one for each word at 80 or more), a recap that names the part that went wrong ("th needs work ✕") or "good ✓" or "skipped", "Last round: N of 5" (saved as the optional `rounds` field in the saved data, which `sanitize` checks), Add these words (only the ones not in My words yet), Say <word> again (their own trouble word, or the worst word of the round, opened in Speak), Play again, and Back to Progress. Without the sound model it offers the same one-time download window as Speak. If they leave while it's recording, nothing is scored.
+- `js/app.js`: the `round` address, a band with a back arrow to Progress, and the Progress tab stays lit. `js/progress.js`: `ownWordFor`. `css/progress.css`: the round's pieces, with star pop-ins that turn off for reduced motion.
+- It uses the teammate's `recorder.js` and `feedback.js` (documented in `docs/practice-brief.md`, which now also says every graded try is remembered).
+- `tools/check-round.mjs` (`npm run check-round`), README, PLAN.md.
+
+### Verified
+
+- `npm test` 117 of 117, and every browser check passes: `check-shell`, `check-words`, `check-progress`, `check-download`, `check-resume`, `check-tips`, `check-tour`, and the new `check-round` with the real model: a stand-in microphone said "sink" for think, thank, thin, tree for three, and thing; the marks, hint, tip, button labels, two stars, recap, history (think has two tries), the saved stars, Add these words (four new words), Play again, Last round, skipped words, Say think again opening Speak, a sound with no words, and the download window without the model. Pictures looked at at 390, 360 (no sideways scroll), and 1280.
+- The first pass showed think (th red) as just "close" in the recap, because one red part in four still averages 75; the recap now names the part instead. The buttons also moved to their own rows.
+
+### Not verified
+
+- A real phone and a real microphone, and a real person saying the words (the stand-in plays recordings of the Mac's voices). Safari and Firefox. The other six looks. Whether 80 is the right line for a star: it is my choice, not agreed. One red part in a short word still averages close (75), so a word can reach Top words with a red part; the boards and the recap say which part. A Ukrainian speaker has not read the tips the round shows.
+
+## 2026-11-08 (Sunday night): polish after the merge
+
+### Plan
+
+iiSurf asked for the improvements I suggested, and a grammar pass. Everything except the silent "Which did you hear?" game.
+
+### Changed
+
+- **Grammar and wording.** I read every sentence the learner can see. Fixed: the tour's "then tap again" (it says Stop now), "for anywhere" (now "works anywhere"), a stray comma, three Progress messages that read awkwardly, "a whisper of х" (now "a quiet х"), and "Ukrainian п has none" (now "has no puff", for п, т, and к). The download window said "Read it first", which could be taken for the Read mode, so it now says "Look it over", and it no longer says "for Speak" only: it says "for speaking practice (Speak and Say it round)". Nothing was wrong in the teammate's screens, so none of their text changed.
+- **A red part holds a word at 59.** One red part in four averaged 75, which read as "close". A word with a sound that's plainly wrong is now at most "a little off", can't earn a star, and stays off Top words. Scores already saved keep the old numbers (nobody has used it yet).
+- **Cheers on the boards.** After a try, a small message when a word comes out good for the first time ("think came out good for the first time!") or when its gain reaches Most improved ("world is up 20 points!"). It's `milestone` in `js/progress.js`, shown with the same `toast` as the download window.
+- **A way into the round from Speak.** The tips box in Fix this part ends with "Practice th in a round". `ctx.tips()` now also returns the sound's key. This is one more line in the teammate's `js/practice/speak.js`, in its own commit, and `docs/practice-brief.md` says so.
+- **The boards and the round in all seven looks.** `check-progress` now measures text against its background in each look (4.5 to 1; the mark in a pill 3 to 1) and takes a picture of each. Only the small ✕ in the dark looks was short, and its glyph is now bigger and bolder.
+
+### Verified
+
+- `npm test` 118 of 118. `check-shell`, `check-words`, `check-progress` (with the seven looks), `check-download`, `check-resume`, `check-tips` (now also the round link), `check-tour`, and `check-round` all pass. Looked at the pictures for sunflower, petrykivka, and pysanka.
+
+### Not verified
+
+- A real phone and microphone, Safari, and Firefox. The cheer messages were tested as logic only, not seen in a browser (they need a real improving word). A Ukrainian speaker has not read the tips, including the two wordings I changed.
+- Not built: the silent "Which did you hear?" game.
+
+## 2026-11-08 (Sunday night, later): Which did you hear?, a phone checklist, and a review sheet
+
+### Plan
+
+Work through what was left: the silent listening game from the drafts (option B), a way for the real-phone testing to happen, and a way for a Ukrainian speaker to review the tips. The Portfolio card was pushed first (`8966d34` in the Portfolio repo), with the line about the boards and the round.
+
+### Changed
+
+- **Which did you hear?** (`js/hear.js`, `#/hear/TH`): eight questions from the sound's word pairs in the tips file, the learner's own word's pair first. The phone says one word, the learner taps which it was, with a streak, ✓ or ✕ on the buttons, "Hear both", and the tip when they're wrong. A pair that comes round again says the other word. It ends with "7 of 8 right", the longest streak, "Say th out loud" (the spoken round), Play again, and Back. No microphone, no download, and it never touches the boards. It starts from a "Hear the difference" button beside "Practice th" under Needs work, for sounds that have pairs (the small uh, ah, o, and er have none). A phone that can't speak gets a plain note and a link to Read. The question logic is `hearQuestions` in `js/progress.js`, tested.
+- **A name clash found and fixed:** the teammate's `practice.css` already uses `.choice` and `.choices` for Listen and dims disabled ones, so the first answered buttons looked washed out. Mine are `.hear-choice` and `.hear-choices`.
+- **`docs/device-test.md`:** a 20-minute checklist for the Samsung: the first visit, the download and an interrupted download, speaking, the boards, the round, the listening game, dark mode, and what to write down.
+- **`tools/tips-review.mjs`** (`npm run tips-review`) writes `design/tips-review.html`, a printable sheet of all 22 sounds with the Ukrainian sound, the tip, the "you said" tips, and OK or Change boxes. It is made from the tips file and names no app, purpose, or person, so it can go to any Ukrainian speaker.
+- `tools/check-hear.mjs` (`npm run check-hear`); the contrast check in `check-progress` also covers the new buttons in all seven looks.
+
+### Verified
+
+- `npm test` 119 of 119. All nine browser checks pass: shell, words, progress, hear (22 checks: right and wrong answers, streak, Hear both, the ending, the history unchanged, no pairs, no speech), download, resume, tips, tour, and round. Pictures looked at at 390, with no sideways scroll at 360, 390, and 1280. The review sheet looked at at 1280.
+
+### Not verified
+
+- A real phone, a real voice (the check uses a stand-in voice that records the word; the real phone voice, and whether think and sink sound clearly different in it, is untested), Safari, and Firefox. The checklist is the way to do it. The review sheet hasn't been read by anyone yet.
