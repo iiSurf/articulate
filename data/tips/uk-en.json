@@ -131,28 +131,28 @@
     "HH": {
       "title": "h as in home",
       "uk": { "letter": "х", "word": "хата" },
-      "tip": "A soft breath, like a whisper of х, from the throat. Don't use the Ukrainian г, which buzzes. This sound has no buzz.",
+      "tip": "A soft breath, like a quiet х, from the throat. Don't use the Ukrainian г, which buzzes. This sound has no buzz.",
       "words": { "start": ["he", "her", "hello", "home", "house", "hot", "have"], "middle": ["ahead", "behind", "perhaps"], "end": [] },
       "pairs": [["heat", "eat"], ["hold", "old"], ["hair", "air"]]
     },
     "P": {
       "title": "p as in pin",
       "uk": { "letter": "п", "word": "пан" },
-      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian п has none.",
+      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian п has no puff.",
       "words": { "start": ["pin", "pen", "park", "pay", "people"], "middle": ["happy", "paper", "apple", "important"], "end": ["stop", "top", "help", "cup", "map"] },
       "pairs": [["pin", "bin"], ["pear", "bear"], ["pie", "buy"], ["pack", "back"]]
     },
     "T": {
       "title": "t as in ten",
       "uk": { "letter": "т", "word": "тато" },
-      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian т has none.",
+      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian т has no puff.",
       "words": { "start": ["ten", "time", "take", "table", "town"], "middle": ["later", "city", "better", "water"], "end": ["cat", "eat", "hot", "night", "what", "it"] },
       "pairs": [["tie", "die"], ["ten", "den"], ["time", "dime"], ["town", "down"]]
     },
     "K": {
       "title": "k as in key",
       "uk": { "letter": "к", "word": "кіт" },
-      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian к has none.",
+      "tip": "At the start of a word, say it with a puff of air. Hold your hand in front of your mouth: you should feel the puff. Ukrainian к has no puff.",
       "words": { "start": ["cat", "key", "car", "coffee", "can"], "middle": ["taking", "pocket", "asking"], "end": ["back", "book", "make", "look", "work"] },
       "pairs": [["coat", "goat"], ["cold", "gold"], ["came", "game"]]
     }

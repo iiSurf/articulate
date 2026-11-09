@@ -1,10 +1,10 @@
 /* Progress (iiSurf): the three boards, the sounds that cause trouble, and the Say it round. Colors only come from the
    names in css/looks.css. The grade tones (good, close, off, work) are set here for the pieces on this tab. */
-.progress, .round { display: flex; flex-direction: column; gap: 12px; }
-.progress .good, .round .good { --g: var(--good); --gb: var(--good-bar); --gm: var(--good-mark); }
-.progress .close, .round .close { --g: var(--close); --gb: var(--close-bar); --gm: var(--close-mark); }
-.progress .off, .round .off { --g: var(--off); --gb: var(--off-bar); --gm: var(--off-mark); }
-.progress .work, .round .work { --g: var(--work); --gb: var(--work-bar); --gm: var(--work-mark); }
+.progress, .round, .hear { display: flex; flex-direction: column; gap: 12px; }
+.progress .good, .round .good, .hear .good { --g: var(--good); --gb: var(--good-bar); --gm: var(--good-mark); }
+.progress .close, .round .close, .hear .close { --g: var(--close); --gb: var(--close-bar); --gm: var(--close-mark); }
+.progress .off, .round .off, .hear .off { --g: var(--off); --gb: var(--off-bar); --gm: var(--off-mark); }
+.progress .work, .round .work, .hear .work { --g: var(--work); --gb: var(--work-bar); --gm: var(--work-mark); }
 
 .boards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--mode-bg); border-radius: 15px; }
 .boards button { border: 0; background: none; text-align: center; padding: 10px 4px; border-radius: 11px; font-weight: 800; font-size: 14.5px;
@@ -25,7 +25,7 @@
 .num2 small { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
 .up { color: var(--good); font-weight: 800; }
 .spot { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; margin-top: 4px; color: var(--g); }
-.spot i { font-style: normal; min-width: 28px; height: 18px; padding: 0 6px; border-radius: 9px; background: var(--gb); color: var(--gm); display: inline-grid; place-items: center; font-size: 13px; line-height: 1; }
+.spot i { font-style: normal; min-width: 30px; height: 20px; padding: 0 6px; border-radius: 10px; font-weight: 900; background: var(--gb); color: var(--gm); display: inline-grid; place-items: center; font-size: 15px; line-height: 1; }
 .how { margin: 10px 0 0; font-size: 15px; color: var(--muted); }
 
 .hard { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -35,11 +35,11 @@
 .hard .n { font-size: 15px; color: var(--muted); text-align: right; }
 
 /* Say it round */
-.round .center, .round-need.center { text-align: center; }
-.round .dots { display: flex; justify-content: center; gap: 8px; margin: 8px 0 0; }
-.round .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--chip-bg); }
-.round .dots i.done { background: var(--good-bar); }
-.round .dots i.now { background: var(--accent); outline: 3px solid var(--ring); outline-offset: 2px; }
+.round .center, .hear .center, .round-need.center { text-align: center; }
+.round .dots, .hear .dots { display: flex; justify-content: center; gap: 8px; margin: 8px 0 0; }
+.round .dots i, .hear .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--chip-bg); }
+.round .dots i.done, .hear .dots i.done { background: var(--good-bar); }
+.round .dots i.now, .hear .dots i.now { background: var(--accent); outline: 3px solid var(--ring); outline-offset: 2px; }
 .bigword { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 16px 0 4px; }
 .bigword .part { display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 44px; }
 .bigword .l { font-size: 52px; font-weight: 800; line-height: 1; color: var(--g, var(--ink)); overflow-wrap: anywhere; }
@@ -47,13 +47,13 @@
 .bigword .m { width: 100%; min-width: 40px; height: 26px; border-radius: 13px; display: grid; place-items: center; background: var(--gb, transparent); color: var(--gm, inherit); font-weight: 900; }
 .bigword .m.blank { background: transparent; }
 @media (max-width: 400px) { .bigword .l { font-size: 40px; } }
-.round .note { text-align: left; background: var(--chip-bg); color: var(--ink); border-radius: 12px; padding: 10px 12px; margin-top: 10px; }
-.round .note p { margin: 0; }
-.round .btn.wide { margin-top: 12px; width: 100%; }
-.round .btn:disabled { opacity: .55; cursor: default; }
+.round .note, .hear .note { text-align: left; background: var(--chip-bg); color: var(--ink); border-radius: 12px; padding: 10px 12px; margin-top: 10px; }
+.round .note p, .hear .note p { margin: 0; }
+.round .btn.wide, .hear .btn.wide { margin-top: 12px; width: 100%; }
+.round .btn:disabled, .hear .btn:disabled { opacity: .55; cursor: default; }
 .round .rec-time { width: 100%; height: 8px; margin-top: 8px; accent-color: var(--accent); }
 .round .record.live { background: var(--work-bar); color: var(--work-mark); }
-.round .row { flex-wrap: wrap; }
+.round .row, .hear .row { flex-wrap: wrap; }
 .stars { display: flex; justify-content: center; gap: 6px; font-size: 40px; line-height: 1; margin: 10px 0 4px; }
 .stars .on { color: var(--accent); filter: drop-shadow(0 1px 0 rgba(0,0,0,.25)); }
 .stars .off { color: var(--chip-bg); }
@@ -66,3 +66,14 @@
   .stars .on:nth-child(4) { animation-delay: .3s; } .stars .on:nth-child(5) { animation-delay: .4s; }
 }
 @keyframes star-pop { from { transform: scale(0) rotate(-40deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Which did you hear? */
+.hear .streak { display: flex; justify-content: center; align-items: baseline; gap: 6px; font-weight: 900; font-size: 34px; line-height: 1.1; margin-top: 8px; }
+.hear .streak small { font-size: 15px; font-weight: 700; color: var(--muted); }
+.hear-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.hear-choice { border: 0; border-radius: 16px; padding: 20px 8px; background: var(--chip-bg); color: var(--chip-ink); font-size: 26px; font-weight: 800; cursor: pointer; overflow-wrap: anywhere; }
+.hear-choice:disabled { cursor: default; }
+.hear-choice.right { background: var(--good-bar); color: var(--good-mark); }
+.hear-choice.wrong { background: var(--work-bar); color: var(--work-mark); }
+.hear .hint { margin: 12px 0 0; }
+.bigcount { font-size: 28px; line-height: 1.2; margin: 10px 0 0; }

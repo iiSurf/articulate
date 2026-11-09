@@ -9,9 +9,9 @@ import { GRADES } from "./practice/feedback.js";
 import { hardestSounds, mostImproved, needsWork, toneOf, topWords } from "./progress.js";
 
 const BOARDS = [
-  { id: "top", name: "Top words", title: "Your best words", empty: "Words you say well show up here. Say a word in Speak, and keep going: 60 out of 100 gets a word on this board." },
-  { id: "needs", name: "Needs work", title: "Needs the most work", empty: "Nothing needs work right now. Nice! Say a new word in Speak and it will show up here if it's tricky." },
-  { id: "better", name: "Most improved", title: "Most improved", empty: "Say a word a few times. When it gets better, it shows up here with how far it came." },
+  { id: "top", name: "Top words", title: "Your best words", empty: "Words you say well show up here. Say words in Speak. A word needs 60 out of 100 to get on this board." },
+  { id: "needs", name: "Needs work", title: "Needs the most work", empty: "Nothing needs work right now. Nice! Say a new word in Speak, and it shows up here if it's tricky." },
+  { id: "better", name: "Most improved", title: "Most improved", empty: "Say a word a few times. When it gets better, it shows up here, with how much it improved." },
 ];
 const TONE_MARK = Object.fromEntries(Object.values(GRADES).map((g) => [g.tone, g.mark]));
 let board = "top"; // the board last looked at, kept while the app is open
@@ -33,6 +33,8 @@ registerScreen("progress", {
         if (word) { ctx.state.current = word.dataset.word; ctx.save(); return; } // the link goes on to Speak
         const hard = e.target.closest("[data-round]");
         if (hard) ctx.go("round", hard.dataset.round);
+        const hear = e.target.closest("[data-hear]");
+        if (hear) ctx.go("hear", hear.dataset.hear);
       });
     };
     draw();
@@ -97,7 +99,7 @@ function hardest(state, tips) {
       <span class="bar" aria-hidden="true"><i style="width:${Math.round((100 * s.misses) / top)}%"></i></span>
       <span class="n">${s.misses} ${s.misses === 1 ? "miss" : "misses"}</span>
     </li>`)}</ul>
-    ${can(sounds[0]) ? html`<div class="row"><button type="button" class="btn primary" data-round="${sounds[0].sound}">Practice ${short(sounds[0])}</button></div>
-      <p class="hint">A round is five words with this sound, said out loud.</p>` : ""}
+    ${can(sounds[0]) ? html`<div class="row"><button type="button" class="btn primary" data-round="${sounds[0].sound}">Practice ${short(sounds[0])}</button>${tips.sounds[sounds[0].sound].pairs?.length ? html`<button type="button" class="btn" data-hear="${sounds[0].sound}">Hear the difference</button>` : ""}</div>
+      <p class="hint">A round is five words with this sound, said out loud. Hear the difference needs no microphone: listen, and tap which word it was.</p>` : ""}
   </section>`;
 }

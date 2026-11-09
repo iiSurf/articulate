@@ -21,8 +21,8 @@ export function openModelDialog({ load, go, onReady, partial = null }) {
 
   function intro() {
     d.innerHTML = String(html`
-      <h2 id="md-title">A one-time download for Speak</h2>
-      <p class="md-lead">${partial ? `You already have ${percent}% of it (${mb(partial.done)} MB). The rest picks up where it stopped.` : `Speak needs a helper file (${SIZE}). Read it first, then choose.`}</p>
+      <h2 id="md-title">A one-time download for speaking practice</h2>
+      <p class="md-lead">${partial ? `You already have ${percent}% of it (${mb(partial.done)} MB). The rest picks up where it stopped.` : `Speaking practice (Speak and Say it round) needs a helper file (${SIZE}). Look it over, then choose.`}</p>
       ${cellular ? html`<p class="md-warn" role="note">It looks like you're on mobile data. A file this big is best on Wi-Fi.</p>` : ""}
       <dl class="md-facts">
         <div><dt>What it is</dt><dd>A small listening model, ${SIZE}, like a very big photo album. You download it once, and your browser keeps it.</dd></div>
@@ -30,7 +30,7 @@ export function openModelDialog({ load, go, onReady, partial = null }) {
         <div><dt>How it's used</dt><dd>It runs inside this app, on your phone. You say a word, it checks the sounds right there, and your recording is thrown away.</dd></div>
         <div class="md-private"><dt>Your privacy</dt><dd><b>Your voice never leaves your phone.</b> Nothing is sent to us or to anyone else, and your words and settings stay on your phone too. The file comes from Hugging Face, a website that hosts models. It can see that your phone asked for the file, and nothing about you or your voice.</dd></div>
       </dl>
-      <p class="md-hint">No download needed for <a href="#/practice/read" data-md-go>Read</a> or <a href="#/practice/listen" data-md-go>Listen</a>. You can come back to Speak and download any time.</p>
+      <p class="md-hint">No download needed for <a href="#/practice/read" data-md-go>Read</a> or <a href="#/practice/listen" data-md-go>Listen</a>. You can come back and download whenever you like.</p>
       <div class="md-buttons">
         <button type="button" class="btn primary" id="md-download">${partial ? `Continue (${mb(partial.total - partial.done)} MB left)` : `Download (${SIZE})`}</button>
         <button type="button" class="btn" id="md-later">Not now</button>

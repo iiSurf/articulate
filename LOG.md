@@ -847,3 +847,48 @@ Option A from the drafts: five words with the sound the learner struggles with m
 ### Not verified
 
 - A real phone and a real microphone, and a real person saying the words (the stand-in plays recordings of the Mac's voices). Safari and Firefox. The other six looks. Whether 80 is the right line for a star: it is my choice, not agreed. One red part in a short word still averages close (75), so a word can reach Top words with a red part; the boards and the recap say which part. A Ukrainian speaker has not read the tips the round shows.
+
+## 2026-11-08 (Sunday night): polish after the merge
+
+### Plan
+
+iiSurf asked for the improvements I suggested, and a grammar pass. Everything except the silent "Which did you hear?" game.
+
+### Changed
+
+- **Grammar and wording.** I read every sentence the learner can see. Fixed: the tour's "then tap again" (it says Stop now), "for anywhere" (now "works anywhere"), a stray comma, three Progress messages that read awkwardly, "a whisper of х" (now "a quiet х"), and "Ukrainian п has none" (now "has no puff", for п, т, and к). The download window said "Read it first", which could be taken for the Read mode, so it now says "Look it over", and it no longer says "for Speak" only: it says "for speaking practice (Speak and Say it round)". Nothing was wrong in the teammate's screens, so none of their text changed.
+- **A red part holds a word at 59.** One red part in four averaged 75, which read as "close". A word with a sound that's plainly wrong is now at most "a little off", can't earn a star, and stays off Top words. Scores already saved keep the old numbers (nobody has used it yet).
+- **Cheers on the boards.** After a try, a small message when a word comes out good for the first time ("think came out good for the first time!") or when its gain reaches Most improved ("world is up 20 points!"). It's `milestone` in `js/progress.js`, shown with the same `toast` as the download window.
+- **A way into the round from Speak.** The tips box in Fix this part ends with "Practice th in a round". `ctx.tips()` now also returns the sound's key. This is one more line in the teammate's `js/practice/speak.js`, in its own commit, and `docs/practice-brief.md` says so.
+- **The boards and the round in all seven looks.** `check-progress` now measures text against its background in each look (4.5 to 1; the mark in a pill 3 to 1) and takes a picture of each. Only the small ✕ in the dark looks was short, and its glyph is now bigger and bolder.
+
+### Verified
+
+- `npm test` 118 of 118. `check-shell`, `check-words`, `check-progress` (with the seven looks), `check-download`, `check-resume`, `check-tips` (now also the round link), `check-tour`, and `check-round` all pass. Looked at the pictures for sunflower, petrykivka, and pysanka.
+
+### Not verified
+
+- A real phone and microphone, Safari, and Firefox. The cheer messages were tested as logic only, not seen in a browser (they need a real improving word). A Ukrainian speaker has not read the tips, including the two wordings I changed.
+- Not built: the silent "Which did you hear?" game.
+
+## 2026-11-08 (Sunday night, later): Which did you hear?, a phone checklist, and a review sheet
+
+### Plan
+
+Work through what was left: the silent listening game from the drafts (option B), a way for the real-phone testing to happen, and a way for a Ukrainian speaker to review the tips. The Portfolio card was pushed first (`8966d34` in the Portfolio repo), with the line about the boards and the round.
+
+### Changed
+
+- **Which did you hear?** (`js/hear.js`, `#/hear/TH`): eight questions from the sound's word pairs in the tips file, the learner's own word's pair first. The phone says one word, the learner taps which it was, with a streak, ✓ or ✕ on the buttons, "Hear both", and the tip when they're wrong. A pair that comes round again says the other word. It ends with "7 of 8 right", the longest streak, "Say th out loud" (the spoken round), Play again, and Back. No microphone, no download, and it never touches the boards. It starts from a "Hear the difference" button beside "Practice th" under Needs work, for sounds that have pairs (the small uh, ah, o, and er have none). A phone that can't speak gets a plain note and a link to Read. The question logic is `hearQuestions` in `js/progress.js`, tested.
+- **A name clash found and fixed:** the teammate's `practice.css` already uses `.choice` and `.choices` for Listen and dims disabled ones, so the first answered buttons looked washed out. Mine are `.hear-choice` and `.hear-choices`.
+- **`docs/device-test.md`:** a 20-minute checklist for the Samsung: the first visit, the download and an interrupted download, speaking, the boards, the round, the listening game, dark mode, and what to write down.
+- **`tools/tips-review.mjs`** (`npm run tips-review`) writes `design/tips-review.html`, a printable sheet of all 22 sounds with the Ukrainian sound, the tip, the "you said" tips, and OK or Change boxes. It is made from the tips file and names no app, purpose, or person, so it can go to any Ukrainian speaker.
+- `tools/check-hear.mjs` (`npm run check-hear`); the contrast check in `check-progress` also covers the new buttons in all seven looks.
+
+### Verified
+
+- `npm test` 119 of 119. All nine browser checks pass: shell, words, progress, hear (22 checks: right and wrong answers, streak, Hear both, the ending, the history unchanged, no pairs, no speech), download, resume, tips, tour, and round. Pictures looked at at 390, with no sideways scroll at 360, 390, and 1280. The review sheet looked at at 1280.
+
+### Not verified
+
+- A real phone, a real voice (the check uses a stand-in voice that records the word; the real phone voice, and whether think and sink sound clearly different in it, is untested), Safari, and Firefox. The checklist is the way to do it. The review sheet hasn't been read by anyone yet.

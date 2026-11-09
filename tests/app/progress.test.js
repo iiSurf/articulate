@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, mostImproved, needsWork, ownWordFor, recordTry, roundWords, scoreOf, stars, toneOf, topWords } from "../../js/progress.js";
+import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, hearQuestions, milestone, mostImproved, needsWork, ownWordFor, recordTry, roundWords, scoreOf, stars, toneOf, topWords } from "../../js/progress.js";
 import { fresh, sanitize } from "../../js/store.js";
 
 const tips = JSON.parse(readFileSync(new URL("../../data/tips/uk-en.json", import.meta.url), "utf8"));
@@ -17,7 +17,9 @@ function stateWith(words) {
 
 test("a word's score: green counts fully, yellow 70%, orange 40%, red nothing, silent letters skipped", () => {
   assert.equal(scoreOf([part("th", "green"), part("i", "green"), part("nk", "green")]), 100);
-  assert.equal(scoreOf([part("th", "red"), part("i", "green"), part("n", "green"), part("k", "green")]), 75);
+  assert.equal(scoreOf([part("th", "orange"), part("i", "green"), part("n", "green"), part("k", "green")]), 85);
+  assert.equal(scoreOf([part("th", "red"), part("i", "green"), part("n", "green"), part("k", "green")]), 59, "a red part holds the word at 59, not the 75 it averages");
+  assert.equal(scoreOf([part("th", "red"), part("i", "red")]), 0, "the cap never raises a score");
   assert.equal(scoreOf([part("w", "orange"), part("ea", "yellow"), part("th", "red"), part("er", "green")]), 53);
   assert.equal(scoreOf([part("w", "green"), part("e", null)]), 100, "a silent letter isn't counted");
   assert.equal(scoreOf([part("e", null)]), null);
@@ -141,4 +143,34 @@ test("the last round of each sound is kept as a number of stars from 0 to 5, and
   assert.deepEqual(s.rounds.TH, { at: "2026-11-08T10:00:00.000Z", stars: 3 });
   assert.deepEqual(sanitize({ rounds: [1] }).rounds, {});
   assert.deepEqual(fresh().rounds, {});
+});
+
+test("a cheer when a word comes out good for the first time, or when it improves enough to reach Most improved", () => {
+  const tries = (...scores) => scores.map((score, i) => ({ at: `2026-11-08T10:0${i}:00.000Z`, score, bad: [] }));
+  assert.equal(milestone("think", tries(40, 55), tries(40, 55, 85)), "think came out good for the first time!");
+  assert.equal(milestone("think", tries(85), tries(85, 90)), null, "it was good before");
+  assert.equal(milestone("think", [], tries(90)), "think came out good for the first time!");
+  assert.equal(milestone("world", tries(30, 35), tries(30, 35, 50)), "world is up 20 points!", "30 on the first try, 50 on the latest");
+  assert.equal(milestone("world", tries(30, 50), tries(30, 50, 52)), null, "it already counted as improved");
+  assert.equal(milestone("world", tries(30), tries(30, 35)), null, "a gain of 5 is too small");
+  assert.equal(milestone("world", [], []), null);
+});
+
+test("Which did you hear?: eight questions from the sound's pairs, their own word's pair first, both words heard", () => {
+  let seed = 7;
+  const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647); // the same numbers every run
+  const s = fresh();
+  recordTry(s, result("tin", part("th", "red", "TH")));
+  const q = hearQuestions(tips, s, "TH", 8, rng);
+  assert.equal(q.length, 8);
+  assert.ok(q.every((x) => tips.sounds.TH.pairs.some((p) => p[0] === x.pair[0] && p[1] === x.pair[1])), "only real pairs");
+  assert.ok(q.every((x) => x.pair.includes(x.said)), "it says a word from the pair");
+  assert.deepEqual(q[0].pair, ["thin", "tin"], "the pair with their own word comes first");
+  assert.deepEqual(new Set(q.slice(0, 6).map((x) => x.pair.join())).size, 6, "six pairs, six different questions first");
+  const again = q.filter((x) => x.pair.join() === q[0].pair.join());
+  assert.equal(again.length, 2);
+  assert.notEqual(again[0].said, again[1].said, "a pair that comes round again says the other word");
+  assert.deepEqual(hearQuestions(tips, s, "AH0"), [], "a sound with no pairs has no game");
+  assert.deepEqual(hearQuestions(tips, s, "XX"), []);
+  assert.equal(hearQuestions(tips, fresh(), "UH", 8, rng).length, 8, "three pairs still make eight questions");
 });

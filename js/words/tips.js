@@ -34,7 +34,7 @@ const MAX_WORDS = 4, MAX_PAIRS = 2;
 // What to show for one part of a word that went wrong. part comes from scoreRecording (js/score/score.js):
 //   { letters, focusPhone: "TH" (the sound that was graded worst, as in the dictionary), position, heard, grade }
 // Returns null when there is nothing to say about that sound. Otherwise:
-//   { title: "th as in think", uk: { letter, word } | null, tip, swap: what they said instead (or null),
+//   { sound: "TH" (the key, for the round at #/round/TH), title: "th as in think", uk: { letter, word } | null, tip, swap: what they said instead (or null),
 //     words: up to 4 with the same sound, the same spot first (never the word itself),
 //     pairs: up to 2 pairs to hear the difference between, a pair with the word itself first }
 export function fixTip(data, part, word = "") {
@@ -48,7 +48,7 @@ export function fixTip(data, part, word = "") {
   // Pairs with their own word come first: hearing it next to the word they said by mistake is the most useful one.
   const all = entry.pairs ?? [];
   const pairs = [...all.filter((p) => p.includes(word)), ...all.filter((p) => !p.includes(word))].slice(0, MAX_PAIRS);
-  return { title: entry.title, uk: entry.uk ?? null, tip: entry.tip, swap, words, pairs };
+  return { sound: key, title: entry.title, uk: entry.uk ?? null, tip: entry.tip, swap, words, pairs };
 }
 
 // Splits a sentence into runs of Ukrainian letters and everything else, so a screen can mark the Ukrainian with
