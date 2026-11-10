@@ -913,3 +913,26 @@ The friend tried the app and liked it. Their one idea: show **how to make the so
 
 - **Whether the shapes are right.** They are mine, from general phonetics knowledge, not checked by a teacher or speech therapist. The friend's teacher is the right person to check them before this is built.
 - Nothing is built in the app yet. The "Show the move" animation runs in a browser that runs scripts; previews that show a still page show one frame.
+
+## 2026-11-09 (Monday): How to make it, built (B, C, and D, on the side)
+
+### Plan
+
+iiSurf picked B (start from the Ukrainian sound and show the move), C (the lips from the front, and what they said next to what they wanted), and D (the vowel map), with the picture on the side. Build it for every sound and put it where the learner needs it.
+
+### Changed
+
+- New `js/words/mouth.js` (pure, tested): the drawing from the lab, now with poses for all 22 sounds in the tips, the 15 Ukrainian sounds they start from, and 8 more sounds a learner may say instead (s, z, f, d, b, g, l, n), each with a sentence for screen readers. `panel()` puts together the side view (the English tongue solid, the Ukrainian one dashed, an arrow for the move), the lips from the front for sounds where the lips do the work, the vowel map for vowels, "Make: th / You said: s" side by side when the model heard a sound it can draw, and the tip.
+- New `js/ui/mouthui.js`: one listener for the whole page runs the buttons (the Ukrainian sound, the English sound, and Show the move, which slides from one to the other and stops on the English one; with reduced motion it shows the start, then the end). New `css/mouth.css`: the drawing's colors for light and dark looks, using each look's strong color for the air and the buttons.
+- **Fix this part:** `ctx.tips()` now also returns `picture`, drawn with what the model heard, and the teammate's `tipView` shows it above the tip (one line in `js/practice/speak.js`, noted in `docs/practice-brief.md`).
+- **Say it round:** the Tip card is now the picture, on the side on a wide screen (the page widens for the round) and under the word on a phone. After a try, it shows what the hard sound came out as.
+- **Which did you hear?:** a wrong answer shows the picture instead of the tip alone.
+- Checks: `check-tips` checks the picture and "You said" (s for think, v and both lips for west), `check-round` checks the picture beside the word, You said: s, the с button, Show the move, and side-by-side at 1280 but stacked at 390; `check-hear` checks it after a wrong answer; `check-progress` measures the new text in all seven looks.
+
+### Verified
+
+- `npm test` 127 of 127 (8 new). All nine browser checks pass, three of them with the real model. Pictures looked at at 390 and 1280, and in the Night flag and Kalyna looks. Fixed on the way: two vowels the model never hears were in the list of heard sounds, and the side-by-side pictures repeated the big one, so they're now cropped to the mouth.
+
+### Not verified
+
+- **The shapes.** A teacher or speech therapist should check them; the friend's teacher is the obvious person. A real phone, and the move's smoothness on a slow one.

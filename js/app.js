@@ -8,6 +8,7 @@ import { lookUp } from "./words/lookup.js";
 import { createTour } from "./tour-ui.js";
 import { tipFor } from "./tour.js";
 import { milestone, recordTry } from "./progress.js";
+import { installMouth } from "./ui/mouthui.js";
 import { openModelDialog, toast } from "./ui/modeldialog.js";
 
 const state = load();
@@ -61,7 +62,14 @@ function context(param = "") {
     },
     // tips(part, word): the tip for Fix this part. part is one of score()'s parts. Gives { title, uk, tip, swap, words, pairs },
     // or null when there's nothing to say (js/words/tips.js, data/tips/uk-en.json)
-    tips: async (part, word) => { const t = await import("./words/tips.js"); return t.fixTip(await t.loadTips(), part, word); },
+    // Each tip also brings its picture: how to make the sound, from the Ukrainian one, and what they said (js/words/mouth.js).
+    tips: async (part, word) => {
+      const [t, m] = await Promise.all([import("./words/tips.js"), import("./words/mouth.js")]);
+      const data = await t.loadTips();
+      const tip = t.fixTip(data, part, word);
+      if (tip) tip.picture = m.panel(data, tip.sound, { said: part?.heard, withTip: false, heading: false });
+      return tip;
+    },
     go: (name, param = "") => { location.hash = `#/${name}${param ? `/${encodeURIComponent(param)}` : ""}`; },
     tour: { did: (event) => tour.did(event) }, // the first visit moves on when a screen says what happened
   };
@@ -198,6 +206,7 @@ function yourColors(main) {
 }
 
 phoneDark.addEventListener("change", show);
+installMouth(); // the buttons on every "How to make it" picture
 window.addEventListener("hashchange", show);
 show();
 

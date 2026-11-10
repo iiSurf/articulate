@@ -1,0 +1,46 @@
+/* "How to make it" (iiSurf): the side view of the mouth, the lips from the front, the vowel map, and what you said.
+   The drawing's colors are here, for light looks and for dark ones; the lines and the air arrows take the look's own
+   strong color. Colors only come from these names and the ones in css/looks.css. */
+:root {
+  --mouth-skin: #F3D9C6; --mouth-line: #8A5A44; --mouth-air: #FFFFFF; --mouth-tongue: #E06C7C; --mouth-tongue-line: #8E2A3B;
+  --mouth-tooth: #FFFFFF; --mouth-tooth-line: #8A7F75; --mouth-lip: #DE9A90; --mouth-inside: #5A2430;
+  --mouth-flow: var(--mode-on); --mouth-flow-ink: var(--mode-on-ink); --mouth-ghost: var(--ink);
+}
+:root.dark {
+  --mouth-skin: #3A2C26; --mouth-line: #E7C9B6; --mouth-air: var(--bg); --mouth-tongue: #D9576B; --mouth-tongue-line: #FFB3BF;
+  --mouth-tooth: #F4F1EA; --mouth-tooth-line: #C9C2B6; --mouth-lip: #9E5A56; --mouth-inside: #1A0C10;
+}
+.mouth-panel { display: flex; flex-direction: column; gap: 10px; }
+.mouth-title { margin: 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.mouth-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--mode-bg); border-radius: 13px; }
+.mouth-seg button { border: 0; background: none; border-radius: 10px; padding: 9px 4px; font-weight: 800; font-size: 15px; line-height: 1.2; color: var(--chip-ink); cursor: pointer; min-width: 0; }
+.mouth-seg button[aria-pressed="true"] { background: var(--mode-on); color: var(--mode-on-ink); }
+.mouth-seg .mouth-play { grid-column: 1 / -1; background: var(--surface); color: var(--chip-ink); border: 2px solid var(--mode-on); }
+.mouth-row { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: end; }
+.mouth-row.with-lips { grid-template-columns: 1fr 26%; }
+.mouth-fig, .mouth-front, .mouth-mapfig, .mouth-compare figure { margin: 0; }
+.mouth-fig { border-radius: 14px; overflow: hidden; background: var(--mouth-air); }
+.mouth-svg { display: block; width: 100%; height: auto; }
+.mouth-front { text-align: center; } .mouth-front figcaption, .mouth-mapfig figcaption { font-size: 14px; font-weight: 700; color: var(--muted); }
+.mouth-lips { display: block; width: 100%; height: auto; }
+.mouth-key, .mouth-mapfig figcaption { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 14px; font-weight: 700; color: var(--muted); }
+.mk-dash { width: 24px; border-top: 3px dashed var(--ink); opacity: .65; }
+.mk-solid { width: 18px; height: 12px; border-radius: 6px; background: var(--mouth-tongue); margin-left: 8px; }
+.mk-uk { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--mouth-flow); color: var(--mouth-flow); display: inline-grid; place-items: center; font-size: 13px; font-weight: 800; }
+.mk-en { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); margin-left: 6px; }
+.mouth-map { display: block; width: 100%; height: auto; }
+.mouth-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mouth-compare figure { background: var(--bg); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+.mouth-compare .mouth-svg { border-radius: 8px; background: var(--mouth-air); }
+.mouth-compare .mouth-lips { width: 70%; margin: 0 auto; }
+.mc-tag { display: inline-block; border-radius: 999px; padding: 3px 9px; font-size: 13px; font-weight: 800; }
+.mc-want { background: var(--good-bar); color: var(--good-mark); } .mc-said { background: var(--work-bar); color: var(--work-mark); }
+.mouth-tip { margin: 0; }
+/* In the Fix this part panel, the picture sits above the tip. */
+#fix-tips .mouth-panel { margin: 4px 0 8px; }
+/* Say it round on a wide screen: the picture on the side, next to the word, the whole time. */
+.main.wide { max-width: 1040px; }
+@media (min-width: 900px) {
+  .round.side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .round.side > .how { position: sticky; top: 12px; }
+}
