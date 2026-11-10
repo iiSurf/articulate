@@ -25,10 +25,17 @@ export function loadDictionary(getText = (url) => fetch(url).then((r) => {
 //     stress: [1, 0], strong: 1 }
 // sounds are indexes into phones ([] for a silent letter), stress has one number per vowel sound (1 strong,
 // 2 medium, 0 weak), and strong is the index of the part with the strong vowel.
+// Words with more than one way to say them (live, read, either) also get `ways`: the same fields for every way,
+// the first one included, so Speak can score them all and keep the one that was said.
 export function lookUpIn(dict, typed) {
   const word = normalizeWord(typed);
-  const phones = dict.get(word)?.[0];
-  if (!phones) return null;
+  const all = dict.get(word);
+  if (!all?.length) return null;
+  const first = entry(word, all[0]);
+  return all.length > 1 ? { ...first, ways: all.map((phones) => entry(word, phones)) } : first;
+}
+
+function entry(word, phones) {
   const parts = align(word, phones);
   return {
     word,

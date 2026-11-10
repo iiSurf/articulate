@@ -171,3 +171,55 @@ Build the other two ways to practice, so all three of Read, Listen, and Speak wo
 
 - Hearing the words. Headless Chrome has no voices, so the phone's voice wasn't heard, and Listen was checked with a stand-in voice.
 - A real phone.
+
+## 2026-11-06 (Friday, afternoon): four fixes for iiSurf, as a patch
+
+### Plan
+
+Fix the four bugs from the improvements list most likely to show at the handover. They're all in iiSurf's files, so they're a patch, like the dialects one.
+
+### Changed
+
+- New: `docs/fixes.md` and `docs/fixes.patch`. The patch fixes four things:
+  - Every way of saying a word is scored, and the best fit is kept.
+  - The e and oo vowels are capped at yellow only when the model really couldn't tell them from their partner.
+  - A stray % in the address no longer blanks the app.
+  - The phone turning dark no longer wipes the screen.
+- `docs/dialects.patch` was rebuilt to go on after `fixes.patch`. The only conflict was one comment in `gop.js`.
+
+### Verified
+
+- On `main` with the patch: 54 of 54 tests pass, 4 of them new.
+- With both patches: 70 of 70 pass.
+- In headless Chrome:
+  - the % address works (on `main` it's blank);
+  - a Read answer stays on screen when the phone switches to dark.
+
+### Not verified
+
+- Real recordings, and whether `UNSURE_MARGIN` (1) is the right size.
+
+## 2026-11-08 (Sunday, before the deadline): the four fixes, made straight in the code
+
+### Plan
+
+PR #5 merged before the fixes were pushed, and the patch no longer applied to `main` after PR #9. So the four fixes are now made directly in iiSurf's files, in a pull request for iiSurf to review.
+
+### Changed
+
+- `js/app.js`, `js/score/score.js`, `js/score/gop.js`, `js/words/lookup.js`, and their tests: the four fixes from `docs/fixes.md`.
+  - These are iiSurf's files, so the pull request says so and waits for iiSurf.
+  - One merge fix: `focusPhone` and `position` (new in PR #9) now use the way of saying the word that was actually heard.
+- `docs/fixes.patch` is removed, since the fixes are in the code now.
+
+### Verified
+
+- `npm test`: 123 of 123.
+- In headless Chrome:
+  - `#/words/50%` shows "isn't in our word list";
+  - a Read answer stays on screen when the phone switches to dark.
+
+### Not verified
+
+- Real recordings.
+- A real phone.
