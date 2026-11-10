@@ -38,6 +38,19 @@ const microphone = `navigator.mediaDevices.getUserMedia = async () => {
 const history = { think: [{ at: "2026-11-08T09:00:00.000Z", score: 22, bad: [["TH", "red", "th"]] }] };
 const saved = { tour: { step: 0, done: true }, tipsSeen: ["speak", "words", "read", "listen", "progress"], words: [{ text: "think", added: "2026-11-08" }], current: "think", history };
 
+
+// Watches the moving picture in a box for ms milliseconds: every label it showed, and every sound the label lit.
+const watchPicture = (chrome, box, ms) => chrome.evaluate(`(async () => {
+  const seen = new Set(), lit = new Set(), end = performance.now() + ${ms};
+  while (performance.now() < end) {
+    const p = document.querySelector(${JSON.stringify(box)} + " .mouth-panel");
+    const svg = p?.querySelector("[data-mouth-fig] svg");
+    if (svg) seen.add(/^Moving/.test(svg.getAttribute("aria-label")) ? "moving" : /^Side view: Ukrainian/.test(svg.getAttribute("aria-label")) ? "с" : "th");
+    if (p) lit.add(p.dataset.phase);
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  return { seen: [...seen].sort(), lit: [...lit].sort() };
+})()`);
 const server = await startServer();
 try {
   const chrome = await openChrome({ args: ["--autoplay-policy=no-user-gesture-required"] });
@@ -65,7 +78,8 @@ try {
     for (let i = 0; i < 80 && !(await chrome.evaluate(`!!document.getElementById("begin")`)); i++) await sleep(150);
     check("the round opens with how to make the th, before any word", /how to make the th/i.test((await text(".round .label")) ?? "") && !!(await chrome.evaluate(`document.querySelector(".round .mouth-panel")`)) && !(await chrome.evaluate(`document.getElementById("record")`)));
     await sleep(1200);
-    check("the move from с to th plays by itself", /Moving from the Ukrainian с|between the teeth/.test(await chrome.evaluate(`document.querySelector("[data-mouth-fig] svg").getAttribute("aria-label")`)));
+    const intro = await watchPicture(chrome, ".round", 6200);
+    check("the move from с to th plays by itself as the round opens, and loops", JSON.stringify(intro.seen) === '["moving","th","с"]', JSON.stringify(intro));
     await shot("round-intro-390");
     check("Start says how many words", (await text("#begin")) === "Start: 5 words");
     await chrome.evaluate(`document.getElementById("begin").click()`);
@@ -87,15 +101,20 @@ try {
         await shot("round-word-390");
         check("the picture for the th is beside the word, with the tip, and Ukrainian letters marked", /How to make th/i.test((await text(".round .how .mouth-title")) ?? "") && /Start from the Ukrainian/.test((await text(".round .how .mouth-tip")) ?? "") && (await chrome.evaluate(`document.querySelectorAll('.round .how [lang="uk"]').length`)) >= 2);
         check("after think said as sink, the picture shows what it came out as: s", (await text(".round .how .mc-said")) === "You said: s", await text(".round .how .mc-said"));
-        await chrome.evaluate(`document.querySelector('.round [data-mouth-show="start"]').click()`);
-        await sleep(150);
-        check("the с button shows the Ukrainian с, and says so", (await chrome.evaluate(`document.querySelector('.round [data-mouth-show="start"]').getAttribute("aria-pressed")`)) === "true" && /Ukrainian с/.test(await chrome.evaluate(`document.querySelector(".round [data-mouth-fig] svg").getAttribute("aria-label")`)));
-        await chrome.evaluate(`document.querySelector('.round [data-mouth-show="move"]').click()`);
-        await sleep(1100);
-        const moving = await chrome.evaluate(`document.querySelector(".round [data-mouth-fig] svg").getAttribute("aria-label")`);
-        await sleep(1400);
-        const ended = await chrome.evaluate(`document.querySelector(".round [data-mouth-fig] svg").getAttribute("aria-label")`);
-        check("Show the move slides from с to th and stops on th", /Moving from the Ukrainian с/.test(moving) && /between the teeth/.test(ended) && (await chrome.evaluate(`document.querySelector('.round [data-mouth-show="target"]').getAttribute("aria-pressed")`)) === "true", `${moving} / ${ended}`);
+        const side = await watchPicture(chrome, ".round .how", 6200);
+        check("the picture beside the word keeps moving by itself, from с to th and back", JSON.stringify(side.seen) === '["moving","th","с"]', JSON.stringify(side));
+        // The phone asking for less motion: the move is the lesson, so it still moves.
+        await chrome.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }, { name: "prefers-reduced-motion", value: "reduce" }] });
+        const calm = await watchPicture(chrome, ".round .how", 6200);
+        check("with the phone set to reduce motion, the picture still moves (it's the lesson, not decoration)", JSON.stringify(calm.seen) === '["moving","th","с"]', JSON.stringify(calm));
+        await chrome.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
+        await chrome.evaluate(`document.querySelector(".round .how [data-mouth-pause]").click()`);
+        await sleep(200);
+        const paused = await watchPicture(chrome, ".round .how", 2500);
+        check("the pause button stops it on th, and says Play", JSON.stringify(paused.seen) === '["th"]' && (await chrome.evaluate(`document.querySelector(".round .how [data-mouth-pause]").getAttribute("aria-label")`)) === "Play the moving picture", JSON.stringify(paused));
+        await chrome.evaluate(`document.querySelector(".round .how [data-mouth-pause]").click()`);
+        const again = await watchPicture(chrome, ".round .how", 3000);
+        check("and Play starts it again", again.seen.includes("moving"), JSON.stringify(again));
         for (const width of [390, 1280]) {
           await size(width);
           await sleep(300);

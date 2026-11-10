@@ -106,7 +106,7 @@ try {
     const bg = (el) => { for (; el; el = el.parentElement) { const c = parse(getComputedStyle(el).backgroundColor); if (c.length < 4 || c[3] > 0.95) { if (c.length < 4 || c[3]) return c; } } return [255, 255, 255]; };
     const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
     const bad = [];
-    for (const sel of [".boards button.on", ".boards button:not(.on)", ".ranks .w", ".ranks .num2", ".ranks .num2 small", ".ranks .up", ".ranks .spot", ".how", ".sound-card .rc-text b", ".sound-card .rc-text span", ".act", ".mine b", ".sound-title", ".round .hint", ".round .card .label", ".round .btn", ".hear-choice", ".mouth-seg button", ".mouth-key", ".mouth-tip", ".mouth-front figcaption", ".mouth-title", ".hero-kicker", ".plan-list li", ".quiet button", ".wtile .word-name", ".rc-text b", ".rc-text span", "#start", ".strong-note", ".round-btn", ".mic-btn .mic-label"]) {
+    for (const sel of [".boards button.on", ".boards button:not(.on)", ".ranks .w", ".ranks .num2", ".ranks .num2 small", ".ranks .up", ".ranks .spot", ".how", ".sound-card .rc-text b", ".sound-card .rc-text span", ".act", ".mine b", ".sound-title", ".round .hint", ".round .card .label", ".round .btn", ".hear-choice", ".mouth-strip > span", ".mouth-key", ".mouth-tip", ".mouth-front figcaption", ".mouth-title", ".hero-kicker", ".plan-list li", ".quiet button", ".wtile .word-name", ".rc-text b", ".rc-text span", "#start", ".strong-note", ".round-btn", ".mic-btn .mic-label"]) {
       for (const el of document.querySelectorAll(sel)) {
         const fg = parse(getComputedStyle(el).color), r = ratio(fg, bg(el));
         if (r < 4.5) bad.push(sel + " " + r.toFixed(2));

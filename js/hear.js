@@ -7,7 +7,6 @@ import { registerScreen } from "./app.js";
 import { html, raw } from "./html.js";
 import { loadTips } from "./words/tips.js";
 import { panel } from "./words/mouth.js";
-import { playMove } from "./ui/mouthui.js";
 import { canSpeak, say } from "./words/speech.js";
 import { hearQuestions } from "./progress.js";
 import { play } from "./ui/sounds.js";
@@ -41,7 +40,6 @@ registerScreen("hear", {
           ${raw(panel(tips, sound, { heading: false }))}
           <button type="button" class="btn primary wide" id="begin">Start listening</button>
         </section></div>`);
-        playMove(root.querySelector(".mouth-panel"), { delay: 500 }); // the move plays by itself
         root.querySelector("#begin").addEventListener("click", () => { r.intro = false; draw(); say(q().said); root.querySelector("#play")?.focus(); });
         return;
       }

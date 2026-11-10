@@ -3,6 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { LOOP, loopAt } from "../../js/ui/mouthui.js";
 import { HEARD, POSES, UK_POSES, frontView, heardKey, isVowel, panel, sideView, stateView, vowelMap } from "../../js/words/mouth.js";
 import { CMU_TO_MODEL } from "../../js/score/phones.js";
 
@@ -45,11 +46,13 @@ test("a pose with a buzz draws one, and air goes where the pose says", () => {
   assert.match(sideView(POSES.NG), /C194 104 199 118 197 132/, "for ng the soft palate is down, so air goes through the nose");
 });
 
-test("the panel for th: the move from с, no lips (they don't matter for th), the tip, Ukrainian marked", () => {
+test("the panel for th: the move from с that runs by itself, no lips (they don't matter for th), the tip, Ukrainian marked", () => {
   const p = panel(tips, "TH");
   assert.match(p, /How to make th/);
-  assert.match(p, /data-mouth-show="start"/);
-  assert.match(p, /Show the move/);
+  assert.match(p, /class="mouth-strip"/, "a label shows which sound is on the picture");
+  assert.match(p, /data-mouth-pause/, "a pause button, and no button needed to start it");
+  assert.doesNotMatch(p, /data-mouth-show|Show the move/);
+  assert.match(p, /moves by itself, from the Ukrainian <span lang="uk">с<\/span> to th/, "screen readers are told it moves");
   assert.match(p, /<span lang="uk">с<\/span> \(<span lang="uk">сам<\/span>\)/);
   assert.match(p, /stroke-dasharray="5 5"/, "the Ukrainian tongue is dashed");
   assert.doesNotMatch(p, /mouth-front/);
@@ -77,7 +80,7 @@ test("vowels get the map, with the Ukrainian sound they start from; sounds with 
   assert.match(ih, />see<\/text>/);
   const schwa = panel(tips, "AH0");
   assert.match(schwa, /mouth-map/);
-  assert.doesNotMatch(schwa, /data-mouth-show/, "the small uh has no Ukrainian start, so no move");
+  assert.doesNotMatch(schwa, /data-mouth-pause|mouth-strip/, "the small uh has no Ukrainian start, so nothing moves");
   assert.ok(clean(vowelMap("ER", { word: "her" })));
 });
 
@@ -85,4 +88,19 @@ test("a sound the tips don't know draws nothing, and labels can't break out of t
   assert.equal(panel(tips, "XX"), "");
   assert.equal(panel(null, "TH"), "");
   assert.doesNotMatch(sideView(POSES.TH, { label: '"><script>' }), /<script>/);
+});
+
+test("the loop: hold the Ukrainian sound, slide, hold the English one, slide back, again", () => {
+  assert.deepEqual(loopAt(0), { k: 0, phase: "from" });
+  assert.deepEqual(loopAt(LOOP.start - 1), { k: 0, phase: "from" });
+  const mid = loopAt(LOOP.start + LOOP.move / 2);
+  assert.equal(mid.phase, "move");
+  assert.ok(Math.abs(mid.k - 0.5) < 0.01, "halfway through the slide is halfway there");
+  assert.deepEqual(loopAt(LOOP.start + LOOP.move + 10), { k: 1, phase: "to" });
+  const back = loopAt(LOOP.start + LOOP.move + LOOP.end + LOOP.back / 2);
+  assert.equal(back.phase, "move");
+  assert.ok(back.k > 0.4 && back.k < 0.6, "and it slides back");
+  const total = LOOP.start + LOOP.move + LOOP.end + LOOP.back;
+  assert.deepEqual(loopAt(total + 5), loopAt(5), "and starts again");
+  assert.ok(total >= 5000 && total <= 7000, "about six seconds a loop");
 });

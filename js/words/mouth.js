@@ -141,6 +141,7 @@ function lipsSide(kind, jy) {
   };
 }
 
+const PAUSE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/></svg>';
 let ids = 0;
 // Just the mouth: lips, teeth, tongue, and the roof of the mouth, for the side-by-side pictures.
 const CLOSE = "30 86 180 122";
@@ -275,15 +276,12 @@ export function panel(tips, key, { said = null, withTip = true, heading = true }
   const lips = LIPS_MATTER.has(key) || (compare && LIPS_MATTER.has(compare));
   const text = (s) => String(s).split(/([Ѐ-ӿ]+(?:[ '’-][Ѐ-ӿ]+)*)/).filter(Boolean).map((x) => (/[Ѐ-ӿ]/.test(x) ? html`<span lang="uk">${x}</span>` : x));
   const ukName = from ? html`<span lang="uk">${letter}</span> (<span lang="uk">${entry.uk.word}</span>)` : "";
-  return String(html`<div class="mouth-panel" data-mouth="${key}" data-start="${letter ?? ""}">
+  return String(html`<div class="mouth-panel" data-mouth="${key}" data-start="${letter ?? ""}" data-phase="to">
   ${heading ? html`<h3 class="mouth-title">How to make ${name}</h3>` : ""}
-  ${from ? html`<div class="mouth-seg" role="group" aria-label="Which sound to show">
-    <button type="button" data-mouth-show="start" aria-pressed="false"><span>${ukName}</span></button>
-    <button type="button" data-mouth-show="target" aria-pressed="true"><span>${name}${example ? ` (${example})` : ""}</span></button>
-    <button type="button" class="mouth-play" data-mouth-show="move"><span aria-hidden="true">▶ </span>Show the move</button>
-  </div>` : ""}
+  ${from ? html`<div class="mouth-strip" aria-hidden="true"><span class="ms-from">${ukName}</span><span class="ms-arrow">→</span><span class="ms-to">${name}${example ? ` (${example})` : ""}</span></div>
+  <p class="visually-hidden">The picture moves by itself, from the Ukrainian <span lang="uk">${letter}</span> to ${name}, over and over.</p>` : ""}
   <div class="mouth-row${lips && !compare ? " with-lips" : ""}">
-    <figure class="mouth-fig" data-mouth-fig>${raw(stateView(key, letter))}</figure>
+    <div class="mouth-figwrap"><figure class="mouth-fig" data-mouth-fig>${raw(stateView(key, letter))}</figure>${from ? raw(`<button type="button" class="mouth-pause" data-mouth-pause aria-pressed="false" aria-label="Pause the moving picture">${PAUSE_SVG}</button>`) : ""}</div>
     ${lips && !compare ? html`<figure class="mouth-front">${raw(frontView(to.lips, `Lips from the front for ${name}`))}<figcaption>Lips</figcaption></figure>` : ""}
   </div>
   ${from ? html`<p class="mouth-key"><span class="mk-dash" aria-hidden="true"></span>Your tongue for <span lang="uk">${letter}</span><span class="mk-solid" aria-hidden="true"></span>For ${name}</p>` : ""}

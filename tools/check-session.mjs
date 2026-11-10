@@ -42,6 +42,19 @@ const stubs = `(() => {
     return dest.stream;
   };
 })()`;
+
+// Watches the moving picture in a box for ms milliseconds: every label it showed, and every sound the label lit.
+const watchPicture = (chrome, box, ms) => chrome.evaluate(`(async () => {
+  const seen = new Set(), lit = new Set(), end = performance.now() + ${ms};
+  while (performance.now() < end) {
+    const p = document.querySelector(${JSON.stringify(box)} + " .mouth-panel");
+    const svg = p?.querySelector("[data-mouth-fig] svg");
+    if (svg) seen.add(/^Moving/.test(svg.getAttribute("aria-label")) ? "moving" : /^Side view: Ukrainian/.test(svg.getAttribute("aria-label")) ? "с" : "th");
+    if (p) lit.add(p.dataset.phase);
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  return { seen: [...seen].sort(), lit: [...lit].sort() };
+})()`);
 const T = (score, bad) => ({ at: "2026-11-09T09:00:00.000Z", score, bad: bad ? [bad] : [] });
 const saved = (extra = {}) => JSON.stringify({ tour: { step: 0, done: true }, tipsSeen: ["speak", "words", "read", "listen", "progress"], mode: "speak",
   words: [{ text: "think", added: "2026-11-08" }], current: "think", history: { think: [T(22, ["TH", "red", "th"]), T(30, ["TH", "red", "th"])] }, ...extra });
@@ -76,12 +89,9 @@ try {
     await click("#start", 900);
     check("pressing a button makes a soft tap", (await chrome.evaluate("window.__tones")).includes(640), JSON.stringify(await chrome.evaluate("window.__tones")));
     check("Start opens the practice, with a bar of 7 steps and a way to stop", (await chrome.evaluate("location.hash")) === "#/session" && (await chrome.evaluate(`document.querySelectorAll(".steps-bar i").length`)) === 7 && (await text(".band .brand")) === "Five minutes");
-    check("the first step is the picture: how to make the th, from the Ukrainian с", /How to make th/i.test((await text(".mouth-title")) ?? "") && !!(await chrome.evaluate(`document.querySelector('[data-mouth-show="move"]')`)));
-    await sleep(900);
-    const moving = await chrome.evaluate(`document.querySelector("[data-mouth-fig] svg").getAttribute("aria-label")`);
-    await sleep(2000);
-    const settled = await chrome.evaluate(`document.querySelector("[data-mouth-fig] svg").getAttribute("aria-label")`);
-    check("the move from с to th plays by itself, and stops on th", /Moving from the Ukrainian с/.test(moving) && /between the teeth/.test(settled), `${moving} / ${settled}`);
+    check("the first step is the picture: how to make the th, from the Ukrainian с, with no button to start it", /How to make th/i.test((await text(".mouth-title")) ?? "") && !!(await chrome.evaluate(`document.querySelector(".session .mouth-strip")`)) && !(await chrome.evaluate(`document.querySelector("[data-mouth-show]")`)));
+    const watched = await watchPicture(chrome, ".session", 6200);
+    check("the move from с to th plays by itself and loops, with the label lighting each sound", JSON.stringify(watched.seen) === '["moving","th","с"]' && JSON.stringify(watched.lit) === '["from","move","to"]', JSON.stringify(watched));
     await shot("session-look-390");
     await click("#next", 400);
 
