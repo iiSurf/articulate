@@ -78,7 +78,25 @@ try {
         check("think said as sink: the th isn't good, and it says what it sounded like", !/^th good/.test(graded[0]) && /sounded like/.test((await text(".round .hint")) ?? ""), `${graded[0]} / ${await text(".round .hint")}`);
         await sleep(200);
         await shot("round-word-390");
-        check("the tip for the sound is under the word, in Ukrainian letters too", /Tip for th as in think/i.test((await text(".round .card:last-child .label")) ?? "") && (await chrome.evaluate(`document.querySelectorAll('.round [lang="uk"]').length`)) >= 1);
+        check("the picture for the th is beside the word, with the tip, and Ukrainian letters marked", /How to make th/i.test((await text(".round .how .mouth-title")) ?? "") && /Start from the Ukrainian/.test((await text(".round .how .mouth-tip")) ?? "") && (await chrome.evaluate(`document.querySelectorAll('.round .how [lang="uk"]').length`)) >= 2);
+        check("after think said as sink, the picture shows what it came out as: s", (await text(".round .how .mc-said")) === "You said: s", await text(".round .how .mc-said"));
+        await chrome.evaluate(`document.querySelector('.round [data-mouth-show="start"]').click()`);
+        await sleep(150);
+        check("the с button shows the Ukrainian с, and says so", (await chrome.evaluate(`document.querySelector('.round [data-mouth-show="start"]').getAttribute("aria-pressed")`)) === "true" && /Ukrainian с/.test(await chrome.evaluate(`document.querySelector(".round [data-mouth-fig] svg").getAttribute("aria-label")`)));
+        await chrome.evaluate(`document.querySelector('.round [data-mouth-show="move"]').click()`);
+        await sleep(1100);
+        const moving = await chrome.evaluate(`document.querySelector(".round [data-mouth-fig] svg").getAttribute("aria-label")`);
+        await sleep(1400);
+        const ended = await chrome.evaluate(`document.querySelector(".round [data-mouth-fig] svg").getAttribute("aria-label")`);
+        check("Show the move slides from с to th and stops on th", /Moving from the Ukrainian с/.test(moving) && /between the teeth/.test(ended) && (await chrome.evaluate(`document.querySelector('.round [data-mouth-show="target"]').getAttribute("aria-pressed")`)) === "true", `${moving} / ${ended}`);
+        for (const width of [390, 1280]) {
+          await size(width);
+          await sleep(300);
+          const box = await chrome.evaluate(`(() => { const a = document.querySelector(".round > .card.center").getBoundingClientRect(), b = document.querySelector(".round > .how").getBoundingClientRect(); return { side: b.left >= a.right - 1, below: b.top >= a.bottom - 1 }; })()`);
+          check(`at ${width} wide the picture is ${width > 900 ? "on the side" : "under the word"}`, width > 900 ? box.side : box.below, JSON.stringify(box));
+          await shot(`round-picture-${width}`);
+        }
+        await size(390);
       }
       check(`word ${n + 1}: the next button says ${n === 4 ? "See results" : "Next word"}`, (await text("#next")) === (n === 4 ? "See results" : "Next word"), await text("#next"));
       await chrome.evaluate(`document.getElementById("next").click()`);

@@ -5,7 +5,8 @@
 // the spoken round for the same sound. The pairs come from data/tips/uk-en.json (hearQuestions in js/progress.js).
 import { registerScreen } from "./app.js";
 import { html, raw } from "./html.js";
-import { loadTips, segments } from "./words/tips.js";
+import { loadTips } from "./words/tips.js";
+import { panel } from "./words/mouth.js";
 import { canSpeak, say } from "./words/speech.js";
 import { hearQuestions } from "./progress.js";
 
@@ -67,7 +68,7 @@ registerScreen("hear", {
           return html`<button type="button" class="hear-choice${tone}" data-choice="${w}" ${p ? raw("disabled") : ""}>${w}${tone === " right" ? raw('<span aria-hidden="true"> ✓</span>') : tone === " wrong" ? raw('<span aria-hidden="true"> ✕</span>') : ""}</button>`;
         })}</div>
         ${p ? html`<p class="hint" role="status">${p.ok ? `Yes, ${said}.` : `It was ${said}, not ${p.word}.`}</p>
-          ${p.ok ? "" : html`<div class="note"><p>${segments(entry.tip).map((x) => (x.uk ? html`<span lang="uk">${x.text}</span>` : x.text))}</p></div>`}
+          ${p.ok ? "" : html`<div class="note how">${raw(panel(tips, sound))}</div>`}
           <div class="row"><button type="button" class="btn" id="both">${raw(EAR)}Hear both</button><button type="button" class="btn primary" id="next">${last ? "See results" : "Next word"}</button></div>`
           : html`<p class="hint">Tap the word you heard. You can play it as many times as you like.</p>`}
       </section></div>`;

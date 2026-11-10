@@ -7,7 +7,8 @@
 // behaves like Speak.
 import { registerScreen } from "./app.js";
 import { html, raw } from "./html.js";
-import { loadTips, segments } from "./words/tips.js";
+import { loadTips, soundKey } from "./words/tips.js";
+import { panel } from "./words/mouth.js";
 import { canSpeak, say } from "./words/speech.js";
 import { canRecord, micProblem, startRecording } from "./practice/recorder.js";
 import { GRADES, MAX_SECONDS, MIN_SECONDS, headline, heardNothing, heardSentence } from "./practice/feedback.js";
@@ -45,6 +46,7 @@ registerScreen("round", {
     };
 
     function draw() {
+      root.classList.toggle("wide", r.ready && r.i < words.length); // room for the picture on the side
       root.innerHTML = String(!r.ready ? needView() : r.i >= words.length ? doneView() : wordView());
       if (!r.ready) {
         root.querySelector("#get-model")?.addEventListener("click", () => openModelDialog({
@@ -82,7 +84,9 @@ registerScreen("round", {
       const recording = r.phase === "recording", checking = r.phase === "checking";
       const hint = r.result ? `${headline(r.result.parts)} ${heardSentence(r.result.parts)}`.trim() : "Tap the microphone, say the word, then tap Stop.";
       const last = r.i === words.length - 1;
-      return html`<div class="round">
+      // After a try, the picture also shows what the sound came out as (the part with this sound that wasn't green).
+      const spot = parts?.find((p) => p.focusPhone && soundKey(p.focusPhone) === sound && p.grade && p.grade !== "green");
+      return html`<div class="round side">
         <section class="card center">
           <h2 class="label">Word ${r.i + 1} of ${words.length}</h2>
           <div class="dots" role="img" aria-label="Word ${r.i + 1} of ${words.length}">${words.map((_, i) => html`<i class="${i < r.i ? "done" : i === r.i ? "now" : ""}"></i>`)}</div>
@@ -98,10 +102,7 @@ registerScreen("round", {
           ${canSpeak() ? html`<div class="row"><button type="button" class="btn" id="hear">${raw(EAR)}Hear it</button><button type="button" class="btn" id="slow">${raw(EAR)}Slowly</button></div>` : ""}
           <button type="button" class="btn wide${r.result ? " primary" : ""}" id="next" ${recording || checking ? raw("disabled") : ""}>${r.result ? (last ? "See results" : "Next word") : "Skip this word"}</button>
         </section>
-        <section class="card">
-          <h2 class="label">Tip for ${entry.title}</h2>
-          <p>${segments(entry.tip).map((x) => (x.uk ? html`<span lang="uk">${x.text}</span>` : x.text))}</p>
-        </section>
+        <section class="card how">${raw(panel(tips, sound, { said: spot?.heard }))}</section>
       </div>`;
     }
 

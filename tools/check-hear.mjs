@@ -69,7 +69,7 @@ try {
   pair = await choices();
   const other = pair.find((w) => w !== word);
   await click(`[data-choice="${other}"]`);
-  check("a wrong answer says what it was, shows ✕, resets the streak, and shows the tip", (await text(".hear .hint")) === `It was ${word}, not ${other}.` && /✕/.test((await text(".hear-choice.wrong")) ?? "") && (await text(".streak")) === "0 in a row" && /Ukrainian/.test((await text(".hear .note")) ?? "") && (await chrome.evaluate(`document.querySelectorAll('.hear [lang="uk"]').length`)) >= 1, await text(".hear"));
+  check("a wrong answer says what it was, shows ✕, resets the streak, and shows the tip", (await text(".hear .hint")) === `It was ${word}, not ${other}.` && /✕/.test((await text(".hear-choice.wrong")) ?? "") && (await text(".streak")) === "0 in a row" && /How to make th/i.test((await text(".hear .how .mouth-title")) ?? "") && /Ukrainian/.test((await text(".hear .how .mouth-tip")) ?? "") && (await chrome.evaluate(`document.querySelectorAll('.hear [lang="uk"]').length`)) >= 1, await text(".hear"));
   const n = (await said()).length;
   await click("#both");
   await sleep(200);

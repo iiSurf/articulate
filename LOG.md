@@ -892,3 +892,66 @@ Work through what was left: the silent listening game from the drafts (option B)
 ### Not verified
 
 - A real phone, a real voice (the check uses a stand-in voice that records the word; the real phone voice, and whether think and sink sound clearly different in it, is untested), Safari, and Firefox. The checklist is the way to do it. The review sheet hasn't been read by anyone yet.
+
+## 2026-11-09 (Monday): drafts of pictures that show how to make each sound
+
+### Plan
+
+The friend tried the app and liked it. Their one idea: show **how to make the sounds**, where the tongue goes, because no app they've seen does, Google's demos mostly show lips, and repeating what you hear isn't accurate if you don't notice your tongue. Their teacher helps by explaining where the tongue should be and getting them close with other words. iiSurf asked for illustrations of lips, tongue, and teeth, maybe on the side, and shared two reference pictures (a side view of the mouth for vowels, and a vowel chart). Drawn first, as always.
+
+### Changed
+
+- New `design/mouth-lab.html`: one side view of the head (facing left) drawn in code, where the tongue, lips, jaw, and soft palate move per sound, with dotted air flow and a zigzag for the buzz in the throat. 19 positions: rest, th (both), с, з, w, у, v, в, r, р, ng, n, k, ee, i, a, p, h.
+- New `design/mouth.html`: eight drafts. Four ways to draw it (A: side view with numbered steps; B: start from the Ukrainian sound, a dashed с tongue and the th tongue, with "Show the move" sliding between them, like the teacher's method; C: lips from the front next to the side view, for w and v; D: a map of the mouth for vowels, with the Ukrainian і and и next to sheep and ship). Where it shows up (E: in Say it round on a phone, as a fold under the word; F: a word's page with a small mouth for each part; G: the Night flag look; H: Say it round on a computer, with the picture on the side). Then every position so far.
+- Both are self-contained and baked (`tools/bake.mjs`), like the other drafts. Our own drawings; the friend's reference pictures were only looked at, not copied.
+
+### Verified
+
+- Every phone looked at full size at 1280; the page has no sideways scroll at 360, 390, or 1280. Fixed on the way: the front-view lips drew black (their colors weren't set outside the side view), the vowel map's labels overlapped, Ukrainian words inside buttons had stray spaces, n and k thumbnails were placeholders, and the thumbnails were too small to show the tongue until they were cropped to the mouth.
+
+### Not verified
+
+- **Whether the shapes are right.** They are mine, from general phonetics knowledge, not checked by a teacher or speech therapist. The friend's teacher is the right person to check them before this is built.
+- Nothing is built in the app yet. The "Show the move" animation runs in a browser that runs scripts; previews that show a still page show one frame.
+
+## 2026-11-09 (Monday): How to make it, built (B, C, and D, on the side)
+
+### Plan
+
+iiSurf picked B (start from the Ukrainian sound and show the move), C (the lips from the front, and what they said next to what they wanted), and D (the vowel map), with the picture on the side. Build it for every sound and put it where the learner needs it.
+
+### Changed
+
+- New `js/words/mouth.js` (pure, tested): the drawing from the lab, now with poses for all 22 sounds in the tips, the 15 Ukrainian sounds they start from, and 8 more sounds a learner may say instead (s, z, f, d, b, g, l, n), each with a sentence for screen readers. `panel()` puts together the side view (the English tongue solid, the Ukrainian one dashed, an arrow for the move), the lips from the front for sounds where the lips do the work, the vowel map for vowels, "Make: th / You said: s" side by side when the model heard a sound it can draw, and the tip.
+- New `js/ui/mouthui.js`: one listener for the whole page runs the buttons (the Ukrainian sound, the English sound, and Show the move, which slides from one to the other and stops on the English one; with reduced motion it shows the start, then the end). New `css/mouth.css`: the drawing's colors for light and dark looks, using each look's strong color for the air and the buttons.
+- **Fix this part:** `ctx.tips()` now also returns `picture`, drawn with what the model heard, and the teammate's `tipView` shows it above the tip (one line in `js/practice/speak.js`, noted in `docs/practice-brief.md`).
+- **Say it round:** the Tip card is now the picture, on the side on a wide screen (the page widens for the round) and under the word on a phone. After a try, it shows what the hard sound came out as.
+- **Which did you hear?:** a wrong answer shows the picture instead of the tip alone.
+- Checks: `check-tips` checks the picture and "You said" (s for think, v and both lips for west), `check-round` checks the picture beside the word, You said: s, the с button, Show the move, and side-by-side at 1280 but stacked at 390; `check-hear` checks it after a wrong answer; `check-progress` measures the new text in all seven looks.
+
+### Verified
+
+- `npm test` 127 of 127 (8 new). All nine browser checks pass, three of them with the real model. Pictures looked at at 390 and 1280, and in the Night flag and Kalyna looks. Fixed on the way: two vowels the model never hears were in the list of heard sounds, and the side-by-side pictures repeated the big one, so they're now cropped to the mouth.
+
+### Not verified
+
+- **The shapes.** A teacher or speech therapist should check them; the friend's teacher is the obvious person. A real phone, and the move's smoothness on a slow one.
+
+## 2026-11-09 (Monday): main merged into nicks-branch, one conflict in js/app.js
+
+### Plan
+
+The pull request for How to make it couldn't merge: the teammate's PR #10 ("Four fixes in the code") landed on `main` first, and it touched `js/app.js` at the same spot. `js/app.js` is iiSurf's file, so the conflict is settled here (PLAN.md: the owner decides).
+
+### Changed
+
+- Merged `origin/main` into `nicks-branch`. The teammate's four fixes, in iiSurf's files, with their notes in `docs/fixes.md`: every way of saying a word is scored and the best fit kept (`js/words/lookup.js`, `js/score/score.js`); the e and oo vowels are only held at yellow when the model really mixed them up (`UNSURE_MARGIN`, `js/score/gop.js`); a stray % in the address no longer blanks the app (`decode()` in `js/app.js`); and the phone going dark only changes the look instead of redrawing the screen (`js/app.js`, also `registerScreen()` only redraws the screen that's showing).
+- The one conflict: the last lines of `js/app.js`. Kept both: the teammate's new dark-switch listener, and the `installMouth()` line from How to make it.
+
+### Verified
+
+- `npm test` 131 of 131 (with the teammate's 4 new tests). All nine browser checks pass on the merged code, including `check-tips`, `check-tour`, and `check-round` with the real model, so their scoring changes work with the boards, the round, and the pictures.
+
+### Not verified
+
+- Their `UNSURE_MARGIN` with real voices (their note says the same).
