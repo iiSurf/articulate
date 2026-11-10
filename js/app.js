@@ -9,6 +9,7 @@ import { createTour } from "./tour-ui.js";
 import { tipFor } from "./tour.js";
 import { milestone, recordTry } from "./progress.js";
 import { installMouth } from "./ui/mouthui.js";
+import { installSounds, setSoundsOn } from "./ui/sounds.js";
 import { openModelDialog, toast } from "./ui/modeldialog.js";
 
 const state = load();
@@ -205,11 +206,21 @@ function yourColors(main) {
       <label class="toggle"><span>Switch when my phone goes dark</span><input type="checkbox" id="follow" ${state.looks.followDark ? raw("checked") : ""}></label>
     </section>
     <section class="card">
+      <h2 class="label">Sounds</h2>
+      <label class="toggle"><span>Button sounds and cheers</span><input type="checkbox" id="sounds" ${state.sounds ? raw("checked") : ""}></label>
+      <p class="hint">A soft tap when you press a button, a chime for a right answer, and a fanfare at the end of a lesson.</p>
+    </section>
+    <section class="card">
       <h2 class="label">Help</h2>
       <p><button type="button" class="btn" id="tour-again">Show me around again</button></p>
       <p class="hint">Practice one word again, step by step.</p>
     </section>`);
   main.querySelector("#tour-again").addEventListener("click", () => tour.restart());
+  main.querySelector("#sounds").addEventListener("change", (e) => {
+    state.sounds = e.target.checked;
+    setSoundsOn(state.sounds);
+    save(state);
+  });
   main.addEventListener("click", (e) => {
     const t = e.target.closest("[data-for]");
     if (!t) return;
@@ -230,6 +241,8 @@ function yourColors(main) {
 // Your colors shows which look is on, so it's drawn again.
 phoneDark.addEventListener("change", () => (where().page === "colors" ? show() : applyLook()));
 installMouth(); // the buttons on every "How to make it" picture
+setSoundsOn(state.sounds);
+installSounds(); // a soft tap on every button press
 window.addEventListener("hashchange", show);
 show();
 

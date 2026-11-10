@@ -79,3 +79,9 @@ test("the word being practiced is kept only if it's one of their words", () => {
   assert.equal(sanitize({ words, current: "think" }).current, null);
   assert.equal(sanitize({ words, current: 5 }).current, null);
 });
+
+test("button sounds are on unless they were turned off, and only true or false is kept", () => {
+  assert.equal(fresh().sounds, true);
+  assert.equal(sanitize({ sounds: false }).sounds, false);
+  assert.equal(sanitize({ sounds: "no" }).sounds, true);
+});

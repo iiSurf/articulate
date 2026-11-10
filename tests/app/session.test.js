@@ -17,22 +17,22 @@ test("the sound to work on: the hardest so far, else the word's own hardest soun
   assert.equal(focusSound(tips, fresh()), null);
 });
 
-test("out loud: listen, then look, then say, with their own word first", () => {
+test("out loud: look first, then listen, then say, with their own word first", () => {
   const p = planSession({ tips, state: withMisses("think", "TH"), word: "think", wordSound: "TH", rng });
   assert.equal(p.sound, "TH");
   assert.equal(p.name, "th");
-  assert.deepEqual(p.steps.map((s) => s.kind), [...Array(HEAR_STEPS).fill("hear"), "look", ...Array(SAY_STEPS).fill("say")]);
+  assert.deepEqual(p.steps.map((s) => s.kind), ["look", ...Array(HEAR_STEPS).fill("hear"), ...Array(SAY_STEPS).fill("say")]);
   assert.deepEqual(p.steps.filter((s) => s.kind === "say").map((s) => s.word), ["think", "thank", "thin"]);
   assert.ok(p.steps.filter((s) => s.kind === "hear").every((s) => s.pair.includes(s.said)));
-  assert.deepEqual(p.preview.map((l) => l.kind), ["hear", "look", "say"]);
-  assert.match(p.preview[0].text, /^Hear the difference: \w+ · \w+$/);
-  assert.equal(p.preview[1].text, "See how to make the th");
+  assert.deepEqual(p.preview.map((l) => l.kind), ["look", "hear", "say"]);
+  assert.equal(p.preview[0].text, "See how to make the th");
+  assert.match(p.preview[1].text, /^Hear the difference: \w+ · \w+$/);
   assert.equal(p.preview[2].text, "Say think, thank, and thin");
 });
 
 test("quiet: no saying, more listening", () => {
   const p = planSession({ tips, state: withMisses("think", "TH"), word: "think", quiet: true, rng });
-  assert.deepEqual(p.steps.map((s) => s.kind), [...Array(QUIET_HEAR_STEPS).fill("hear"), "look"]);
+  assert.deepEqual(p.steps.map((s) => s.kind), ["look", ...Array(QUIET_HEAR_STEPS).fill("hear")]);
   assert.ok(!p.preview.some((l) => l.kind === "say"));
 });
 

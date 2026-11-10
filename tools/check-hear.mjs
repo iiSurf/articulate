@@ -51,7 +51,10 @@ try {
   check("the th's page offers Hear the difference next to Say 5 words", !!(await chrome.evaluate(`document.querySelector('a[href="#/hear/TH"]')`)) && !!(await chrome.evaluate(`document.querySelector('a[href="#/round/TH"]')`)));
   await click('a[href="#/hear/TH"]');
   check("it opens the game for the th", (await chrome.evaluate("location.hash")) === "#/hear/TH");
-  await sleep(300);
+  await sleep(400);
+  check("the game opens with how to make the th, before any word", /how to make the th/i.test((await text(".hear .label")) ?? "") && !!(await chrome.evaluate(`document.querySelector(".hear .mouth-panel")`)));
+  await click("#begin");
+  check("Start listening says the first word by itself", (await said()).length === 1);
   check("the band says Which did you hear?, with a way back, and Progress stays lit", (await text(".band .brand")) === "Which did you hear?" && (await chrome.evaluate(`document.querySelector(".band .back")?.getAttribute("href")`)) === "#/progress" && (await text(".tabs a.on")) === "Progress");
   check("question 1 of 8, no streak yet", /question 1 of 8/i.test((await text(".hear .label")) ?? "") && (await text(".streak")) === "0 in a row", await text(".hear"));
 
@@ -87,6 +90,9 @@ try {
   }
   check("question 8's button says See results", (await text("#next")) === "See results");
   await click("#next");
+  const cele = await chrome.evaluate(`(() => { const c = document.querySelector(".cele"); return c && { right: +c.querySelector(".cc.right b").textContent, wrong: +c.querySelector(".cc.wrong b").textContent, note: c.querySelector(".cele-note")?.textContent }; })()`);
+  check("the end is a celebration: 7 right, 1 to work on, th by ear", cele?.right === 7 && cele.wrong === 1 && cele.note === "th by ear", JSON.stringify(cele));
+  await click("#cele-go");
   check("the round ends: 7 of 8 right and the longest streak", /7 of 8 right/.test((await text(".hear")) ?? "") && /Longest streak: 6 in a row/.test((await text(".hear")) ?? ""), await text(".hear"));
   check("it offers saying them out loud, in the round for the same sound", (await chrome.evaluate(`document.querySelector('.hear a.btn.primary')?.getAttribute("href")`)) === "#/round/TH");
   await shot("hear-done-390");
@@ -98,7 +104,7 @@ try {
   await size(390);
   await shot("hear-done-390b");
   await click("#again");
-  check("Play again starts over at question 1", /question 1 of 8/i.test((await text(".hear .label")) ?? "") && (await text(".streak")) === "0 in a row");
+  check("Play again starts over at question 1 (no picture again)", /question 1 of 8/i.test((await text(".hear .label")) ?? "") && (await text(".streak")) === "0 in a row");
 
   const stored = JSON.parse(await chrome.evaluate(`localStorage.getItem("articulate.v1")`));
   check("listening doesn't touch the boards: the history is as it was", JSON.stringify(stored.history) === JSON.stringify(history));

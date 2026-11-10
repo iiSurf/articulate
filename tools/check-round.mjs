@@ -62,7 +62,14 @@ try {
     await sleep(800);
     await chrome.evaluate(`localStorage.setItem("articulate.v1", ${JSON.stringify(JSON.stringify(saved))}); location.hash = "#/round/TH"`);
     await chrome.send("Page.reload");
-    for (let i = 0; i < 80 && !(await chrome.evaluate(`!!document.getElementById("record")`)); i++) await sleep(150);
+    for (let i = 0; i < 80 && !(await chrome.evaluate(`!!document.getElementById("begin")`)); i++) await sleep(150);
+    check("the round opens with how to make the th, before any word", /how to make the th/i.test((await text(".round .label")) ?? "") && !!(await chrome.evaluate(`document.querySelector(".round .mouth-panel")`)) && !(await chrome.evaluate(`document.getElementById("record")`)));
+    await sleep(1200);
+    check("the move from с to th plays by itself", /Moving from the Ukrainian с|between the teeth/.test(await chrome.evaluate(`document.querySelector("[data-mouth-fig] svg").getAttribute("aria-label")`)));
+    await shot("round-intro-390");
+    check("Start says how many words", (await text("#begin")) === "Start: 5 words");
+    await chrome.evaluate(`document.getElementById("begin").click()`);
+    await sleep(300);
 
     check("the band says Say it round, with a way back to Progress", (await text(".band .brand")) === "Say it round" && (await chrome.evaluate(`document.querySelector(".band .back")?.getAttribute("href")`)) === "#/progress");
     check("the Progress tab stays lit", (await text(".tabs a.on")) === "Progress");
@@ -103,6 +110,11 @@ try {
       await sleep(250);
     }
 
+    const cele = await chrome.evaluate(`(() => { const c = document.querySelector(".cele"); return c && { right: +c.querySelector(".cc.right b").textContent, wrong: +c.querySelector(".cc.wrong b").textContent }; })()`);
+    check("the round ends with a celebration: how many came out good and how many to work on", !!cele && cele.right + cele.wrong === 5 && cele.right >= 1, JSON.stringify(cele));
+    await shot("round-cele-390");
+    await chrome.evaluate(`document.getElementById("cele-go").click()`);
+    await sleep(200);
     check("the round is over: stars and a recap of five words", (await text(".round .label"))?.toLowerCase() === "round done" && (await chrome.evaluate(`document.querySelectorAll(".recap > div").length`)) === 5, await text(".round"));
     const starsSaid = await chrome.evaluate(`document.querySelector(".stars")?.getAttribute("aria-label")`);
     const n = Number(starsSaid?.match(/^(\d)/)?.[1]);
@@ -135,6 +147,7 @@ try {
     await sleep(300);
     check("Play again starts over at word 1", (await text(".round .label"))?.toLowerCase() === "word 1 of 5");
     for (let i = 0; i < 5; i++) { await chrome.evaluate(`document.getElementById("next").click()`); await sleep(150); }
+    check("a round of only skipped words has nothing to celebrate", !(await chrome.evaluate(`!!document.querySelector(".cele")`)));
     check("a round of skipped words says Last round, with the one before", new RegExp(`Last round: ${n} of 5`).test((await text(".round p")) ?? "") && /0 of 5 words/.test((await text(".round p")) ?? ""), await text(".round p"));
     check("skipped words are marked skipped", (await chrome.evaluate(`[...document.querySelectorAll(".recap .st")].every((s) => s.textContent === "skipped")`)));
 

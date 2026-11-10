@@ -24,10 +24,18 @@ for (const p of ["sink", "thank"]) if (!existsSync(join(repo, wav(p)))) throw ne
 // A stand-in voice that records what it was asked to say, and a stand-in microphone that plays the next recording.
 const stubs = `(() => {
   window.__said = [];
+  // A stand-in for the browser's sound maker that writes down every note's pitch (the tap is 640, the right chime 660 and 990).
+  window.__tones = [];
+  window.__RealAC = window.AudioContext;
+  window.AudioContext = function () {
+    return { currentTime: 0, state: "running", destination: {}, resume() {},
+      createOscillator() { return { type: "", frequency: { setValueAtTime(f) { window.__tones.push(f); }, exponentialRampToValueAtTime() {} }, connect(g) { return g; }, start() {}, stop() {} }; },
+      createGain() { return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect(d) { return d; } }; } };
+  };
   Object.defineProperty(window, "speechSynthesis", { value: { speak(u) { window.__said.push(u.text); setTimeout(() => u.onend && u.onend(), 5); }, cancel() {}, getVoices: () => [] }, configurable: true });
   navigator.mediaDevices.getUserMedia = async () => {
     const url = (window.__plays ??= []).shift();
-    const ctx = new AudioContext();
+    const ctx = new window.__RealAC();
     const buffer = await ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
     const source = ctx.createBufferSource(), dest = ctx.createMediaStreamDestination();
     source.buffer = buffer; source.connect(dest); source.start(ctx.currentTime + 0.4);
@@ -60,12 +68,22 @@ try {
     await visit(saved(), "#/words");
     for (let i = 0; i < 20 && !(await chrome.evaluate(`!!document.querySelector(".plan-list")`)); i++) await sleep(150);
     const lines = await chrome.evaluate(`[...document.querySelectorAll(".plan-list li")].map((l) => l.textContent.trim())`);
-    check("Home shows five minutes: listen, look, say, their own word first", (await text("#hero-title")) === "5 minutes" && lines.length === 3 && /^Hear the difference: /.test(lines[0]) && lines[1] === "See how to make the th" && lines[2] === "Say think, thank, and thin", JSON.stringify(lines));
+    check("Home shows five minutes: look first, then listen, then say, their own word first", (await text("#hero-title")) === "5 minutes" && lines.length === 3 && lines[0] === "See how to make the th" && /^Hear the difference: /.test(lines[1]) && lines[2] === "Say think, thank, and thin", JSON.stringify(lines));
     check("Home's card for the hardest sound opens its page", (await chrome.evaluate(`document.querySelector('.home-body a.row-card')?.getAttribute("href")`)) === "#/sound/TH");
     await shot("session-home-390");
-    const firstPair = lines[0].replace("Hear the difference: ", "").split(" · ");
+    const firstPair = lines[1].replace("Hear the difference: ", "").split(" · ");
+    await chrome.evaluate("window.__tones = []");
     await click("#start", 900);
+    check("pressing a button makes a soft tap", (await chrome.evaluate("window.__tones")).includes(640), JSON.stringify(await chrome.evaluate("window.__tones")));
     check("Start opens the practice, with a bar of 7 steps and a way to stop", (await chrome.evaluate("location.hash")) === "#/session" && (await chrome.evaluate(`document.querySelectorAll(".steps-bar i").length`)) === 7 && (await text(".band .brand")) === "Five minutes");
+    check("the first step is the picture: how to make the th, from the Ukrainian с", /How to make th/i.test((await text(".mouth-title")) ?? "") && !!(await chrome.evaluate(`document.querySelector('[data-mouth-show="move"]')`)));
+    await sleep(900);
+    const moving = await chrome.evaluate(`document.querySelector("[data-mouth-fig] svg").getAttribute("aria-label")`);
+    await sleep(2000);
+    const settled = await chrome.evaluate(`document.querySelector("[data-mouth-fig] svg").getAttribute("aria-label")`);
+    check("the move from с to th plays by itself, and stops on th", /Moving from the Ukrainian с/.test(moving) && /between the teeth/.test(settled), `${moving} / ${settled}`);
+    await shot("session-look-390");
+    await click("#next", 400);
 
     // Three listening questions: the voice says the word by itself; right, wrong, right.
     let right = 0;
@@ -75,18 +93,20 @@ try {
       if (q === 0) check("the first question is the pair Home showed, said by itself", JSON.stringify([...choices].sort()) === JSON.stringify([...firstPair].sort()) && choices.includes(said), `${choices} / ${said}`);
       const pick = q === 1 ? choices.find((w) => w !== said) : said;
       if (pick === said) right++;
+      await chrome.evaluate("window.__tones = []");
       await click(`[data-choice="${pick}"]`);
+      const tones = await chrome.evaluate("window.__tones");
+      if (q < 2) check(`a ${pick === said ? "right" : "wrong"} answer plays its own sound, not the tap`, pick === said ? tones.includes(990) && !tones.includes(640) : tones.includes(262) && !tones.includes(640), JSON.stringify(tones));
       if (q === 1) check("a wrong answer says what it was", (await text(".verdict")) === `It was ${said}, not ${pick}.`, await text(".verdict"));
       await click("#next", 300);
     }
-    check("then the picture: how to make the th, from the Ukrainian с", /How to make th/i.test((await text(".mouth-title")) ?? "") && !!(await chrome.evaluate(`document.querySelector('[data-mouth-show="move"]')`)));
-    await shot("session-look-390");
-    await click("#next", 300);
 
     // Three words: think (said as sink), thank (said right), thin (skipped).
+    let tapsOnMic = 0;
     const sayWord = async (play) => {
-      await chrome.evaluate(`window.__plays = [${JSON.stringify(wav(play))}]`);
+      await chrome.evaluate(`window.__plays = [${JSON.stringify(wav(play))}]; window.__tones = []`);
       await click("#record", 0);
+      tapsOnMic += (await chrome.evaluate("window.__tones")).filter((t) => t === 640).length;
       for (let i = 0; i < 60 && !(await text("#record"))?.toLowerCase().includes("stop"); i++) await sleep(100);
       await sleep(2300);
       await click("#record", 0);
@@ -103,7 +123,15 @@ try {
     await sayWord("thank");
     await click("#next", 300);
     check("say step 3 is thin, and it can be skipped", (await text(".say-word")) === "thin" && (await text("#next")) === "Skip");
-    await click("#next", 400);
+    check("the microphone button never taps, so no click ends up in a recording", tapsOnMic === 0, String(tapsOnMic));
+    await chrome.evaluate("window.__tones = []");
+    await click("#next", 600);
+    const cele = await chrome.evaluate(`(() => { const c = document.querySelector(".cele"); return c && { title: c.querySelector("h2").textContent, right: +c.querySelector(".cc.right b").textContent, wrong: +c.querySelector(".cc.wrong b").textContent, note: c.querySelector(".cele-note")?.textContent }; })()`);
+    check("the end of the lesson is a celebration: Lesson complete!, how many right and how many to work on", cele?.title === "Lesson complete!" && cele.right + cele.wrong === 5 && cele.right >= right && cele.note === "All about the th", JSON.stringify(cele));
+    check("with a fanfare", (await chrome.evaluate("window.__tones")).includes(1047));
+    await shot("session-cele-390");
+    await click("#cele-go", 300);
+    check("Continue closes it and shows the summary", !(await chrome.evaluate(`!!document.querySelector(".cele")`)) && (await text(".done-title")) === "Nice work!");
 
     const rows = await chrome.evaluate(`[...document.querySelectorAll(".sum li")].map((li) => li.innerText.replace(/\\s+/g, " ").trim())`);
     check("the summary: think before and now, thank's score, thin skipped, and the listening count", (await text(".done-title")) === "Nice work!" && /^think 26 → \d+$/.test(rows[0]) && /^thank \d+$/.test(rows[1]) && rows[2] === "thin skipped" && rows[3] === `th by ear ${right} of 3 right`, JSON.stringify(rows));
@@ -124,7 +152,14 @@ try {
     for (let i = 0; i < 20 && !(await chrome.evaluate(`!!document.querySelector(".plan-list")`)); i++) await sleep(150);
     await click("#start", 900);
     const kinds = await chrome.evaluate(`document.querySelectorAll(".steps-bar i").length`);
-    check("Quiet: five listening questions and the picture, no saying", kinds === 6 && !!(await chrome.evaluate(`document.querySelector("[data-choice]")`)), String(kinds));
+    check("Quiet: the picture, then five listening questions, no saying", kinds === 6 && !!(await chrome.evaluate(`document.querySelector(".session .mouth-panel")`)), String(kinds));
+
+    // Sounds off (Your colors): no tap.
+    await visit(saved({ sounds: false }), "#/colors");
+    check("Your colors has the Sounds switch, off here", (await chrome.evaluate(`document.getElementById("sounds")?.checked`)) === false);
+    await chrome.evaluate("window.__tones = []");
+    await click("#tour-again", 300);
+    check("with sounds off, pressing a button is silent", (await chrome.evaluate("window.__tones")).length === 0, JSON.stringify(await chrome.evaluate("window.__tones")));
 
     // A sound's page.
     await visit(saved(), "#/sound/TH");
@@ -156,7 +191,7 @@ try {
     check("without the model, the practice offers the download or skipping the saying", /needs one download/i.test(need ?? "") && /Skip saying words today/.test(need ?? ""), need);
     await bare.evaluate(`document.getElementById("skip-say").click()`);
     await sleep(300);
-    check("skipping the saying leaves the listening and the picture", (await bare.evaluate(`document.querySelectorAll(".steps-bar i").length`)) === 4 && (await bare.evaluate(`!!document.querySelector("[data-choice]")`)));
+    check("skipping the saying leaves the picture and the listening", (await bare.evaluate(`document.querySelectorAll(".steps-bar i").length`)) === 4 && (await bare.evaluate(`!!document.querySelector(".session .mouth-panel")`)));
   } finally {
     await bare.close();
   }

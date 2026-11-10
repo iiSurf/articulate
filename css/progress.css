@@ -85,3 +85,7 @@
 .sound-card .bar { display: block; height: 8px; border-radius: 4px; background: var(--chip-bg); overflow: hidden; margin-top: 6px; }
 .sound-card .bar i { display: block; height: 100%; background: var(--work-bar); }
 .sound-card .chev { flex: none; font-size: 28px; font-weight: 800; color: var(--muted); }
+
+/* A lesson opens with how to make the sound */
+.intro-card { display: flex; flex-direction: column; gap: 12px; }
+.intro-card .btn.wide { margin-top: 4px; }
