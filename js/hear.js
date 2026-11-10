@@ -7,8 +7,11 @@ import { registerScreen } from "./app.js";
 import { html, raw } from "./html.js";
 import { loadTips } from "./words/tips.js";
 import { panel } from "./words/mouth.js";
+import { playMove } from "./ui/mouthui.js";
 import { canSpeak, say } from "./words/speech.js";
 import { hearQuestions } from "./progress.js";
+import { play } from "./ui/sounds.js";
+import { celebrate } from "./ui/celebrate.js";
 
 const EAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
 
@@ -27,11 +30,21 @@ registerScreen("hear", {
     if (!root.isConnected) return;
 
     // i is the question (questions.length means it's over), picked is { word, ok } once answered.
-    const r = { i: 0, picked: null, right: 0, streak: 0, best: 0 };
+    const r = { i: 0, picked: null, right: 0, streak: 0, best: 0, intro: true };
     const q = () => questions[r.i];
     const here = () => root.isConnected && location.hash.startsWith("#/hear");
 
     function draw() {
+      if (r.intro) {
+        root.innerHTML = String(html`<div class="hear"><section class="card intro-card">
+          <h2 class="label">First, how to make the ${short}</h2>
+          ${raw(panel(tips, sound, { heading: false }))}
+          <button type="button" class="btn primary wide" id="begin">Start listening</button>
+        </section></div>`);
+        playMove(root.querySelector(".mouth-panel"), { delay: 500 }); // the move plays by itself
+        root.querySelector("#begin").addEventListener("click", () => { r.intro = false; draw(); say(q().said); root.querySelector("#play")?.focus(); });
+        return;
+      }
       root.innerHTML = String(r.i >= questions.length ? doneView() : questionView());
       if (r.i >= questions.length) {
         root.querySelector("#again").addEventListener("click", () => { questions = make(); Object.assign(r, { i: 0, picked: null, right: 0, streak: 0, best: 0 }); draw(); });
@@ -40,13 +53,18 @@ registerScreen("hear", {
       root.querySelector("#play").addEventListener("click", () => say(q().said));
       root.querySelectorAll("[data-choice]").forEach((b) => b.addEventListener("click", () => choose(b.dataset.choice)));
       root.querySelector("#both")?.addEventListener("click", () => say(q().said).then(() => here() && say(q().pair.find((w) => w !== q().said))));
-      root.querySelector("#next")?.addEventListener("click", () => { r.i++; r.picked = null; draw(); if (r.i < questions.length) { say(q().said); root.querySelector("#play").focus(); } });
+      root.querySelector("#next")?.addEventListener("click", () => {
+        r.i++; r.picked = null; draw();
+        if (r.i < questions.length) { say(q().said); root.querySelector("#play").focus(); }
+        else celebrate({ right: r.right, wrong: questions.length - r.right, note: `${short} by ear`, onClose: () => root.querySelector(".hear .btn.primary")?.focus() });
+      });
       (r.picked ? root.querySelector("#next") : root.querySelector("#play"))?.focus();
     }
 
     function choose(word) {
       if (r.picked) return;
       const ok = word === q().said;
+      play(ok ? "right" : "wrong");
       r.picked = { word, ok };
       r.streak = ok ? r.streak + 1 : 0;
       r.best = Math.max(r.best, r.streak);

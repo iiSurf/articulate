@@ -1,8 +1,9 @@
 // Five minutes (iiSurf, the redesign's phase 2): the plan for one short practice, chosen by the app so the learner
 // never has to decide what to do next. Pure logic, tested. js/session-screen.js runs it.
 //
-// The order is listen, look, say: first the ear (which did you hear, think or sink?), then how to make the sound (the
-// picture, from the Ukrainian sound), then saying words with it, the learner's own word first. Quiet mode has no
+// The order is look, listen, say: first how to make the sound (the picture, from the Ukrainian sound, with the move
+// playing by itself), then the ear (which did you hear, think or sink?), then saying words with it, the learner's own
+// word first. The picture comes first so nothing is tried before the learner has seen how. Quiet mode has no
 // saying: more listening instead. A phone that can't speak words has no listening steps.
 import { hearQuestions, hardestSounds, roundWords, wordStatus } from "./progress.js";
 import { soundToTeach } from "./words/tips.js";
@@ -30,12 +31,12 @@ export function planSession({ tips, state, word = null, wordSound = null, quiet 
   const look = sound ? [{ kind: "look", sound }] : [];
   const sayWords = quiet ? [] : [word, ...(sound ? roundWords(tips, state, sound) : [])].filter((w, i, all) => w && all.indexOf(w) === i).slice(0, SAY_STEPS);
   const say = sayWords.map((w) => ({ kind: "say", word: w }));
-  const steps = [...hear, ...look, ...say];
+  const steps = [...look, ...hear, ...say];
   if (!steps.length) return null;
   const list = (ws) => (ws.length < 3 ? ws.join(" and ") : `${ws.slice(0, -1).join(", ")}, and ${ws.at(-1)}`);
   const preview = [
-    hear.length ? { kind: "hear", text: `Hear the difference: ${hear[0].pair.join(" · ")}` } : null,
     look.length ? { kind: "look", text: `See how to make the ${name}` } : null,
+    hear.length ? { kind: "hear", text: `Hear the difference: ${hear[0].pair.join(" · ")}` } : null,
     say.length ? { kind: "say", text: `Say ${list(sayWords)}` } : null,
   ].filter(Boolean);
   return { sound, name, steps, preview };

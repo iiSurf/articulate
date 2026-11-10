@@ -10,7 +10,7 @@ const DAY = new Set(LOOKS.filter((l) => !l.dark).map((l) => l.id));
 const NIGHT = new Set(LOOKS.filter((l) => l.dark).map((l) => l.id));
 
 export function fresh() {
-  return { version: VERSION, words: [], current: null, mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [], history: {}, rounds: {} };
+  return { version: VERSION, words: [], current: null, mode: "speak", looks: { ...DEFAULT_LOOKS }, tour: { step: 0, done: false }, tipsSeen: [], history: {}, rounds: {}, sounds: true };
 }
 
 // Everything read back from storage goes through here. Whatever is missing or wrong becomes the starting value,
@@ -37,6 +37,7 @@ export function sanitize(saved) {
   const tour = saved.tour && typeof saved.tour === "object" ? saved.tour : {};
   if (Number.isInteger(tour.step) && tour.step >= 0 && tour.step <= 6) s.tour.step = tour.step;
   if (typeof tour.done === "boolean") s.tour.done = tour.done;
+  if (typeof saved.sounds === "boolean") s.sounds = saved.sounds; // button sounds and cheers (js/ui/sounds.js)
   if (Array.isArray(saved.tipsSeen)) s.tipsSeen = [...new Set(saved.tipsSeen.filter((t) => typeof t === "string"))];
   // What each graded try left behind (js/progress.js). Anything that isn't shaped right is dropped, not repaired.
   if (saved.history && typeof saved.history === "object" && !Array.isArray(saved.history)) {

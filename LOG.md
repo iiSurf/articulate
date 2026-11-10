@@ -1027,3 +1027,24 @@ PLAN.md "The redesign", phase 2: B's front door (one Start that plans the practi
 ### Not verified
 
 - A real phone, a real voice, and a real microphone (the stand-ins play the Mac's voices). Whether five minutes is really about five minutes. Phase 3 (the teammate's Speak, Read, and Listen in the new layout) is waiting for their OK.
+
+## 2026-11-09 (Monday): the picture first, button sounds, and a celebration at the end of a lesson
+
+### Plan
+
+iiSurf: (1) the animation of how to make the sound should come at the start of a lesson, not after the fact; (2) animations and sounds when buttons are pressed; (3) a celebration at the end of a lesson that says how many were right and how many wrong, with no need to keep a record of the misses.
+
+### Changed
+
+- **The picture first, everywhere.** Five minutes now goes look, listen, say (`js/session.js`; Home's plan lists "See how to make the th" first). Say it round and Which did you hear? open with "First, how to make the th" and a Start button. In all three, the move from the Ukrainian sound plays by itself (`playMove` in `js/ui/mouthui.js`; with reduced motion it shows the start, then the end).
+- **Presses and sounds.** A springy press on every button, chip, tile, and card (`css/celebrate.css`; off with reduced motion). `js/ui/sounds.js` makes the sounds in the browser with Web Audio, no files: a soft tap on every button press, a two-note chime for a right answer or a word that comes out good, a gentle low note for a wrong answer, and a short fanfare. **The microphone button never taps**, so no click ends up in a recording. Your colors has a **Sounds** switch (a new optional saved setting, `sounds`, on by default; no version bump).
+- **The celebration** (`js/ui/celebrate.js`): at the end of Five minutes, Say it round, and Which did you hear?, confetti in the look's colors, a star, a fanfare, "Lesson complete!", a line that fits how it went, and two big numbers: right, and to work on. Only for that lesson; nothing new is saved. Skipped words don't count, and a lesson where nothing was tried has no celebration. Continue closes it and shows the summary that was there before.
+- Checks: `check-session` (the picture first and the move playing, a tap on press, the right and wrong sounds and no tap on answers, no tap from the microphone, the celebration's counts and fanfare, Sounds off), `check-round` and `check-hear` (the picture first, the celebration), with a stand-in for the browser's sound maker that writes down every note.
+
+### Verified
+
+- `npm test` 144 of 144. All ten browser checks pass, four with the real model. Pictures looked at: the celebration and the round's opening picture at 390.
+
+### Not verified
+
+- How the sounds actually sound on a phone speaker (the check only sees which notes were played), and whether a tap right before Hear it overlaps the voice. A real phone.

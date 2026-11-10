@@ -13,7 +13,10 @@ import { canSpeak, say } from "./words/speech.js";
 import { canRecord, micProblem, startRecording } from "./practice/recorder.js";
 import { GRADES, MAX_SECONDS, MIN_SECONDS, headline, heardNothing, heardSentence } from "./practice/feedback.js";
 import { openModelDialog, toast } from "./ui/modeldialog.js";
+import { playMove } from "./ui/mouthui.js";
 import { GOOD_ENOUGH, ownWordFor, roundWords, scoreOf, stars, toneOf } from "./progress.js";
+import { play } from "./ui/sounds.js";
+import { celebrate } from "./ui/celebrate.js";
 
 const MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
 const STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></svg>';
@@ -34,7 +37,7 @@ registerScreen("round", {
 
     const own = ownWordFor(ctx.state, sound);
     // i is the word being said (words.length means the round is over); best is each word's best score, null if skipped.
-    const r = { i: 0, best: words.map(() => null), spots: words.map(() => null), result: null, phase: "start", problem: null, recording: null, last: ctx.state.rounds[sound] ?? null, added: null, ready: false };
+    const r = { i: 0, best: words.map(() => null), spots: words.map(() => null), result: null, phase: "start", problem: null, recording: null, last: ctx.state.rounds[sound] ?? null, added: null, ready: false, intro: true };
     const short = entry.title.split(" as in ")[0];
     const here = () => root.isConnected && location.hash.startsWith("#/round");
 
@@ -46,8 +49,13 @@ registerScreen("round", {
     };
 
     function draw() {
-      root.classList.toggle("wide", r.ready && r.i < words.length); // room for the picture on the side
-      root.innerHTML = String(!r.ready ? needView() : r.i >= words.length ? doneView() : wordView());
+      root.classList.toggle("wide", r.ready && !r.intro && r.i < words.length); // room for the picture on the side
+      root.innerHTML = String(!r.ready ? needView() : r.intro ? introView() : r.i >= words.length ? doneView() : wordView());
+      if (r.ready && r.intro) {
+        playMove(root.querySelector(".mouth-panel"), { delay: 500 }); // the move plays by itself
+        root.querySelector("#begin").addEventListener("click", () => { r.intro = false; draw(); root.querySelector("#record")?.focus(); });
+        return;
+      }
       if (!r.ready) {
         root.querySelector("#get-model")?.addEventListener("click", () => openModelDialog({
           partial: r.partial,
@@ -69,6 +77,15 @@ registerScreen("round", {
 
     // The word to say again in Speak: their own trouble word, or the word of this round that went worst.
     const sayAgain = () => own ?? words.filter((_, i) => r.best[i] !== null).sort((a, b) => r.best[words.indexOf(a)] - r.best[words.indexOf(b)])[0] ?? words[0];
+
+    // The lesson opens with how to make the sound, before any word is tried.
+    function introView() {
+      return html`<div class="round"><section class="card intro-card">
+        <h2 class="label">First, how to make the ${short}</h2>
+        ${raw(panel(tips, sound, { heading: false }))}
+        <button type="button" class="btn primary wide" id="begin">Start: ${words.length} words</button>
+      </section></div>`;
+    }
 
     function needView() {
       return html`<section class="card round-need">
@@ -160,6 +177,7 @@ registerScreen("round", {
           r.result = result;
           const score = scoreOf(result.parts);
           if (score !== null && score >= (r.best[r.i] ?? -1)) { r.best[r.i] = score; r.spots[r.i] = worstPart(result.parts); } // the recap tells about the best try
+          if (score >= GOOD_ENOUGH) play("right"); // a chime for a word that came out good
         }
       } catch {
         r.problem = "score";
@@ -172,6 +190,9 @@ registerScreen("round", {
 
     // The round's result is saved once, the moment it ends, so the next round can say "Last round: 1 of 5".
     function endRound() {
+      // A celebration first: how many came out good and how many are still to work on (skipped words don't count).
+      const tried = r.best.filter((b) => b !== null), good = tried.filter((b) => b >= GOOD_ENOUGH).length;
+      if (tried.length) setTimeout(() => celebrate({ right: good, wrong: tried.length - good, note: `The ${short} round`, onClose: () => root.querySelector("#say")?.focus() }), 0);
       r.last = ctx.state.rounds[sound] ?? null; // what it was before this round
       ctx.state.rounds[sound] = { at: new Date().toISOString(), stars: stars(words.map((w, i) => ({ word: w, score: r.best[i] ?? 0 }))) };
       ctx.save();

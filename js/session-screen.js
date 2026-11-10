@@ -11,7 +11,10 @@ import { panel } from "./words/mouth.js";
 import { canRecord, micProblem, startRecording } from "./practice/recorder.js";
 import { GRADES, MAX_SECONDS, MIN_SECONDS, headline, heardNothing, heardSentence } from "./practice/feedback.js";
 import { openModelDialog, toast } from "./ui/modeldialog.js";
-import { scoreOf, wordStatus, toneOf } from "./progress.js";
+import { playMove } from "./ui/mouthui.js";
+import { GOOD_ENOUGH, scoreOf, wordStatus, toneOf } from "./progress.js";
+import { play } from "./ui/sounds.js";
+import { celebrate } from "./ui/celebrate.js";
 import { planFor, summary, takePlan } from "./session.js";
 
 const MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
@@ -44,6 +47,14 @@ registerScreen("session", {
 
     function next() {
       r.i++;
+      if (r.i === r.plan.steps.length) {
+        // The end: a celebration with how many were right and how many are still to work on, for this lesson only.
+        const said = r.plan.steps.filter((x) => x.kind === "say" && r.best[x.word] !== undefined);
+        const heard = r.plan.steps.filter((x) => x.kind === "hear").length;
+        const good = said.filter((x) => r.best[x.word] >= GOOD_ENOUGH).length;
+        if (heard + said.length) setTimeout(() => celebrate({ right: r.heardRight + good, wrong: heard - r.heardRight + said.length - good,
+          note: r.plan.name ? `All about the ${r.plan.name}` : "", onClose: () => root.querySelector(".done-card .btn.primary")?.focus() }), 0);
+      }
       r.picked = null; r.result = null; r.problem = null; r.phase = "start";
       draw();
       if (step()?.kind === "hear") say(step().said);
@@ -80,11 +91,13 @@ registerScreen("session", {
           if (r.picked) return;
           r.picked = b.dataset.choice;
           if (r.picked === s.said) r.heardRight++;
+          play(r.picked === s.said ? "right" : "wrong");
           draw();
           root.querySelector("#next")?.focus();
         }));
         root.querySelector("#both")?.addEventListener("click", () => say(s.said).then(() => here() && say(s.pair.find((w) => w !== s.said))));
       }
+      if (s.kind === "look") playMove(root.querySelector(".mouth-panel"), { delay: 500 }); // the move plays by itself
       if (s.kind === "say") {
         root.querySelector("#record").addEventListener("click", () => (r.phase === "recording" ? r.recording?.stop() : record(s.word)));
         root.querySelector("#hear-first")?.addEventListener("click", () => say(s.word));
@@ -182,6 +195,7 @@ registerScreen("session", {
           r.result = result;
           const score = scoreOf(result.parts);
           if (score !== null) r.best[word] = Math.max(r.best[word] ?? 0, score);
+          if (score >= GOOD_ENOUGH) play("right"); // a chime for a word that came out good
         }
       } catch {
         r.problem = "score";

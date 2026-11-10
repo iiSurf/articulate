@@ -1,0 +1,40 @@
+/* Button presses and the end-of-lesson celebration (iiSurf). Colors only come from the names in css/looks.css. */
+
+/* A springy press on everything you can tap. */
+.btn, .chip, .wtile, .sound-card, .row-card, .act, .hear-choice, .quiet button, .tabs a, .mouth-seg button, .play-big, .round-btn > span, .mic-btn > svg, .tile, .back, .back-link {
+  transition: transform .26s cubic-bezier(.3, 1.8, .5, 1), box-shadow .15s, background-color .15s;
+}
+:is(.btn, .chip, .wtile, .sound-card, .row-card, .act, .hear-choice, .quiet button, .tabs a, .mouth-seg button, .play-big, .tile):active:not(:disabled) { transform: scale(.94); transition-duration: .06s; }
+.round-btn:active > span, .mic-btn:active:not(:disabled) > svg { transform: scale(.9); transition-duration: .06s; }
+.hear-choice.right, .hear-choice.wrong { animation: answer-pop .38s cubic-bezier(.3, 1.8, .5, 1); }
+@keyframes answer-pop { 0% { transform: scale(.9); } 60% { transform: scale(1.06); } 100% { transform: none; } }
+
+/* The celebration */
+.cele { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgba(8, 14, 28, .6); }
+.cele-card { position: relative; z-index: 1; width: min(380px, 100%); padding: 26px 20px 20px; border-radius: 28px; background: var(--surface); color: var(--ink); text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.cele-badge { width: 104px; height: 104px; margin: -78px auto 6px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink);
+  box-shadow: 0 0 0 10px var(--surface), 0 0 0 16px color-mix(in srgb, var(--accent) 40%, transparent); }
+.cele-badge svg { width: 58px; height: 58px; }
+.cele h2 { margin: 8px 0 0; font-size: 30px; line-height: 1.15; }
+.cele-sub { margin: 6px 0 0; color: var(--muted); font-size: 17px; }
+.cele-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0 4px; }
+.cc { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px; border-radius: 18px; font-weight: 800; font-size: 16px; }
+.cc b { font-size: 40px; line-height: 1; }
+.cc.right { background: color-mix(in srgb, var(--good-bar) 14%, var(--surface)); color: var(--good); }
+.cc.wrong { background: color-mix(in srgb, var(--off-bar) 14%, var(--surface)); color: var(--off); }
+.cele-note { margin: 10px 0 0; color: var(--muted); font-size: 16px; }
+.cele .btn.wide { margin-top: 16px; }
+.cele-bits { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.bit { position: absolute; top: -20px; left: var(--x); width: var(--s); height: calc(var(--s) * 1.6); border-radius: 2px; opacity: 0; }
+.bit.a { background: var(--band); } .bit.b { background: var(--accent); } .bit.c { background: #FFFFFF; }
+.cele.go .bit { animation: bit-fall 2.6s cubic-bezier(.2, .6, .4, 1) var(--d) forwards; }
+.cele.go .cele-badge { animation: badge-pop .7s cubic-bezier(.3, 1.8, .5, 1) both; }
+.cele.go .cele-card { animation: card-in .45s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes bit-fall { 0% { opacity: 1; transform: translateY(0) rotate(0); } 100% { opacity: 0; transform: translateY(105vh) rotate(var(--r)); } }
+@keyframes badge-pop { 0% { transform: scale(0) rotate(-30deg); } 100% { transform: none; } }
+@keyframes card-in { 0% { transform: translateY(30px) scale(.94); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  :is(.btn, .chip, .wtile, .sound-card, .row-card, .act, .hear-choice, .quiet button, .tabs a, .mouth-seg button, .play-big, .tile):active { transform: none; }
+  .round-btn:active > span, .mic-btn:active > svg { transform: none; }
+}
