@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articulate mouth drafts</title>
+<!--
+  Rough drafts of pictures that show how to make each sound (iiSurf, November 9), after the friend's feedback: no app
+  they've seen shows where the tongue goes, and repeating what you hear isn't enough. A side view of the head where the
+  tongue, lips, jaw, and soft palate move for each sound, starting from Ukrainian sounds the learner already has.
+  The shapes are drawn from general phonetics references, not checked by a teacher yet.
+  Self-contained: no fonts, scripts, or images from anywhere else. After changing it, run
+  `node tools/bake.mjs design/mouth.html`. design/mouth-lab.html is where the drawing is worked out.
+-->
+<style>
+  :root { --page: #E9E9E6; --page-ink: #1D1D1F; --page-muted: #55555A; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--page-ink); font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .intro, .section-head { max-width: 1232px; margin: 0 auto; padding: 32px 24px 8px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 10px; }
+  .section-head h2 { font-size: 26px; line-height: 1.2; margin: 0 0 8px; }
+  .intro p, .section-head p { margin: 0 0 10px; max-width: 780px; color: var(--page-muted); }
+  .intro p b, .section-head p b { color: var(--page-ink); }
+  .grid { max-width: 1232px; margin: 0 auto; padding: 20px 24px 56px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(372px, 100%), 1fr)); gap: 48px 28px; }
+  .option { display: flex; flex-direction: column; align-items: center; }
+  .option-head, .watch { width: 100%; max-width: 360px; }
+  .option h3 { margin: 0; font-size: 22px; line-height: 1.2; display: flex; align-items: center; gap: 10px; }
+  .num { display: inline-grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--page-ink); color: #fff; font-size: 17px; }
+  .from { margin: 8px 0 14px; color: var(--page-muted); font-size: 16px; min-height: 4.35em; }
+  .watch { margin: 14px 0 0; font-size: 16px; color: var(--page-muted); }
+  .watch b { color: var(--page-ink); }
+
+  .phone { width: 100%; max-width: 360px; border-radius: 36px; padding: 10px; background: #1B1B1D; box-shadow: 0 18px 40px rgba(0,0,0,.18); }
+  .screen { border-radius: 27px; overflow: hidden; background: var(--bg); color: var(--ink); display: flex; flex-direction: column; min-height: 760px; }
+  .band { background: var(--band); color: var(--band-ink); }
+  .band-top { display: flex; align-items: center; gap: 10px; padding: 20px 16px 18px; min-height: 76px; }
+  .brand { font-weight: 800; font-size: 23px; }
+  .pair { font-weight: 800; font-size: 13px; letter-spacing: .06em; background: var(--pair-bg); color: var(--pair-ink); border-radius: 999px; padding: 4px 9px; }
+  .back { font-weight: 800; font-size: 30px; line-height: 1; margin: -4px 0 0; }
+  .strip { display: block; width: 100%; }
+  .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .card { background: var(--surface); border-radius: 18px; padding: 14px 14px 16px; box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 6px 18px rgba(0,0,0,.07); }
+  .dark .card { box-shadow: none; }
+  .card p { margin: 6px 0 0; }
+  .label { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .hint { font-size: 15px; color: var(--muted); }
+  .sub { font-size: 14px; font-weight: 700; color: var(--muted); margin: 12px 0 6px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 7px; border-radius: 14px; padding: 12px 14px; font-weight: 800; font-size: 16px; text-align: center; background: var(--chip-bg); color: var(--chip-ink); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .row .btn { flex: 1; }
+  .chip { display: inline-block; background: var(--chip-bg); color: var(--chip-ink); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 15px; }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); padding: 9px 6px 13px; }
+  .tabs span { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 800; color: var(--muted); }
+  .tabs .on { color: var(--tab-on); }
+  .tabs svg { width: 24px; height: 24px; }
+  .aa { font-size: 19px; line-height: 24px; font-weight: 900; }
+
+  .good { --g: var(--good); --gb: var(--good-bar); --gm: var(--good-mark); }
+  .close { --g: var(--close); --gb: var(--close-bar); --gm: var(--close-mark); }
+  .off { --g: var(--off); --gb: var(--off-bar); --gm: var(--off-mark); }
+  .work { --g: var(--work); --gb: var(--work-bar); --gm: var(--work-mark); }
+
+
+  .tabs .on { color: var(--tab-on); }
+  .center { text-align: center; }
+  .mouth { margin: 10px 0 0; border-radius: 14px; background: var(--air); overflow: hidden; }
+  .mouth svg { display: block; width: 100%; height: auto; }
+  .mouth.small svg, .mouth.tiny svg { width: 100%; }
+  .mouth.medium { max-width: 230px; margin: 8px auto 0; }
+  .steps { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 8px; }
+  .steps li { display: flex; gap: 10px; align-items: flex-start; }
+  .badge { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--flow, #0057B7); color: #fff; font-weight: 800; font-size: 14px; margin-top: 1px; }
+  .seg { display: grid; grid-template-columns: repeat(3, auto); gap: 4px; padding: 4px; background: var(--mode-bg); border-radius: 13px; margin-top: 10px; }
+  .seg > span { text-align: center; padding: 8px 4px; border-radius: 10px; font-weight: 800; font-size: 14px; color: var(--chip-ink); }
+  .seg > .on { background: var(--mode-on); color: var(--mode-on-ink); }
+  .key { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; font-weight: 700; color: var(--muted); }
+  .key .dash { width: 26px; border-top: 3px dashed var(--ink); opacity: .6; } .key .solid { width: 18px; height: 12px; border-radius: 6px; background: #E06C7C; margin-left: 8px; }
+  .key .ukdot { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid #0057B7; color: #0057B7; display: grid; place-items: center; font-size: 13px; font-weight: 800; } .key .endot { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); margin-left: 8px; }
+  .pair2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .col { border-radius: 14px; padding: 8px; background: var(--bg); } .col p { font-size: 15px; margin: 6px 0 0; }
+  .col .lips { display: block; width: 78%; margin: 6px auto 0; }
+  .tag { font-size: 13px; font-weight: 800; border-radius: 999px; padding: 3px 9px; display: inline-block; }
+  .good-tag { background: #23843F; color: #fff; } .work-tag { background: #D92D2D; color: #fff; }
+  .vmap { display: block; width: 100%; height: auto; }
+  .mouth.map { background: var(--surface); }
+  .side2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .side2 figcaption { text-align: center; font-weight: 800; padding: 2px 0 6px; }
+  .bigword { display: flex; justify-content: center; gap: 5px; margin: 12px 0 0; }
+  .bigword .part { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bigword .l { font-size: 46px; font-weight: 800; line-height: 1; color: var(--g, var(--ink)); }
+  .bigword .m { width: 100%; min-width: 34px; height: 22px; border-radius: 11px; background: var(--gb); color: var(--gm); display: grid; place-items: center; font-weight: 900; font-size: 14px; }
+  .good { --g: var(--good); --gb: var(--good-bar); --gm: var(--good-mark); } .work { --g: var(--work); --gb: var(--work-bar); --gm: var(--work-mark); }
+  .dots { display: flex; justify-content: center; gap: 8px; margin: 6px 0 0; } .dots i { width: 13px; height: 13px; border-radius: 50%; background: var(--chip-bg); } .dots i.now { background: var(--accent); outline: 3px solid var(--ring); outline-offset: 2px; }
+  .btn.wide { margin-top: 12px; padding: 14px; font-size: 17px; }
+  .fold-head { display: flex; justify-content: space-between; align-items: center; } .chev { font-size: 18px; color: var(--muted); }
+  .strip4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+  .thumb { border-radius: 12px; padding: 4px 4px 6px; background: var(--bg); text-align: center; font-size: 18px; border: 3px solid transparent; }
+  .thumb.on { border-color: var(--ring); } .thumb .mouth { margin: 0 0 4px; border-radius: 8px; }
+  .desk-wrap { max-width: 1232px; margin: 0 auto; padding: 0 24px 56px; }
+  .option-head.wide { max-width: 780px; }
+  .desk { border-radius: 18px; overflow: hidden; background: var(--bg); color: var(--ink); box-shadow: 0 18px 40px rgba(0,0,0,.18); border: 10px solid #1B1B1D; }
+  .desk .band-top { max-width: 900px; margin: 0 auto; }
+  .desk-body { max-width: 900px; margin: 0 auto; padding: 18px 16px 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .all { max-width: 1232px; margin: 0 auto; padding: 8px 24px 56px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .tile { margin: 0; background: #fff; border-radius: 14px; padding: 6px; } .tile figcaption { font-weight: 800; padding: 4px 4px 2px; font-size: 15px; } .tile .ex { font-weight: 500; color: var(--page-muted); }
+  @media (max-width: 760px) { .desk-body { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="intro">
+  <h1>Articulate: pictures of how to make each sound</h1>
+  <p>Your friend's idea: show <b>where the tongue goes</b>, not only the lips, because repeating what you hear isn't enough. These are rough drafts. Each picture is <b>one drawing that moves</b>: the tongue, lips, jaw, and the soft palate change for each sound, so all 22 sounds (and the Ukrainian sounds the tips start from) can use it.</p>
+  <p><b>Like the teacher does:</b> start from a Ukrainian sound that is already easy, and show the move from there. <b>Not checked yet:</b> the shapes are mine, from general phonetics references. Their teacher would be the perfect person to check them.</p>
+</header>
+<section class="section-head"><h2>Four ways to draw it</h2><p>All four can be mixed: A and B for consonants, C when the lips matter, D for vowels.</p></section>
+<main class="grid" id="styles"><article class="option"><div class="option-head"><h3><span class="num">1</span>A: Side view, numbered</h3><p class="from">A cut-through view of the head, like your friend's teacher would draw: tongue, teeth, lips, roof of the mouth, and the throat. Numbers on the picture match three short steps.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card">
+      <div class="label">Practice the th</div><p>The <b>th</b> in <b>think</b> needs work: it sounded like an <b>s</b>.</p>
+      <figure class="mouth " style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="a-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#a-arrow)"></path>
+  
+  
+  <g><circle cx="34" cy="190" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"></circle><text x="34" y="195" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">1</text></g><g><circle cx="124" cy="104" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"></circle><text x="124" y="109" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">2</text></g><g><circle cx="222" cy="236" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"></circle><text x="222" y="241" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">3</text></g>
+</svg></figure>
+      <ol class="steps"><li><span class="badge">1</span><span>The tip of your tongue goes <b>between your teeth</b>.</span></li><li><span class="badge">2</span><span>Blow air out softly, over your tongue.</span></li><li><span class="badge">3</span><span><b>No buzz</b> in your throat. (For the th in <i>this</i>, add the buzz.)</span></li></ol>
+      <div class="row"><span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it slowly</span><span class="btn primary">Back to the word</span></div></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">2</span>B: From the sound you know</h3><p class="from">What the teacher does: start from a Ukrainian sound that is already easy, then move. The dashed tongue is с (сам), the solid one is th. "Show the move" slides from one to the other.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card">
+      <div class="label">Start from с, then move</div>
+      <div class="seg"><span class=""><span lang="uk">с</span> (<span lang="uk">сам</span>)</span><span class="">th (think)</span><span class="on">▶ Show the move</span></div>
+      <figure class="mouth animate" data-anim="th-from-s" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="b-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L62 179.1 C60 187.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"></path>
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 151.1 C70 150.1 63 151.1 58 151.1 C52 152.1 50 157.1 50 164.1 C50 172.1 55 179.1 62 179.1 L79 179.1 L79 157.1 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 151.1 C70 150.1 63 151.1 58 151.1 C52 152.1 50 157.1 50 164.1 C50 172.1 55 179.1 62 179.1 C60 187.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 112 143.1 C98 147.1 88 148.1 22 148.1" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#b-arrow)"></path>
+  
+  
+  
+</svg></figure>
+      <p class="key"><span class="dash"></span>Your tongue for <span lang="uk">с</span> <span class="solid"></span>For th</p>
+      <p>Say <span lang="uk">с</span>, as in <span lang="uk">сам</span>. Then <b>slide the tip forward</b> until it rests between your teeth, and keep blowing.</p>
+      <div class="row"><span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg><span>Hear <span lang="uk">сам</span>, then think</span></span></div></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">3</span>C: Lips from the front, too</h3><p class="from">For w and v, the lips matter most, and a side view alone doesn't show them well. A front view of the lips sits next to the side view, for the sound they said and the sound they wanted.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card">
+      <div class="label">You said v. Make a w.</div>
+      <div class="pair2" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430">
+        <div class="col want"><div class="tag good-tag">w, as in wet</div><svg viewBox="0 0 120 80" class="lips" aria-hidden="true"><ellipse cx="60" cy="40" rx="27" ry="24" fill="var(--lip)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></ellipse><ellipse cx="60" cy="40" rx="10" ry="9" fill="var(--mouth-dark)"></ellipse></svg><figure class="mouth small" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="c1-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M96 161.3 C99.7 158.9 106 154.7 118 146.8 C130 138.9 154.7 114.6 168 113.7 C181.3 112.7 192.2 121.4 198 140.8 C203.8 160.2 202.2 215.1 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 110.8 194.2 106 189.3 C101.2 184.4 104.7 177 103 172.3 C101.3 167.6 97.2 163.1 96 161.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 L74 180.3 L73 157.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 110 126 112 96 132 C84 140 66 146 22 147" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#c1-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg></figure><p>Round your lips, like <span lang="uk">у</span>. <b>Teeth off your lip.</b></p></div>
+        <div class="col said"><div class="tag work-tag">v, what you said</div><svg viewBox="0 0 120 80" class="lips" aria-hidden="true"><path d="M14 38 C34 18 86 18 106 38 C86 60 34 60 14 38 Z" fill="var(--lip)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M24 36 C44 30 76 30 96 36 L96 42 C76 44 44 44 24 42 Z" fill="var(--mouth-dark)"></path><rect x="35" y="32" width="50" height="13" rx="3" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="1.5"></rect></svg><figure class="mouth small" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="c2-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L64 177 C62 185 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 157.1 C95.8 154.4 100.5 146.4 110 140.9 C119.5 135.5 136 123.3 150 124.6 C164 125.8 185.2 130.7 194 148.3 C202.8 165.9 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 111.3 192.5 106 187.1 C100.7 181.7 102.2 173.1 100 168.1 C97.8 163.1 94.2 158.9 93 157.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 116 52 124 C51 132 53 137 58 137 C64 138 70 137 74 137 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M83 152 C77 151 77 148 72 148 C66 149 60 153 60 160 C60 168 57 177 64 177 L81 177 L86 158 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 116 52 124 C51 132 53 137 58 137 C64 138 70 137 74 137 M83 152 C77 151 77 148 72 148 C66 149 60 153 60 160 C60 168 57 177 64 177 C62 185 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 115 148.1 C101 152.1 91 153.1 22 153.1" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#c2-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg></figure><p>Top teeth on your bottom lip.</p></div>
+      </div>
+      <p class="hint">Try it with a mirror: for w, you shouldn't see your top teeth at all.</p>
+      <div class="row"><span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear wet · vet</span></div></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">4</span>D: A map for vowels</h3><p class="from">Vowels are about where the tongue's highest point sits. A simple map of the mouth (front on the left, like the side view) puts the English vowels next to the Ukrainian ones. Here: ship and sheep.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card">
+      <div class="label">ship or sheep?</div>
+      <figure class="mouth map" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="0 0 260 186" class="vmap" aria-hidden="true">
+    <defs><marker id="vm-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+    <path d="M28 30 L238 30 L238 164 L100 164 Z" fill="var(--bg)" stroke="var(--muted)" stroke-width="2" stroke-linejoin="round"></path>
+    <text x="28" y="20" font-size="12" font-weight="800" fill="var(--muted)">FRONT</text>
+    <text x="238" y="20" font-size="12" font-weight="800" fill="var(--muted)" text-anchor="end">BACK</text>
+    <text x="133" y="20" font-size="12" font-weight="800" fill="var(--muted)" text-anchor="middle">tongue high ▲</text>
+    <text x="169" y="180" font-size="12" font-weight="800" fill="var(--muted)" text-anchor="middle">tongue low, mouth open ▼</text>
+    <path d="M100 76 L66 49" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#vm-arrow)"></path>
+    <g><circle cx="44" cy="62" r="12" fill="var(--surface)" stroke="var(--flow)" stroke-width="2.5"></circle><text x="44" y="67" text-anchor="middle" font-size="16" font-weight="800" fill="var(--flow)" lang="uk">і</text></g><g><circle cx="90" cy="100" r="12" fill="var(--surface)" stroke="var(--flow)" stroke-width="2.5"></circle><text x="90" y="105" text-anchor="middle" font-size="16" font-weight="800" fill="var(--flow)" lang="uk">и</text></g><circle cx="92" cy="136" r="6" fill="none" stroke="var(--flow)" stroke-width="2" opacity=".35"></circle><circle cx="172" cy="150" r="6" fill="none" stroke="var(--flow)" stroke-width="2" opacity=".35"></circle><circle cx="208" cy="58" r="6" fill="none" stroke="var(--flow)" stroke-width="2" opacity=".35"></circle><circle cx="210" cy="116" r="6" fill="none" stroke="var(--flow)" stroke-width="2" opacity=".35"></circle>
+    <g><circle cx="58" cy="44" r="6.5" fill="var(--ink)"></circle><text x="68" y="49" font-size="15" font-weight="800" fill="var(--ink)" text-anchor="start">sheep</text></g><g><circle cx="104" cy="80" r="6.5" fill="var(--ink)"></circle><text x="114" y="85" font-size="15" font-weight="800" fill="var(--ink)" text-anchor="start">ship</text></g><circle cx="102" cy="118" r="4" fill="var(--ink)" opacity=".3"></circle><circle cx="126" cy="148" r="4" fill="var(--ink)" opacity=".3"></circle><circle cx="172" cy="116" r="4" fill="var(--ink)" opacity=".3"></circle><circle cx="222" cy="148" r="4" fill="var(--ink)" opacity=".3"></circle><circle cx="196" cy="78" r="4" fill="var(--ink)" opacity=".3"></circle><circle cx="224" cy="44" r="4" fill="var(--ink)" opacity=".3"></circle>
+  </svg></figure>
+      <p class="key"><span class="ukdot">і</span>Ukrainian <span class="endot"></span>English</p>
+      <p><b>ship</b> sits right by the Ukrainian <span lang="uk">и</span>. For <b>sheep</b>, lift your tongue higher and further forward, to the <span lang="uk">і</span> spot, smile, and hold it a little longer.</p>
+      <div class="side2"><figure class="mouth small" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="d1-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M92 160.3 C95 156.4 100.7 143.2 110 136.8 C119.3 130.4 133.8 119.8 148 121.7 C162.2 123.5 185.8 129.8 195 147.8 C204.2 165.9 201.7 216.3 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 111.5 194.4 106 189.3 C100.5 184.2 101.3 176.1 99 171.3 C96.7 166.5 93.2 162.1 92 160.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 L79 179.3 L79 156.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>ship</figcaption></figure><figure class="mouth small" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="d2-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M92 160.3 C95 156.4 100.7 143.2 110 136.8 C119.3 130.4 133.8 119.8 148 121.7 C162.2 123.5 185.8 129.8 195 147.8 C204.2 165.9 201.7 216.3 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 111.5 194.4 106 189.3 C100.5 184.2 101.3 176.1 99 171.3 C96.7 166.5 93.2 162.1 92 160.3 Z" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"></path>
+  <path d="M92 155.1 C94 148.7 97.3 126 104 116.9 C110.7 107.8 117 96.7 132 100.6 C147 104.4 182.2 118.7 194 140.3 C205.8 161.9 201.5 215 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 111.5 192.9 106 187.1 C100.5 181.3 101.3 171.4 99 166.1 C96.7 160.8 93.2 156.9 92 155.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 L82 174.1 L80 154.1 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M146 116 L134 103" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#d2-arrow)"></path>
+  
+</svg><figcaption>sheep</figcaption></figure></div>
+      </section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article></main>
+<section class="section-head"><h2>Where it shows up</h2><p>In Fix this part (above), in Say it round, on a word's own page, and in every look.</p></section>
+<main class="grid" id="places"><article class="option"><div class="option-head"><h3><span class="num">5</span>E: In a round, on a phone</h3><p class="from">Say it round, with a "How to make th" fold under the word. Open it once and it stays open for the round. The picture is smaller here so the word and the microphone stay on screen.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="back">‹</span><span class="brand">Say it round</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card center">
+      <div class="label">Word 1 of 5</div><div class="dots"><i class="now"></i><i></i><i></i><i></i><i></i></div>
+      <div class="bigword"><span class="part work"><span class="l">th</span><span class="m">✕</span></span><span class="part good"><span class="l">i</span><span class="m">✓</span></span><span class="part good"><span class="l">n</span><span class="m">✓</span></span><span class="part good"><span class="l">k</span><span class="m">✓</span></span></div>
+      <p class="hint">The th sounded like an s.</p>
+      <span class="btn primary wide"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span></section>
+      <section class="card fold"><div class="fold-head"><span class="label">How to make th</span><span class="chev">▾</span></div>
+      <div class="fold-body"><figure class="mouth medium" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="e-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"></path>
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#e-arrow)"></path>
+  
+  <path d="M87 152.1 L78 154.7" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#e-arrow)"></path>
+  
+</svg></figure><p><b>Tongue tip between your teeth</b>, from <span lang="uk">с</span>. Blow softly.</p></div></section>
+      </div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">6</span>F: The word page, part by part</h3><p class="from">On a word's own page, each part gets its own small mouth. Tap a part to see it big. This is the "before you try" view: how to make every sound in the word, not only the one that went wrong.</p></div><div class="phone"><div class="screen" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="back">‹</span><span class="brand">think</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="body"><section class="card">
+      <div class="label">How to say it</div>
+      <div class="strip4"><div class="thumb on"><figure class="mouth tiny" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="52 88 156 112" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="f0-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></figure><b>th</b></div><div class="thumb"><figure class="mouth tiny" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="52 88 156 112" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="f1-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M92 160.3 C95 156.4 100.7 143.2 110 136.8 C119.3 130.4 133.8 119.8 148 121.7 C162.2 123.5 185.8 129.8 195 147.8 C204.2 165.9 201.7 216.3 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 111.5 194.4 106 189.3 C100.5 184.2 101.3 176.1 99 171.3 C96.7 166.5 93.2 162.1 92 160.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 L79 179.3 L79 156.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></figure><b>i</b></div><div class="thumb"><figure class="mouth tiny" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="52 88 156 112" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="f2-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C194 104 199 118 197 132 C201 138 208 135 208 126 C208 114 207 102 205 92 C200 90 196 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M99 109.3 C101.5 111.9 105.5 122.1 114 124.8 C122.5 127.5 136.3 121.3 150 125.7 C163.7 130 187.2 133.4 196 150.8 C204.8 168.2 201.8 216.8 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 112.3 199.1 106 189.3 C99.7 179.5 95.2 156.6 94 143.3 C92.8 130 98.2 115 99 109.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 L79 179.3 L79 156.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></figure><b>n</b></div><div class="thumb"><figure class="mouth tiny" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="52 88 156 112" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="f3-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 180.4 L62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 219.32 C140 208.2 112 198.4 98 188.4 L92 182.4 L84 162.4 L64 156.4 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 156.4 L85 154.4 C91 164.4 94 174.4 94 185.4 L84 185.4 C82 174.4 78 165.4 78 156.4 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 162.4 C97.8 159 107.5 151.1 122 141.7 C136.5 132.4 167 108 180 106.2 C193 104.4 196.2 110.5 200 131.1 C203.8 151.7 202.5 213.5 203 230 C197.8 227.9 183.8 221.9 172 217.3 C160.2 212.8 143 207.1 132 202.6 C121 198.2 111.3 195.3 106 190.4 C100.7 185.5 102.2 178.1 100 173.4 C97.8 168.7 94.2 164.2 93 162.4 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 L79 180.4 L79 157.4 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></figure><b>k</b></div></div>
+      <figure class="mouth " style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="f-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#f-arrow)"></path>
+  
+  
+  <g><circle cx="34" cy="190" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"></circle><text x="34" y="195" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">1</text></g><g><circle cx="124" cy="104" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"></circle><text x="124" y="109" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">2</text></g><g><circle cx="222" cy="236" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"></circle><text x="222" y="241" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">3</text></g>
+</svg></figure>
+      <ol class="steps"><li><span class="badge">1</span><span>Tongue tip <b>between your teeth</b>.</span></li><li><span class="badge">2</span><span>Blow air out softly.</span></li><li><span class="badge">3</span><span><b>No buzz.</b></span></li></ol>
+      <div class="row"><span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn primary"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice it</span></div></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article><article class="option"><div class="option-head"><h3><span class="num">7</span>G: At night</h3><p class="from">The same picture in the Night flag look: the colors come from the look, like everything else in the app.</p></div><div class="phone dark"><div class="screen" style="--bg:#0B1526;--surface:#14233B;--ink:#EAF1FB;--muted:#A9B9D0;--band:#0B1526;--band-ink:#EAF1FB;--accent:#FFD500;--accent-ink:#0B1526;--chip-bg:#1D3152;--chip-ink:#FFE36B;--mode-bg:#14233B;--mode-on:#FFD500;--mode-on-ink:#0B1526;--tab-on:#FFD500;--pair-bg:#1D3152;--pair-ink:#FFE36B;--ring:#FFD500;--good:#74E08F;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#FFD95A;--close-bar:#F2C200;--close-mark:#2B2100;--off:#FFA061;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#FF7D7D;--work-bar:#E5484D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="brand">Articulate</span><span class="pair">UA → EN</span></div><svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"></stop><stop offset="1" stop-color="#FFD500" stop-opacity=".35"></stop></linearGradient></defs><rect width="360" height="10" fill="url(#glow)"></rect><rect y="10" width="360" height="4" fill="#FFD500"></rect></svg></div><div class="body"><section class="card">
+      <div class="label">Start from с, then move</div>
+      <div class="seg"><span class=""><span lang="uk">с</span> (<span lang="uk">сам</span>)</span><span class="on">th (think)</span><span class="">▶ Show the move</span></div>
+      <figure class="mouth " style="--skin:#3A2C26;--skin-line:#E7C9B6;--air:#0B1526;--tongue:#D9576B;--tongue-line:#FFB3BF;--tooth:#F4F1EA;--tooth-line:#C9C2B6;--flow:#FFD500;--ghost:#EAF1FB;--lip:#9E5A56;--mouth-dark:#1A0C10"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="g-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"></path>
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#g-arrow)"></path>
+  
+  <path d="M87 152.1 L78 154.7" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#g-arrow)"></path>
+  
+</svg></figure>
+      <p>Say <span lang="uk">с</span>, then <b>slide the tip forward</b> between your teeth.</p></section></div><nav class="tabs"><span><span class="aa">Aa</span>Words</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Practice</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></article></main>
+<div class="desk-wrap" id="desk"><div class="option-head wide"><h3><span class="num">8</span>H: In a round, on a computer</h3><p class="from">With room to spare, the picture sits on the side, next to the word, the whole time: your friend's "maybe on the side" idea.</p></div><div class="desk" style="--bg:#F3F6FB;--surface:#FFFFFF;--ink:#0E1E36;--muted:#4A5A73;--band:#0057B7;--band-ink:#FFFFFF;--accent:#FFD500;--accent-ink:#0E1E36;--chip-bg:#E3ECF8;--chip-ink:#0B3D80;--mode-bg:#E3ECF8;--mode-on:#0057B7;--mode-on-ink:#FFFFFF;--tab-on:#0057B7;--pair-bg:#FFD500;--pair-ink:#0E1E36;--ring:#0057B7;--good:#1B7A35;--good-bar:#23843F;--good-mark:#FFFFFF;--close:#8A6A00;--close-bar:#F2C200;--close-mark:#2B2100;--off:#C2410C;--off-bar:#F07A1E;--off-mark:#2B1300;--work:#B42318;--work-bar:#D92D2D;--work-mark:#FFFFFF"><div class="band"><div class="band-top"><span class="back">‹</span><span class="brand">Say it round</span></div><svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"></rect></svg></div><div class="desk-body">
+  <section class="card center"><div class="label">Word 1 of 5</div><div class="dots"><i class="now"></i><i></i><i></i><i></i><i></i></div>
+    <div class="bigword"><span class="part work"><span class="l">th</span><span class="m">✕</span></span><span class="part good"><span class="l">i</span><span class="m">✓</span></span><span class="part good"><span class="l">n</span><span class="m">✓</span></span><span class="part good"><span class="l">k</span><span class="m">✓</span></span></div><p class="hint">One part to work on. The th sounded like an s.</p>
+    <span class="btn primary wide"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Say it again</span><div class="row"><span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Hear it</span><span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Slowly</span></div><span class="btn wide">Next word</span></section>
+  <section class="card"><div class="label">How to make th</div><div class="seg"><span class=""><span lang="uk">с</span> (<span lang="uk">сам</span>)</span><span class="">th (think)</span><span class="on">▶ Show the move</span></div>
+    <figure class="mouth " style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="h-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"></path>
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#h-arrow)"></path>
+  
+  <path d="M87 152.1 L78 154.7" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#h-arrow)"></path>
+  
+</svg></figure>
+    <ol class="steps"><li><span class="badge">1</span><span>Start from <span lang="uk">с</span>, as in <span lang="uk">сам</span>.</span></li><li><span class="badge">2</span><span>Slide the tip of your tongue <b>between your teeth</b>.</span></li><li><span class="badge">3</span><span>Blow softly, <b>no buzz</b>.</span></li></ol></section>
+</div></div></div>
+<section class="section-head"><h2>Every position so far</h2><p>The same drawing, posed for each sound. English sounds, and the Ukrainian sounds the tips start from.</p></section>
+<div class="all" id="all"><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all0-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 159.3 C95.8 156.6 100.5 148.4 110 142.8 C119.5 137.2 136 124.6 150 125.7 C164 126.7 185.2 131.4 194 148.8 C202.8 166.2 201.5 216.5 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 111.3 194.6 106 189.3 C100.7 184 102.2 175.3 100 170.3 C97.8 165.3 94.2 161.1 93 159.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 L79 179.3 L79 156.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg><figcaption>rest</figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all1-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all1-arrow)"></path>
+  
+  
+  
+</svg><figcaption>th <span class="ex">(think)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all2-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all2-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>th <span class="ex">(this)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all3-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 L82 174.1 L80 154.1 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 112 143.1 C98 147.1 88 148.1 22 148.1" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all3-arrow)"></path>
+  
+  
+  
+</svg><figcaption>с <span class="ex">(сам)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all4-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 L82 174.1 L80 154.1 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 112 143.1 C98 147.1 88 148.1 22 148.1" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all4-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>з <span class="ex">(зуб)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all5-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M96 161.3 C99.7 158.9 106 154.7 118 146.8 C130 138.9 154.7 114.6 168 113.7 C181.3 112.7 192.2 121.4 198 140.8 C203.8 160.2 202.2 215.1 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 110.8 194.2 106 189.3 C101.2 184.4 104.7 177 103 172.3 C101.3 167.6 97.2 163.1 96 161.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 L74 180.3 L73 157.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 110 126 112 96 132 C84 140 66 146 22 147" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all5-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>w <span class="ex">(wet)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all6-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M96 161.3 C99.7 158.9 106 154.7 118 146.8 C130 138.9 154.7 114.6 168 113.7 C181.3 112.7 192.2 121.4 198 140.8 C203.8 160.2 202.2 215.1 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 110.8 194.2 106 189.3 C101.2 184.4 104.7 177 103 172.3 C101.3 167.6 97.2 163.1 96 161.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 L74 180.3 L73 157.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>у <span class="ex">(ум)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all7-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L64 177 C62 185 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 157.1 C95.8 154.4 100.5 146.4 110 140.9 C119.5 135.5 136 123.3 150 124.6 C164 125.8 185.2 130.7 194 148.3 C202.8 165.9 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 111.3 192.5 106 187.1 C100.7 181.7 102.2 173.1 100 168.1 C97.8 163.1 94.2 158.9 93 157.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 116 52 124 C51 132 53 137 58 137 C64 138 70 137 74 137 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M83 152 C77 151 77 148 72 148 C66 149 60 153 60 160 C60 168 57 177 64 177 L81 177 L86 158 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 116 52 124 C51 132 53 137 58 137 C64 138 70 137 74 137 M83 152 C77 151 77 148 72 148 C66 149 60 153 60 160 C60 168 57 177 64 177 C62 185 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 115 148.1 C101 152.1 91 153.1 22 153.1" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all7-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>v <span class="ex">(very)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all8-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 178.2 L62 178.2 C60 186.2 58 206.2 66 220.2 C76 234.2 116 239.1 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.66 C140 207.1 112 196.2 98 186.2 L92 180.2 L84 160.2 L64 154.2 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 154.2 L85 152.2 C91 162.2 94 172.2 94 183.2 L84 183.2 C82 172.2 78 163.2 78 154.2 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 158.2 C95.8 155.5 100.5 147.4 110 141.9 C119.5 136.4 136 124 150 125.1 C164 126.2 185.2 131.1 194 148.6 C202.8 166 201.5 216.4 203 230 C197.8 227.8 183.8 221.4 172 216.7 C160.2 211.9 143 206.1 132 201.3 C121 196.6 111.3 193.6 106 188.2 C100.7 182.8 102.2 174.2 100 169.2 C97.8 164.2 94.2 160 93 158.2 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 149.2 C70 148.2 63 149.2 58 149.2 C52 150.2 50 155.2 50 162.2 C50 170.2 55 178.2 62 178.2 L79 178.2 L79 155.2 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 149.2 C70 148.2 63 149.2 58 149.2 C52 150.2 50 155.2 50 162.2 C50 170.2 55 178.2 62 178.2 C60 186.2 58 206.2 66 220.2 C76 234.2 116 239.1 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>в <span class="ex">(вона)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all9-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 181.5 L57 182.5 C55 190.5 58 209.5 66 223.5 C76 237.5 116 240.75 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 219.65 C140 208.75 112 199.5 98 189.5 L92 183.5 L84 163.5 L64 157.5 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 157.5 L85 155.5 C91 165.5 94 175.5 94 186.5 L84 186.5 C82 175.5 78 166.5 78 157.5 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M116 118.5 C118.3 120.4 122.7 128.8 130 129.7 C137.3 130.6 149 120.1 160 123.8 C171 127.4 188.8 133.7 196 151.4 C203.2 169.1 201.8 216.9 203 230 C197.8 227.9 183.8 222.1 172 217.7 C160.2 213.2 143 207.7 132 203.3 C121 198.9 110.7 201.1 106 191.5 C101.3 181.9 102.3 157.7 104 145.5 C105.7 133.3 114 123 116 118.5 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M70 153.5 C64 152.5 49 153.5 44 153.5 C38 154.5 38 158.5 38 165.5 C38 173.5 50 182.5 57 182.5 L74 182.5 L73 159.5 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 M70 153.5 C64 152.5 49 153.5 44 153.5 C38 154.5 38 158.5 38 165.5 C38 173.5 50 182.5 57 182.5 C55 190.5 58 209.5 66 223.5 C76 237.5 116 240.75 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 110 126 112 96 132 C84 140 66 146 22 147" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all9-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>r <span class="ex">(red)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all10-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 180.4 L62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 219.32 C140 208.2 112 198.4 98 188.4 L92 182.4 L84 162.4 L64 156.4 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 156.4 L85 154.4 C91 164.4 94 174.4 94 185.4 L84 185.4 C82 174.4 78 165.4 78 156.4 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M100 108.4 C102.3 111.6 105.7 124.8 114 127.7 C122.3 130.7 136.3 122.3 150 126.2 C163.7 130.1 187.2 133.8 196 151.1 C204.8 168.4 201.8 216.9 203 230 C197.8 227.9 183.8 221.9 172 217.3 C160.2 212.8 143 207.1 132 202.6 C121 198.2 112 200.1 106 190.4 C100 180.7 97 158.1 96 144.4 C95 130.7 99.3 114.4 100 108.4 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 L79 180.4 L79 157.4 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>р <span class="ex">(рука)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all11-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 180.4 L62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 219.32 C140 208.2 112 198.4 98 188.4 L92 182.4 L84 162.4 L64 156.4 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C194 104 199 118 197 132 C201 138 208 135 208 126 C208 114 207 102 205 92 C200 90 196 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 156.4 L85 154.4 C91 164.4 94 174.4 94 185.4 L84 185.4 C82 174.4 78 165.4 78 156.4 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 162.4 C97.5 159.3 106.2 150.8 120 143.7 C133.8 136.7 162.8 120.6 176 120.2 C189.2 119.8 194.5 122.8 199 141.1 C203.5 159.4 202.3 215.2 203 230 C197.8 227.9 183.8 221.9 172 217.3 C160.2 212.8 143 207.1 132 202.6 C121 198.2 111.3 195.3 106 190.4 C100.7 185.5 102.2 178.1 100 173.4 C97.8 168.7 94.2 164.2 93 162.4 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 L79 180.4 L79 157.4 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 222 150 222 116 C220 96 180 80 120 80 C90 80 64 88 36 96" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all11-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>ng <span class="ex">(sing)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all12-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M92 155.1 C94 148.7 97.3 126 104 116.9 C110.7 107.8 117 96.7 132 100.6 C147 104.4 182.2 118.7 194 140.3 C205.8 161.9 201.5 215 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 111.5 192.9 106 187.1 C100.5 181.3 101.3 171.4 99 166.1 C96.7 160.8 93.2 156.9 92 155.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 L82 174.1 L80 154.1 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>ee <span class="ex">(see)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all13-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M92 160.3 C95 156.4 100.7 143.2 110 136.8 C119.3 130.4 133.8 119.8 148 121.7 C162.2 123.5 185.8 129.8 195 147.8 C204.2 165.9 201.7 216.3 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 111.5 194.4 106 189.3 C100.5 184.2 101.3 176.1 99 171.3 C96.7 166.5 93.2 162.1 92 160.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 L79 179.3 L79 156.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>i <span class="ex">(sit)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all14-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 191.4 L62 193.4 C60 201.4 58 219.4 66 233.4 C76 247.4 116 245.7 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 222.62 C140 213.7 112 209.4 98 199.4 L92 193.4 L84 173.4 L64 167.4 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 167.4 L85 165.4 C91 175.4 94 185.4 94 196.4 L84 196.4 C82 185.4 78 176.4 78 167.4 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 177.4 C96.2 175 103.2 168.4 112 163.1 C120.8 157.8 132 146.6 146 145.7 C160 144.8 186.5 143.8 196 157.9 C205.5 171.9 201.8 218 203 230 C197.8 228.4 183.8 224.1 172 220.6 C160.2 217.2 143 212.4 132 209.2 C121 206 111.3 204.9 106 201.4 C100.7 197.9 102.2 192.4 100 188.4 C97.8 184.4 94.2 179.2 93 177.4 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 165.4 C70 164.4 63 165.4 58 165.4 C52 166.4 50 171.4 50 178.4 C50 186.4 55 193.4 62 193.4 L79 193.4 L79 171.4 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 165.4 C70 164.4 63 165.4 58 165.4 C52 166.4 50 171.4 50 178.4 C50 186.4 55 193.4 62 193.4 C60 201.4 58 219.4 66 233.4 C76 247.4 116 245.7 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>a <span class="ex">(cat)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all15-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C194 104 199 118 197 132 C201 138 208 135 208 126 C208 114 207 102 205 92 C200 90 196 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M99 109.3 C101.5 111.9 105.5 122.1 114 124.8 C122.5 127.5 136.3 121.3 150 125.7 C163.7 130 187.2 133.4 196 150.8 C204.8 168.2 201.8 216.8 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 112.3 199.1 106 189.3 C99.7 179.5 95.2 156.6 94 143.3 C92.8 130 98.2 115 99 109.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 L79 179.3 L79 156.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 150.3 C70 149.3 63 150.3 58 150.3 C52 151.3 50 156.3 50 163.3 C50 171.3 55 179.3 62 179.3 C60 187.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 222 150 222 116 C220 96 180 80 120 80 C90 80 64 88 36 96" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all15-arrow)"></path>
+  <path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  
+  
+</svg><figcaption>n <span class="ex">(no)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all16-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 180.4 L62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 219.32 C140 208.2 112 198.4 98 188.4 L92 182.4 L84 162.4 L64 156.4 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 156.4 L85 154.4 C91 164.4 94 174.4 94 185.4 L84 185.4 C82 174.4 78 165.4 78 156.4 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 162.4 C97.8 159 107.5 151.1 122 141.7 C136.5 132.4 167 108 180 106.2 C193 104.4 196.2 110.5 200 131.1 C203.8 151.7 202.5 213.5 203 230 C197.8 227.9 183.8 221.9 172 217.3 C160.2 212.8 143 207.1 132 202.6 C121 198.2 111.3 195.3 106 190.4 C100.7 185.5 102.2 178.1 100 173.4 C97.8 168.7 94.2 164.2 93 162.4 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 L79 180.4 L79 157.4 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 118 52 126 C51 134 53 141 58 141 C64 142 71 141 75 141 M76 151.4 C70 150.4 63 151.4 58 151.4 C52 152.4 50 157.4 50 164.4 C50 172.4 55 180.4 62 180.4 C60 188.4 58 208.4 66 222.4 C76 236.4 116 240.2 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg><figcaption>k <span class="ex">(key)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all17-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L61 176 C59 184 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 157.1 C95.8 154.4 100.5 146.4 110 140.9 C119.5 135.5 136 123.3 150 124.6 C164 125.8 185.2 130.7 194 148.3 C202.8 165.9 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 111.3 192.5 106 187.1 C100.7 181.7 102.2 173.1 100 168.1 C97.8 163.1 94.2 158.9 93 157.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 119 52 127 C51 135 52 145 57 145 C63 146 71 145 75 145 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M75 145 C69 144 62 145 57 145 C51 146 49 152 49 159 C49 167 54 176 61 176 L78 176 L78 151 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 119 52 127 C51 135 52 145 57 145 C63 146 71 145 75 145 M75 145 C69 144 62 145 57 145 C51 146 49 152 49 159 C49 167 54 176 61 176 C59 184 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M46 146 L20 146 M44 136 L22 128 M44 156 L22 164" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all17-arrow)"></path>
+  
+  
+  
+</svg><figcaption>p <span class="ex">(pin)</span></figcaption></figure><figure class="mouth tile" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="all18-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 184.8 L62 186.8 C60 194.8 58 212.8 66 226.8 C76 240.8 116 242.4 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.64 C140 210.4 112 202.8 98 192.8 L92 186.8 L84 166.8 L64 160.8 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 160.8 L85 158.8 C91 168.8 94 178.8 94 189.8 L84 189.8 C82 178.8 78 169.8 78 160.8 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M93 164.8 C95.8 161.9 100.5 153.5 110 147.5 C119.5 141.4 136 127.9 150 128.4 C164 128.9 185.2 133.3 194 150.2 C202.8 167.1 201.5 216.7 203 230 C197.8 228.1 183.8 222.8 172 218.6 C160.2 214.5 143 209.3 132 205.3 C121 201.3 111.3 199.7 106 194.8 C100.7 189.9 102.2 180.8 100 175.8 C97.8 170.8 94.2 166.6 93 164.8 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 158.8 C70 157.8 63 158.8 58 158.8 C52 159.8 50 164.8 50 171.8 C50 179.8 55 186.8 62 186.8 L79 186.8 L79 164.8 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 158.8 C70 157.8 63 158.8 58 158.8 C52 159.8 50 164.8 50 171.8 C50 179.8 55 186.8 62 186.8 C60 194.8 58 212.8 66 226.8 C76 240.8 116 242.4 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 116 130 120 100 136 C86 143 66 148 22 149" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#all18-arrow)"></path>
+  
+  
+  
+</svg><figcaption>h <span class="ex">(home)</span></figcaption></figure></div>
+<footer class="foot"><p><b>Not in these drafts yet:</b> the rest of the 22 sounds, a check of every shape by a teacher, and the pictures moving inside the real app.</p></footer>
+<script>
+  const GRADES = {
+    light: { good: ["#1B7A35", "#23843F", "#FFFFFF"], close: ["#8A6A00", "#F2C200", "#2B2100"], off: ["#C2410C", "#F07A1E", "#2B1300"], work: ["#B42318", "#D92D2D", "#FFFFFF"] },
+    dark: { good: ["#74E08F", "#23843F", "#FFFFFF"], close: ["#FFD95A", "#F2C200", "#2B2100"], off: ["#FFA061", "#F07A1E", "#2B1300"], work: ["#FF7D7D", "#E5484D", "#FFFFFF"] },
+  };
+  const MARKS = {
+    good: '<path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+    close: '<path d="M4.5 9.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0M4.5 15.5c2.4-2.2 4.6-2.2 7.5 0s5.1 2.2 7.5 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+    off: '<path d="M12 4.5v9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/><circle cx="12" cy="19" r="2.1" fill="currentColor"/>',
+    work: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>',
+  };
+  const mark = (g) => `<svg viewBox="0 0 24 24" aria-hidden="true">${MARKS[g]}</svg>`;
+  const ICONS = {
+    mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    ear: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    bars: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"/><rect x="16" y="3" width="4.5" height="18" rx="1.6"/></svg>',
+  };
+  const SKY = { c: { bg: "#F3F6FB", surface: "#FFFFFF", ink: "#0E1E36", muted: "#4A5A73", band: "#0057B7", "band-ink": "#FFFFFF", accent: "#FFD500", "accent-ink": "#0E1E36", "chip-bg": "#E3ECF8", "chip-ink": "#0B3D80", "mode-bg": "#E3ECF8", "mode-on": "#0057B7", "mode-on-ink": "#FFFFFF", "tab-on": "#0057B7", "pair-bg": "#FFD500", "pair-ink": "#0E1E36", ring: "#0057B7" }, strip: '<svg class="strip" viewBox="0 0 360 8" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="8" fill="#FFD500"/></svg>' };
+  const NIGHT = { dark: true, c: { bg: "#0B1526", surface: "#14233B", ink: "#EAF1FB", muted: "#A9B9D0", band: "#0B1526", "band-ink": "#EAF1FB", accent: "#FFD500", "accent-ink": "#0B1526", "chip-bg": "#1D3152", "chip-ink": "#FFE36B", "mode-bg": "#14233B", "mode-on": "#FFD500", "mode-on-ink": "#0B1526", "tab-on": "#FFD500", "pair-bg": "#1D3152", "pair-ink": "#FFE36B", ring: "#FFD500" }, strip: '<svg class="strip" viewBox="0 0 360 14" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD500" stop-opacity="0"/><stop offset="1" stop-color="#FFD500" stop-opacity=".35"/></linearGradient></defs><rect width="360" height="10" fill="url(#glow)"/><rect y="10" width="360" height="4" fill="#FFD500"/></svg>' };
+  const vars = (t) => [...Object.entries(t.c), ...Object.entries(GRADES[t.dark ? "dark" : "light"]).flatMap(([k, [x, b, m]]) => [[k, x], [`${k}-bar`, b], [`${k}-mark`, m]])].map(([k, v]) => `--${k}:${v}`).join(";");
+  const band = (t, { title = "", back = false } = {}) => `<div class="band"><div class="band-top">${back ? '<span class="back">‹</span>' : ""}${title ? `<span class="brand">${title}</span>` : '<span class="brand">Articulate</span><span class="pair">UA → EN</span>'}</div>${t.strip}</div>`;
+  const tabs = (on) => `<nav class="tabs"><span><span class="aa">Aa</span>Words</span><span>${ICONS.mic}Practice</span><span class="${on === "progress" ? "on" : ""}">${ICONS.bars}Progress</span></nav>`;
+  const phone = (t, inside) => `<div class="phone${t.dark ? " dark" : ""}"><div class="screen" style="${vars(t)}">${inside}</div></div>`;
+
+
+// ---- The mouth drawing ------------------------------------------------------------------------------------------
+// mouth(pose) returns an SVG string. A pose says where things are for one sound:
+//   tongue: { tip, blade, body, back, front? }  points [x, y] on the tongue's top surface, front to back
+//   jaw: 0 (teeth together) to 1 (wide open)      lips: "rest" | "spread" | "round" | "closed" | "teeth-on-lip" | "open"
+//   nose: true when air goes through the nose (the soft palate is down)
+//   voice: true for a buzz in the throat           air: "mouth" | "teeth" | "nose" | "puff" | "throat" | null
+// The view box is 300 by 300, facing left. Colors come from CSS custom properties, so every look can set them.
+const R = (n) => Math.round(n * 10) / 10;
+const pt = ([x, y]) => `${R(x)} ${R(y)}`;
+function smooth(pts, move = true) {
+  let d = move ? `M${pt(pts[0])}` : `L${pt(pts[0])}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${pt(c1)} ${pt(c2)} ${pt(p2)}`;
+  }
+  return d;
+}
+const add = ([x, y], [dx, dy]) => [x + dx, y + dy];
+
+function tonguePath(t, jy) {
+  // The front moves with the jaw, the back less. The underside runs from the tip back along the floor of the mouth.
+  const tip = add(t.tip, [0, jy]), blade = add(t.blade, [0, jy * 0.85]), body = add(t.body, [0, jy * 0.5]), back = add(t.back, [0, jy * 0.25]);
+  const front = add(t.front ?? [t.tip[0] + 7, t.tip[1] + 11], [0, jy]);
+  const root = [203, 230];
+  const under = [root, [172, 216 + jy * 0.3], [132, 200 + jy * 0.6], [106, 186 + jy], front, tip];
+  return `${smooth([tip, blade, body, back, root])} ${smooth(under).replace(/^M[^C]*/, "")} Z`;
+}
+
+// The lips for each shape: upper { front, edge, inner }, lower { top, inner, front, bottom }. The lower lip moves with the jaw.
+const LIPS = {
+  rest: (j) => [{ front: [52, 126], edge: [58, 141], inner: [75, 141] }, { top: [58, 147 + j], inner: [76, 147 + j], front: [50, 160 + j], bottom: [62, 176 + j] }],
+  open: (j) => [{ front: [52, 125], edge: [58, 139], inner: [75, 139] }, { top: [58, 150 + j], inner: [76, 150 + j], front: [50, 163 + j], bottom: [62, 178 + j] }],
+  spread: (j) => [{ front: [57, 127], edge: [62, 140], inner: [76, 140] }, { top: [62, 147 + j], inner: [77, 147 + j], front: [56, 158 + j], bottom: [65, 173 + j] }],
+  round: (j) => [{ front: [40, 128], edge: [44, 141], inner: [70, 141] }, { top: [44, 148 + j], inner: [70, 148 + j], front: [38, 160 + j], bottom: [57, 177 + j] }],
+  closed: () => [{ front: [52, 127], edge: [57, 145], inner: [75, 145] }, { top: [57, 145], inner: [75, 145], front: [49, 159], bottom: [61, 176] }],
+  "teeth-on-lip": () => [{ front: [52, 124], edge: [58, 137], inner: [74, 137] }, { top: [72, 148], inner: [83, 152], front: [60, 160], bottom: [64, 177] }],
+};
+function lipsPaths(kind, jy) {
+  const [up, lo] = (LIPS[kind] ?? LIPS.rest)(jy);
+  const upperEdge = `C60 114 ${pt(add(up.front, [2, -8]))} ${pt(up.front)} C${pt(add(up.front, [-1, 8]))} ${pt(add(up.edge, [-5, 0]))} ${pt(up.edge)} C${pt(add(up.edge, [6, 1]))} ${pt(add(up.inner, [-4, 0]))} ${pt(up.inner)}`;
+  const lowerEdge = `M${pt(lo.inner)} C${pt(add(lo.inner, [-6, -1]))} ${pt(add(lo.top, [5, 0]))} ${pt(lo.top)} C${pt(add(lo.top, [-6, 1]))} ${pt(add(lo.front, [0, -7]))} ${pt(lo.front)} C${pt(add(lo.front, [0, 8]))} ${pt(add(lo.bottom, [-7, 0]))} ${pt(lo.bottom)}`;
+  const chin = `C${pt(add(lo.bottom, [-2, 8]))} 58 ${204 + jy} 66 ${218 + jy} C76 ${232 + jy} 116 ${238 + jy * 0.5} 150 242 C166 248 172 268 176 300`;
+  const outline = `M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 ${upperEdge} ${lowerEdge} ${chin}`;
+  const upper = `M67 112 C60 114 ${pt(add(up.front, [2, -8]))} ${pt(up.front)} C${pt(add(up.front, [-1, 8]))} ${pt(add(up.edge, [-5, 0]))} ${pt(up.edge)} C${pt(add(up.edge, [6, 1]))} ${pt(add(up.inner, [-4, 0]))} ${pt(up.inner)} L77 114 Z`;
+  const lower = `M${pt(lo.inner)} C${pt(add(lo.inner, [-6, -1]))} ${pt(add(lo.top, [5, 0]))} ${pt(lo.top)} C${pt(add(lo.top, [-6, 1]))} ${pt(add(lo.front, [0, -7]))} ${pt(lo.front)} C${pt(add(lo.front, [0, 8]))} ${pt(add(lo.bottom, [-7, 0]))} ${pt(lo.bottom)} L${pt(add(lo.bottom, [17, 0]))} L${pt(add(lo.inner, [3, 6]))} Z`;
+  return { upper, lower, outline, bottom: lo.bottom };
+}
+
+function mouth(pose, { ghost = null, labels = [], arrows = [], idPrefix = "m", crop = "24 58 236 232" } = {}) {
+  const jy = (pose.jaw ?? 0.15) * 22;
+  const nose = !!pose.nose;
+  const skin = `fill="var(--skin)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"`;
+  // The head: the face down the left. The lips are drawn on top of it.
+  const lips0 = lipsPaths(pose.lips ?? "rest", jy);
+  const head = `M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 ${176 + jy} L${pt(lips0.bottom)} C${pt(add(lips0.bottom, [-2, 8]))} 58 ${204 + jy} 66 ${218 + jy} C76 ${232 + jy} 116 ${238 + jy * 0.5} 150 242 C166 248 172 268 176 300 L300 300 Z`;
+  // The air inside: nose, mouth, and throat. The roof of the mouth is the strip of head between the nose and the mouth.
+  const air = [
+    "M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252",
+    `C204 242 200 236 196 232 L170 ${218 + jy * 0.3} C140 ${206 + jy * 0.5} 112 ${194 + jy} 98 ${184 + jy}`,
+    `L92 ${178 + jy} L84 ${158 + jy} L64 ${152 + jy} L62 128 L76 110 L94 106`,
+    "C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98",
+    nose ? "C194 104 199 118 197 132 C201 138 208 135 208 126 C208 114 207 102 205 92 C200 90 196 89 190 89"
+         : "C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89",
+    "C160 88 120 90 96 94 C80 97 66 100 57 102 Z",
+  ].join(" ");
+  const upperTooth = "M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z";
+  const lowerTooth = `M78 ${152 + jy} L85 ${150 + jy} C91 ${160 + jy} 94 ${170 + jy} 94 ${181 + jy} L84 ${181 + jy} C82 ${170 + jy} 78 ${161 + jy} 78 ${152 + jy} Z`;
+  const lips = lips0;
+  const tongue = tonguePath(pose.tongue, jy);
+  const ghostTongue = ghost ? tonguePath(ghost.tongue, (ghost.jaw ?? 0.15) * 22) : "";
+  const tip = add(pose.tongue.tip, [0, jy]);
+  // Where the air goes: a dotted line with an arrowhead.
+  const FLOWS = {
+    mouth: `M218 262 C218 210 216 160 200 132 C176 110 126 112 96 132 C84 140 66 146 22 147`,
+    teeth: `M218 262 C218 210 216 160 200 132 C176 112 130 116 ${R(tip[0] + 22)} ${R(tip[1] - 9)} C${R(tip[0] + 8)} ${R(tip[1] - 5)} ${R(tip[0] - 2)} ${R(tip[1] - 4)} 22 ${R(tip[1] - 4)}`,
+    nose: "M218 262 C218 210 222 150 222 116 C220 96 180 80 120 80 C90 80 64 88 36 96",
+    puff: "M46 146 L20 146 M44 136 L22 128 M44 156 L22 164",
+    throat: `M218 262 C218 210 216 160 200 132 C176 116 130 120 100 136 C86 143 66 148 22 149`,
+  };
+  const flow = pose.air ? FLOWS[pose.air] : "";
+  const buzz = pose.voice ? '<path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' : "";
+  const marker = `${idPrefix}-arrow`;
+  return `<svg viewBox="${crop}" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="${marker}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"/></marker></defs>
+  <path d="${head}" fill="var(--skin)"/>
+  <path d="${air}" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="${lowerTooth}" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"/>
+  ${ghost ? `<path d="${ghostTongue}" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"/>` : ""}
+  <path d="${tongue}" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="${upperTooth}" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"/>
+  <path d="${lips.upper}" fill="var(--skin)"/>
+  <path d="${lips.lower}" fill="var(--skin)"/>
+  <path d="${lips.outline}" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  ${flow ? `<path d="${flow}" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#${marker})"/>` : ""}
+  ${buzz}
+  ${arrows.map(([a, b]) => `<path d="M${pt(a)} L${pt(b)}" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#${marker})"/>`).join("")}
+  ${labels.map(([n, [x, y]]) => `<g><circle cx="${x}" cy="${y}" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">${n}</text></g>`).join("")}
+</svg>`;
+}
+
+// ---- Poses: English sounds and the Ukrainian sounds the tips start from -------------------------------------------
+const REST = { tip: [93, 156], blade: [110, 140], body: [150, 124], back: [194, 148] };
+const POSES = {
+  rest: { tongue: REST, jaw: 0.15, lips: "rest" },
+  "th (think)": { tongue: { tip: [70, 150], blade: [94, 140], body: [148, 126], back: [194, 150], front: [80, 160] }, jaw: 0.35, lips: "open", air: "teeth" },
+  "th (this)": { tongue: { tip: [70, 150], blade: [94, 140], body: [148, 126], back: [194, 150], front: [80, 160] }, jaw: 0.35, lips: "open", air: "teeth", voice: true },
+  "с (сам)": { tongue: { tip: [90, 151], blade: [102, 120], body: [146, 120], back: [194, 148], front: [96, 160] }, jaw: 0.05, lips: "spread", air: "teeth" },
+  "з (зуб)": { tongue: { tip: [90, 151], blade: [102, 120], body: [146, 120], back: [194, 148], front: [96, 160] }, jaw: 0.05, lips: "spread", air: "teeth", voice: true },
+  "w (wet)": { tongue: { tip: [96, 158], blade: [118, 144], body: [168, 112], back: [198, 140] }, jaw: 0.15, lips: "round", voice: true, air: "mouth" },
+  "у (ум)": { tongue: { tip: [96, 158], blade: [118, 144], body: [168, 112], back: [198, 140] }, jaw: 0.15, lips: "round", voice: true },
+  "v (very)": { tongue: REST, jaw: 0.05, lips: "teeth-on-lip", air: "teeth", voice: true },
+  "в (вона)": { tongue: REST, jaw: 0.1, lips: "rest", voice: true },
+  "r (red)": { tongue: { tip: [116, 113], blade: [130, 125], body: [160, 121], back: [196, 150], front: [104, 140] }, jaw: 0.25, lips: "round", voice: true, air: "mouth" },
+  "р (рука)": { tongue: { tip: [100, 104], blade: [114, 124], body: [150, 124], back: [196, 150], front: [96, 140] }, jaw: 0.2, lips: "rest", voice: true },
+  "ng (sing)": { tongue: { tip: [93, 158], blade: [120, 140], body: [176, 118], back: [199, 140] }, jaw: 0.2, lips: "rest", nose: true, air: "nose", voice: true },
+  "ee (see)": { tongue: { tip: [92, 154], blade: [104, 116], body: [132, 100], back: [194, 140] }, jaw: 0.05, lips: "spread", voice: true },
+  "i (sit)": { tongue: { tip: [92, 157], blade: [110, 134], body: [148, 120], back: [195, 147] }, jaw: 0.15, lips: "rest", voice: true },
+  "a (cat)": { tongue: { tip: [93, 162], blade: [112, 150], body: [146, 138], back: [196, 154] }, jaw: 0.7, lips: "open", voice: true },
+  "n (no)": { tongue: { tip: [99, 106], blade: [114, 122], body: [150, 124], back: [196, 150], front: [94, 140] }, jaw: 0.15, lips: "rest", nose: true, air: "nose", voice: true },
+  "k (key)": { tongue: { tip: [93, 158], blade: [122, 138], body: [180, 104], back: [200, 130] }, jaw: 0.2, lips: "rest" },
+  "p (pin)": { tongue: REST, jaw: 0.05, lips: "closed", air: "puff" },
+  "h (home)": { tongue: REST, jaw: 0.4, lips: "open", air: "throat" },
+};
+
+// ---- Draft page (design/mouth.html) ------------------------------------------------------------------------------
+const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+const tipOf = (p) => add(p.tongue.tip, [0, (p.jaw ?? 0.15) * 22]);
+const P = POSES;
+const TH = P["th (think)"], S = P["с (сам)"], W = P["w (wet)"], V = P["v (very)"], EE = P["ee (see)"], IH = P["i (sit)"];
+const FIG = (cls = "") => `class="mouth ${cls}"`;
+// Lips from the front: rest, round, spread, teeth-on-lip, open, closed. 120 by 80.
+function lipsFront(kind) {
+  const lip = 'fill="var(--lip)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"';
+  const dark = 'fill="var(--mouth-dark)"';
+  const teeth = (y, h, w = 44) => `<rect x="${60 - w / 2}" y="${y}" width="${w}" height="${h}" rx="3" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="1.5"/>`;
+  const shapes = {
+    round: `<ellipse cx="60" cy="40" rx="27" ry="24" ${lip}/><ellipse cx="60" cy="40" rx="10" ry="9" ${dark}/>`,
+    spread: `<path d="M8 40 C30 22 90 22 112 40 C90 58 30 58 8 40 Z" ${lip}/><path d="M20 40 C40 32 80 32 100 40 C80 47 40 47 20 40 Z" ${dark}/>${teeth(33, 6, 60)}`,
+    "teeth-on-lip": `<path d="M14 38 C34 18 86 18 106 38 C86 60 34 60 14 38 Z" ${lip}/><path d="M24 36 C44 30 76 30 96 36 L96 42 C76 44 44 44 24 42 Z" ${dark}/>${teeth(32, 13, 50)}`,
+    open: `<path d="M14 36 C34 12 86 12 106 36 C92 70 28 70 14 36 Z" ${lip}/><path d="M24 34 C44 24 76 24 96 34 C86 58 34 58 24 34 Z" ${dark}/>${teeth(28, 7, 46)}<path d="M38 52 C50 44 70 44 82 52 C70 58 50 58 38 52 Z" fill="var(--tongue)"/>`,
+    closed: `<path d="M14 40 C34 20 86 20 106 40 C86 60 34 60 14 40 Z" ${lip}/><path d="M16 40 C40 38 80 38 104 40" stroke="var(--skin-line)" stroke-width="2.5" fill="none"/>`,
+    rest: `<path d="M14 40 C34 20 86 20 106 40 C86 60 34 60 14 40 Z" ${lip}/><path d="M24 40 C44 35 76 35 96 40 C76 44 44 44 24 40 Z" ${dark}/>`,
+  };
+  return `<svg viewBox="0 0 120 80" class="lips" aria-hidden="true">${shapes[kind]}</svg>`;
+}
+// The vowel map: where the tongue's highest point sits, front of the mouth on the left (like the side view).
+function vowelMap({ focus = [], arrow = null } = {}) {
+  // [label, x, y, which side the label goes]. Front of the mouth on the left, like the side view.
+  const EN = [["sheep", 58, 44, "r"], ["ship", 104, 80, "r"], ["bed", 102, 118, "r"], ["cat", 126, 148, "r"], ["cut", 172, 116, "l"], ["hot", 222, 148, "l"], ["book", 196, 78, "l"], ["food", 224, 44, "l"]];
+  const UK = [["і", 44, 62], ["и", 90, 100], ["е", 92, 136], ["а", 172, 150], ["у", 208, 58], ["о", 210, 116]];
+  const on = (w) => focus.includes(w);
+  return `<svg viewBox="0 0 260 186" class="vmap" aria-hidden="true">
+    <defs><marker id="vm-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"/></marker></defs>
+    <path d="M28 30 L238 30 L238 164 L100 164 Z" fill="var(--bg)" stroke="var(--muted)" stroke-width="2" stroke-linejoin="round"/>
+    <text x="28" y="20" font-size="12" font-weight="800" fill="var(--muted)">FRONT</text>
+    <text x="238" y="20" font-size="12" font-weight="800" fill="var(--muted)" text-anchor="end">BACK</text>
+    <text x="133" y="20" font-size="12" font-weight="800" fill="var(--muted)" text-anchor="middle">tongue high ▲</text>
+    <text x="169" y="180" font-size="12" font-weight="800" fill="var(--muted)" text-anchor="middle">tongue low, mouth open ▼</text>
+    ${arrow ? `<path d="M${arrow[0]} L${arrow[1]}" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#vm-arrow)"/>` : ""}
+    ${UK.map(([l, x, y]) => on(l)
+      ? `<g><circle cx="${x}" cy="${y}" r="12" fill="var(--surface)" stroke="var(--flow)" stroke-width="2.5"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="16" font-weight="800" fill="var(--flow)" lang="uk">${l}</text></g>`
+      : `<circle cx="${x}" cy="${y}" r="6" fill="none" stroke="var(--flow)" stroke-width="2" opacity=".35"/>`).join("")}
+    ${EN.map(([w, x, y, side]) => on(w)
+      ? `<g><circle cx="${x}" cy="${y}" r="6.5" fill="var(--ink)"/><text x="${side === "r" ? x + 10 : x - 10}" y="${y + 5}" font-size="15" font-weight="800" fill="var(--ink)" text-anchor="${side === "r" ? "start" : "end"}">${w}</text></g>`
+      : `<circle cx="${x}" cy="${y}" r="4" fill="var(--ink)" opacity=".3"/>`).join("")}
+  </svg>`;
+}
+const ICON_EAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+const ICON_MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+const steps = (items) => `<ol class="steps">${items.map((t, i) => `<li><span class="badge">${i + 1}</span><span>${t}</span></li>`).join("")}</ol>`;
+const seg = (items, on) => `<div class="seg">${items.map((t, i) => `<span class="${i === on ? "on" : ""}">${t}</span>`).join("")}</div>`;
+const MOUTH_VARS = (dark) => dark
+  ? "--skin:#3A2C26;--skin-line:#E7C9B6;--air:#0B1526;--tongue:#D9576B;--tongue-line:#FFB3BF;--tooth:#F4F1EA;--tooth-line:#C9C2B6;--flow:#FFD500;--ghost:#EAF1FB;--lip:#9E5A56;--mouth-dark:#1A0C10"
+  : "--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36;--lip:#DE9A90;--mouth-dark:#5A2430";
+const wordParts = (parts) => `<div class="bigword">${parts.map(([l, g]) => `<span class="part ${g}"><span class="l">${l}</span>${g ? `<span class="m">${{ work: "✕", good: "✓", close: "≈", off: "!" }[g]}</span>` : ""}</span>`).join("")}</div>`;
+
+const thSide = (id) => mouth(TH, { idPrefix: id, labels: [[1, [34, 190], [66, 160]], [2, [124, 104]], [3, [222, 236]]] });
+const thFromS = (id, t = 1) => {
+  const pose = { ...TH, jaw: S.jaw + (TH.jaw - S.jaw) * t, tongue: Object.fromEntries(Object.keys(TH.tongue).map((k) => [k, lerp(S.tongue[k] ?? TH.tongue[k], TH.tongue[k], t)])) };
+  return mouth(pose, { idPrefix: id, ghost: S, arrows: t > 0.5 ? [[add(tipOf(S), [-3, 0]), add(tipOf(TH), [8, -3])]] : [] });
+};
+
+const OPTIONS = [
+  { title: "A: Side view, numbered", from: "A cut-through view of the head, like your friend's teacher would draw: tongue, teeth, lips, roof of the mouth, and the throat. Numbers on the picture match three short steps.",
+    draw: () => phone(SKY, `${band(SKY)}<div class="body"><section class="card">
+      <div class="label">Practice the th</div><p>The <b>th</b> in <b>think</b> needs work: it sounded like an <b>s</b>.</p>
+      <figure ${FIG()} style="${MOUTH_VARS(false)}">${thSide("a")}</figure>
+      ${steps(["The tip of your tongue goes <b>between your teeth</b>.", "Blow air out softly, over your tongue.", "<b>No buzz</b> in your throat. (For the th in <i>this</i>, add the buzz.)"])}
+      <div class="row"><span class="btn">${ICON_EAR}Hear it slowly</span><span class="btn primary">Back to the word</span></div></section></div>${tabs("practice")}`) },
+  { title: "B: From the sound you know", from: "What the teacher does: start from a Ukrainian sound that is already easy, then move. The dashed tongue is с (сам), the solid one is th. \"Show the move\" slides from one to the other.",
+    draw: () => phone(SKY, `${band(SKY)}<div class="body"><section class="card">
+      <div class="label">Start from с, then move</div>
+      ${seg(['<span lang="uk">с</span> (<span lang="uk">сам</span>)', "th (think)", "▶ Show the move"], 2)}
+      <figure ${FIG("animate")} data-anim="th-from-s" style="${MOUTH_VARS(false)}">${thFromS("b")}</figure>
+      <p class="key"><span class="dash"></span>Your tongue for <span lang="uk">с</span> <span class="solid"></span>For th</p>
+      <p>Say <span lang="uk">с</span>, as in <span lang="uk">сам</span>. Then <b>slide the tip forward</b> until it rests between your teeth, and keep blowing.</p>
+      <div class="row"><span class="btn">${ICON_EAR}<span>Hear <span lang="uk">сам</span>, then think</span></span></div></section></div>${tabs("practice")}`) },
+  { title: "C: Lips from the front, too", from: "For w and v, the lips matter most, and a side view alone doesn't show them well. A front view of the lips sits next to the side view, for the sound they said and the sound they wanted.",
+    draw: () => phone(SKY, `${band(SKY)}<div class="body"><section class="card">
+      <div class="label">You said v. Make a w.</div>
+      <div class="pair2" style="${MOUTH_VARS(false)}">
+        <div class="col want"><div class="tag good-tag">w, as in wet</div>${lipsFront("round")}<figure ${FIG("small")} style="${MOUTH_VARS(false)}">${mouth(W, { idPrefix: "c1" })}</figure><p>Round your lips, like <span lang="uk">у</span>. <b>Teeth off your lip.</b></p></div>
+        <div class="col said"><div class="tag work-tag">v, what you said</div>${lipsFront("teeth-on-lip")}<figure ${FIG("small")} style="${MOUTH_VARS(false)}">${mouth(V, { idPrefix: "c2" })}</figure><p>Top teeth on your bottom lip.</p></div>
+      </div>
+      <p class="hint">Try it with a mirror: for w, you shouldn't see your top teeth at all.</p>
+      <div class="row"><span class="btn">${ICON_EAR}Hear wet · vet</span></div></section></div>${tabs("practice")}`) },
+  { title: "D: A map for vowels", from: "Vowels are about where the tongue's highest point sits. A simple map of the mouth (front on the left, like the side view) puts the English vowels next to the Ukrainian ones. Here: ship and sheep.",
+    draw: () => phone(SKY, `${band(SKY)}<div class="body"><section class="card">
+      <div class="label">ship or sheep?</div>
+      <figure ${FIG("map")} style="${MOUTH_VARS(false)}">${vowelMap({ focus: ["sheep", "ship", "і", "и"], arrow: ["100 76", "66 49"] })}</figure>
+      <p class="key"><span class="ukdot">і</span>Ukrainian <span class="endot"></span>English</p>
+      <p><b>ship</b> sits right by the Ukrainian <span lang="uk">и</span>. For <b>sheep</b>, lift your tongue higher and further forward, to the <span lang="uk">і</span> spot, smile, and hold it a little longer.</p>
+      <div class="side2"><figure ${FIG("small")} style="${MOUTH_VARS(false)}">${mouth(IH, { idPrefix: "d1" })}<figcaption>ship</figcaption></figure><figure ${FIG("small")} style="${MOUTH_VARS(false)}">${mouth(EE, { idPrefix: "d2", ghost: IH, arrows: [[[146, 116], [134, 103]]] })}<figcaption>sheep</figcaption></figure></div>
+      </section></div>${tabs("practice")}`) },
+];
+const PLACES = [
+  { title: "E: In a round, on a phone", from: "Say it round, with a \"How to make th\" fold under the word. Open it once and it stays open for the round. The picture is smaller here so the word and the microphone stay on screen.",
+    draw: () => phone(SKY, `${band(SKY, { title: "Say it round", back: true })}<div class="body"><section class="card center">
+      <div class="label">Word 1 of 5</div><div class="dots"><i class="now"></i><i></i><i></i><i></i><i></i></div>
+      ${wordParts([["th", "work"], ["i", "good"], ["n", "good"], ["k", "good"]])}
+      <p class="hint">The th sounded like an s.</p>
+      <span class="btn primary wide">${ICON_MIC}Say it again</span></section>
+      <section class="card fold"><div class="fold-head"><span class="label">How to make th</span><span class="chev">▾</span></div>
+      <div class="fold-body"><figure ${FIG("medium")} style="${MOUTH_VARS(false)}">${thFromS("e")}</figure><p><b>Tongue tip between your teeth</b>, from <span lang="uk">с</span>. Blow softly.</p></div></section>
+      </div>${tabs("progress")}`) },
+  { title: "F: The word page, part by part", from: "On a word's own page, each part gets its own small mouth. Tap a part to see it big. This is the \"before you try\" view: how to make every sound in the word, not only the one that went wrong.",
+    draw: () => phone(SKY, `${band(SKY, { title: "think", back: true })}<div class="body"><section class="card">
+      <div class="label">How to say it</div>
+      <div class="strip4">${[["th", TH, true], ["i", IH], ["n", P["n (no)"]], ["k", P["k (key)"]]].map(([l, p, on], i) => `<div class="thumb${on ? " on" : ""}"><figure ${FIG("tiny")} style="${MOUTH_VARS(false)}">${mouth({ ...p, air: null, voice: false }, { idPrefix: "f" + i, crop: "52 88 156 112" })}</figure><b>${l}</b></div>`).join("")}</div>
+      <figure ${FIG()} style="${MOUTH_VARS(false)}">${thSide("f")}</figure>
+      ${steps(["Tongue tip <b>between your teeth</b>.", "Blow air out softly.", "<b>No buzz.</b>"])}
+      <div class="row"><span class="btn">${ICON_EAR}Hear it</span><span class="btn primary">${ICON_MIC}Practice it</span></div></section></div>${tabs("words")}`) },
+  { title: "G: At night", from: "The same picture in the Night flag look: the colors come from the look, like everything else in the app.",
+    draw: () => phone(NIGHT, `${band(NIGHT)}<div class="body"><section class="card">
+      <div class="label">Start from с, then move</div>
+      ${seg(['<span lang="uk">с</span> (<span lang="uk">сам</span>)', "th (think)", "▶ Show the move"], 1)}
+      <figure ${FIG()} style="${MOUTH_VARS(true)}">${thFromS("g")}</figure>
+      <p>Say <span lang="uk">с</span>, then <b>slide the tip forward</b> between your teeth.</p></section></div>${tabs("practice")}`) },
+];
+const DESK = () => `<div class="desk" style="${vars(SKY)}">${band(SKY, { title: "Say it round", back: true })}<div class="desk-body">
+  <section class="card center"><div class="label">Word 1 of 5</div><div class="dots"><i class="now"></i><i></i><i></i><i></i><i></i></div>
+    ${wordParts([["th", "work"], ["i", "good"], ["n", "good"], ["k", "good"]])}<p class="hint">One part to work on. The th sounded like an s.</p>
+    <span class="btn primary wide">${ICON_MIC}Say it again</span><div class="row"><span class="btn">${ICON_EAR}Hear it</span><span class="btn">${ICON_EAR}Slowly</span></div><span class="btn wide">Next word</span></section>
+  <section class="card"><div class="label">How to make th</div>${seg(['<span lang="uk">с</span> (<span lang="uk">сам</span>)', "th (think)", "▶ Show the move"], 2)}
+    <figure ${FIG()} style="${MOUTH_VARS(false)}">${thFromS("h")}</figure>
+    ${steps(["Start from <span lang=\"uk\">с</span>, as in <span lang=\"uk\">сам</span>.", "Slide the tip of your tongue <b>between your teeth</b>.", "Blow softly, <b>no buzz</b>."])}</section>
+</div></div>`;
+
+document.getElementById("styles").innerHTML = OPTIONS.map((o, i) => `<article class="option"><div class="option-head"><h3><span class="num">${i + 1}</span>${o.title}</h3><p class="from">${o.from}</p></div>${o.draw()}</article>`).join("");
+document.getElementById("places").innerHTML = PLACES.map((o, i) => `<article class="option"><div class="option-head"><h3><span class="num">${i + 5}</span>${o.title}</h3><p class="from">${o.from}</p></div>${o.draw()}</article>`).join("");
+document.getElementById("desk").innerHTML = `<div class="option-head wide"><h3><span class="num">8</span>H: In a round, on a computer</h3><p class="from">With room to spare, the picture sits on the side, next to the word, the whole time: your friend's "maybe on the side" idea.</p></div>${DESK()}`;
+document.getElementById("all").innerHTML = Object.entries(POSES).map(([name, pose], i) => `<figure class="mouth tile" style="${MOUTH_VARS(false)}">${mouth(pose, { idPrefix: "all" + i })}<figcaption>${name.replace(/(\(.*\))/, '<span class="ex">$1</span>')}</figcaption></figure>`).join("");
+
+// "Show the move": slide from с to th and back, when motion is welcome. A still picture otherwise.
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  for (const fig of document.querySelectorAll('[data-anim="th-from-s"]')) {
+    let start = null;
+    const step = (now) => {
+      if (!fig.isConnected) return;
+      start ??= now;
+      const t = ((now - start) / 3200) % 1, k = t < 0.15 ? 0 : t < 0.55 ? (t - 0.15) / 0.4 : t < 0.85 ? 1 : 1 - (t - 0.85) / 0.15;
+      fig.innerHTML = thFromS("b", k * k * (3 - 2 * k));
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+}
+
+</script>
+</body></html>

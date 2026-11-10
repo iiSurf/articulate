@@ -892,3 +892,24 @@ Work through what was left: the silent listening game from the drafts (option B)
 ### Not verified
 
 - A real phone, a real voice (the check uses a stand-in voice that records the word; the real phone voice, and whether think and sink sound clearly different in it, is untested), Safari, and Firefox. The checklist is the way to do it. The review sheet hasn't been read by anyone yet.
+
+## 2026-11-09 (Monday): drafts of pictures that show how to make each sound
+
+### Plan
+
+The friend tried the app and liked it. Their one idea: show **how to make the sounds**, where the tongue goes, because no app they've seen does, Google's demos mostly show lips, and repeating what you hear isn't accurate if you don't notice your tongue. Their teacher helps by explaining where the tongue should be and getting them close with other words. iiSurf asked for illustrations of lips, tongue, and teeth, maybe on the side, and shared two reference pictures (a side view of the mouth for vowels, and a vowel chart). Drawn first, as always.
+
+### Changed
+
+- New `design/mouth-lab.html`: one side view of the head (facing left) drawn in code, where the tongue, lips, jaw, and soft palate move per sound, with dotted air flow and a zigzag for the buzz in the throat. 19 positions: rest, th (both), с, з, w, у, v, в, r, р, ng, n, k, ee, i, a, p, h.
+- New `design/mouth.html`: eight drafts. Four ways to draw it (A: side view with numbered steps; B: start from the Ukrainian sound, a dashed с tongue and the th tongue, with "Show the move" sliding between them, like the teacher's method; C: lips from the front next to the side view, for w and v; D: a map of the mouth for vowels, with the Ukrainian і and и next to sheep and ship). Where it shows up (E: in Say it round on a phone, as a fold under the word; F: a word's page with a small mouth for each part; G: the Night flag look; H: Say it round on a computer, with the picture on the side). Then every position so far.
+- Both are self-contained and baked (`tools/bake.mjs`), like the other drafts. Our own drawings; the friend's reference pictures were only looked at, not copied.
+
+### Verified
+
+- Every phone looked at full size at 1280; the page has no sideways scroll at 360, 390, or 1280. Fixed on the way: the front-view lips drew black (their colors weren't set outside the side view), the vowel map's labels overlapped, Ukrainian words inside buttons had stray spaces, n and k thumbnails were placeholders, and the thumbnails were too small to show the tongue until they were cropped to the mouth.
+
+### Not verified
+
+- **Whether the shapes are right.** They are mine, from general phonetics knowledge, not checked by a teacher or speech therapist. The friend's teacher is the right person to check them before this is built.
+- Nothing is built in the app yet. The "Show the move" animation runs in a browser that runs scripts; previews that show a still page show one frame.
