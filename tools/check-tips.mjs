@@ -21,8 +21,8 @@ const check = (name, ok, detail = "") => results.push(`${ok ? "✓" : "✗"} ${n
 
 // What was "said" for each word typed, and what the panel should then say about the first part that isn't green.
 const CASES = [
-  { word: "think", plays: "Samantha/sink", part: "th", title: "th as in think", has: ["Ukrainian с", "You said s", "Same sound, same spot", "Hear the difference"], words: ["thank", "thin"], pair: "think · sink", round: "#/round/TH" },
-  { word: "west", plays: "Reed/vest", part: "w", title: "w as in wet", has: ["short у", "You said v"], words: ["wine", "wet"], round: "#/round/W" },
+  { word: "think", plays: "Samantha/sink", part: "th", title: "th as in think", has: ["Ukrainian с", "You said s", "Same sound, same spot", "Hear the difference"], words: ["thank", "thin"], pair: "think · sink", round: "#/round/TH", said: "s" },
+  { word: "west", plays: "Reed/vest", part: "w", title: "w as in wet", has: ["short у", "You said v"], words: ["wine", "wet"], round: "#/round/W", said: "v", lips: true },
 ];
 
 const microphone = (url) => `navigator.mediaDevices.getUserMedia = async () => {
@@ -73,6 +73,8 @@ try {
         if (c.pair) check(`it offers the pair ${c.pair}`, (await chrome.evaluate(`[...document.querySelectorAll("#fix-tips [data-say-pair]")].map((b) => b.textContent)`)).includes(c.pair));
         const link = await chrome.evaluate(`document.querySelector("#fix-tips [data-round-link]")?.getAttribute("href") ?? null`);
         check("it offers a round for the sound", link === c.round, String(link));
+        const pic = await chrome.evaluate(`(() => { const p = document.querySelector("#fix-tips .mouth-panel"); return p && { said: p.querySelector(".mc-said")?.textContent ?? null, lips: p.querySelectorAll(".mouth-lips").length, move: !!p.querySelector('[data-mouth-show="move"]'), dashed: !!p.querySelector('[stroke-dasharray="5 5"]') }; })()`);
+        check(`the picture shows how to make ${c.part}, from the Ukrainian sound, next to what they said (${c.said})`, !!pic && pic.said === `You said: ${c.said}` && pic.move && pic.dashed && (!c.lips || pic.lips === 2), JSON.stringify(pic));
         check("the Ukrainian letters are marked lang=uk", (await chrome.evaluate(`document.querySelectorAll('#fix-tips [lang="uk"]').length`)) >= 1);
         check("the learner never sees IPA in the panel", !/[ɪɛæɑəʊɝðθŋʃʧʤɹɾ]/.test(panel), panel);
         for (const width of c.word === "think" ? [360, 390, 1280] : [390]) {
