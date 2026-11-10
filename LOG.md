@@ -1005,3 +1005,25 @@ iiSurf liked all three drafts and left the choice to me: "best design practices,
 
 - A real phone. The other looks besides those four (the contrast check covers them for the boards and the round, not yet for Home).
 - Not built yet: the five-minute practice, a sound's page, and the teammate's screens in the new layout (PLAN.md, phases 2 and 3).
+
+## 2026-11-09 (Monday): the redesign, phase 2 (Five minutes, a page for each sound, sound cards)
+
+### Plan
+
+PLAN.md "The redesign", phase 2: B's front door (one Start that plans the practice), C's sound pages, and Progress's sounds as cards. All in iiSurf's files.
+
+### Changed
+
+- **Five minutes.** `js/session.js` (pure, tested) plans one practice: the sound to work on (the hardest so far, else the current word's own hardest sound), then **listen** (3 "which did you hear?" questions from that sound's pairs), **look** (the How to make it picture), **say** (3 words, their own word first, scored by the real model), and a **summary** (each word before and now, and the listening count). Quiet mode: 5 questions and the picture, no saying. A phone that can't speak words: no listening steps. `js/session-screen.js` runs it one step at a time with a progress bar, the big microphone, and "×" to stop; the voice says each question's word by itself; without the sound model it offers the download or "Skip saying words today". Every try goes through `ctx.score`, so the boards move.
+- **Home's banner** is now "Ready for 5 minutes", the three lines of the plan ("Hear the difference: think · sink", "See how to make the th", "Say think, thank, and thin"), and **Start**, which runs exactly the plan shown. Quiet also points to the puzzles. A new learner with no words sees "Add a word".
+- **A sound's page** (`js/sound-screen.js`, `#/sound/TH`): "th, as in think", the misses so far, the picture, **Say 5 words** and **Hear the difference** side by side, your words with that sound (with how each is going), and more words to hear. Home's hardest-sound card, a word's How to make card ("All about th"), and Progress all lead here.
+- **Progress:** "Where you struggle most" is a card for each sound, with its mouth picture, misses, the words it came up in, and a bar.
+- Checks: new `tools/check-session.mjs` (`npm run check-session`, 20 checks with the real model); `check-words`, `check-progress` (the cards, and the seven-looks contrast now also on Home, a sound's page, and a word's page: 35 checks), and `check-hear` (it starts from the sound page now).
+
+### Verified
+
+- `npm test` 143 of 143 (10 new). All ten browser checks pass, four with the real model. Pictures looked at: Home with the plan, a say step after "think" said as "sink", the summary, a sound's page, at 390 and 1280, and Home in Pysanka. Fixed on the way: One more round did nothing (it went to the page it was already on), and the sound page had two back links.
+
+### Not verified
+
+- A real phone, a real voice, and a real microphone (the stand-ins play the Mac's voices). Whether five minutes is really about five minutes. Phase 3 (the teammate's Speak, Read, and Listen in the new layout) is waiting for their OK.

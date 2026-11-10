@@ -3,7 +3,8 @@
 // file only draws it. The boards rank the learner's own words against each other, and nothing leaves the phone.
 // It borrows the grade marks from the teammate's js/practice/feedback.js (a plain list: ✓ ≈ ! ✕).
 import { registerScreen } from "./app.js";
-import { html } from "./html.js";
+import { html, raw } from "./html.js";
+import { POSES, sideView } from "./words/mouth.js";
 import { loadTips } from "./words/tips.js";
 import { GRADES } from "./practice/feedback.js";
 import { hardestSounds, mostImproved, needsWork, toneOf, topWords } from "./progress.js";
@@ -31,10 +32,6 @@ registerScreen("progress", {
         }
         const word = e.target.closest("[data-word]");
         if (word) { ctx.state.current = word.dataset.word; ctx.save(); return; } // the link goes on to Speak
-        const hard = e.target.closest("[data-round]");
-        if (hard) ctx.go("round", hard.dataset.round);
-        const hear = e.target.closest("[data-hear]");
-        if (hear) ctx.go("hear", hear.dataset.hear);
       });
     };
     draw();
@@ -86,20 +83,17 @@ function spot(s) {
 
 // The sounds that went orange or red most often, with a button to practice each, the first one the main button.
 function hardest(state, tips) {
-  const sounds = hardestSounds(state);
+  const sounds = hardestSounds(state).filter((s) => tips?.sounds?.[s.sound]);
   if (!sounds.length) return "";
   const top = sounds[0].misses;
-  const name = (s) => tips?.sounds?.[s.sound]?.title ?? s.sound.toLowerCase();
-  const short = (s) => name(s).split(" as in ")[0];
-  const can = (s) => !!tips?.sounds?.[s.sound]; // a round needs the words from the tips file
   return html`<section class="card">
     <h2 class="label">Where you struggle most</h2>
-    <ul class="hard">${sounds.map((s) => html`<li>
-      <span class="snd">${name(s)}</span>
-      <span class="bar" aria-hidden="true"><i style="width:${Math.round((100 * s.misses) / top)}%"></i></span>
-      <span class="n">${s.misses} ${s.misses === 1 ? "miss" : "misses"}</span>
-    </li>`)}</ul>
-    ${can(sounds[0]) ? html`<div class="row"><button type="button" class="btn primary" data-round="${sounds[0].sound}">Practice ${short(sounds[0])}</button>${tips.sounds[sounds[0].sound].pairs?.length ? html`<button type="button" class="btn" data-hear="${sounds[0].sound}">Hear the difference</button>` : ""}</div>
-      <p class="hint">A round is five words with this sound, said out loud. Hear the difference needs no microphone: listen, and tap which word it was.</p>` : ""}
+    <p class="hint">Tap a sound to see how to make it, and to practice it.</p>
+    <ul class="sound-cards">${sounds.map((s) => { const [name, ex] = tips.sounds[s.sound].title.split(" as in "); return html`<li><a class="sound-card" href="#/sound/${s.sound}">
+      <span class="row-thumb">${raw(POSES[s.sound] ? sideView({ ...POSES[s.sound], air: null, voice: false }, { crop: "40 86 170 128" }) : "")}</span>
+      <span class="rc-text"><b>${name}${ex ? html`<small>, as in ${ex}</small>` : ""}</b><span>${s.misses} ${s.misses === 1 ? "miss" : "misses"} · in ${s.words.slice(0, 3).join(", ")}</span>
+        <span class="bar" aria-hidden="true"><i style="width:${Math.round((100 * s.misses) / top)}%"></i></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </a></li>`; })}</ul>
   </section>`;
 }

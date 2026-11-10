@@ -77,3 +77,11 @@
 .hear-choice.wrong { background: var(--work-bar); color: var(--work-mark); }
 .hear .hint { margin: 12px 0 0; }
 .bigcount { font-size: 28px; line-height: 1.2; margin: 10px 0 0; }
+
+/* Where you struggle most: a card for each sound, going to its page */
+.sound-cards { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sound-card { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: var(--bg); color: var(--ink); text-decoration: none; }
+.sound-card .rc-text b { font-size: 19px; } .sound-card .rc-text b small { font-size: 15px; color: var(--muted); font-weight: 700; }
+.sound-card .bar { display: block; height: 8px; border-radius: 4px; background: var(--chip-bg); overflow: hidden; margin-top: 6px; }
+.sound-card .bar i { display: block; height: 100%; background: var(--work-bar); }
+.sound-card .chev { flex: none; font-size: 28px; font-weight: 800; color: var(--muted); }

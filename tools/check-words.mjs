@@ -31,7 +31,9 @@ try {
   await c.evaluate(`document.querySelector('[data-add="three"]').click()`);
   for (let i = 0; i < 20 && !(await words()).includes("three"); i++) await sleep(150);
   check("a suggestion is added with one tap, and the newest word comes first", JSON.stringify(await words()) === '["three","weather"]');
-  check("the newest word is the one to keep going with, with the big microphone", (await c.evaluate(`document.querySelector(".hero-word")?.textContent`)) === "three" && !!(await c.evaluate(`document.getElementById("say-now")`)));
+  for (let i = 0; i < 20 && !(await c.evaluate(`!!document.querySelector(".plan-list")`)); i++) await sleep(150);
+  const plan = await c.evaluate(`({ title: document.getElementById("hero-title")?.textContent, lines: [...document.querySelectorAll(".plan-list li")].map((l) => l.textContent.trim()), start: !document.getElementById("start")?.disabled })`);
+  check("Home offers five minutes of practice on the newest word's sound, with Start", plan.title === "5 minutes" && plan.start && plan.lines.at(-1) === "Say three, thank, and thin" && plan.lines.some((l) => l === "See how to make the th"), JSON.stringify(plan));
   await type("weather");
   check("a word that's already there says so", (await note()).includes("already"), await note());
   await type("zzqxv");
@@ -65,10 +67,11 @@ try {
   check("the words are still there after a reload", JSON.stringify(after.words.map((w) => w.text)) === '["weather","three"]');
   await c.send("Page.navigate", { url: `${server.url}/#/words` }); await sleep(900);
   await c.evaluate(`document.querySelector('[data-quiet="quiet"]').click()`); await sleep(200);
-  const quiet = await c.evaluate(`({ mode: JSON.parse(localStorage.getItem("articulate.v1")).mode, listen: !!document.querySelector('.hero a[href="#/practice/listen"]'), read: !!document.querySelector('.hero a[href="#/practice/read"]'), mic: !!document.getElementById("say-now") })`);
-  check("Quiet swaps the microphone for Listen and Puzzles, and is remembered", quiet.mode === "listen" && quiet.listen && quiet.read && !quiet.mic, JSON.stringify(quiet));
-  await c.evaluate(`document.querySelector('[data-quiet="loud"]').click()`); await sleep(200);
-  check("Out loud brings the microphone back", !!(await c.evaluate(`document.getElementById("say-now")`)) && JSON.parse(await c.evaluate(`localStorage.getItem("articulate.v1")`)).mode === "speak");
+  await sleep(500);
+  const quiet = await c.evaluate(`({ mode: JSON.parse(localStorage.getItem("articulate.v1")).mode, lines: [...document.querySelectorAll(".plan-list li")].map((l) => l.textContent.trim()), read: !!document.querySelector('.hero a[href="#/practice/read"]') })`);
+  check("Quiet makes the practice listening and looking only, offers the puzzles, and is remembered", quiet.mode === "listen" && quiet.read && quiet.lines.length === 2 && !quiet.lines.some((l) => l.startsWith("Say")), JSON.stringify(quiet));
+  await c.evaluate(`document.querySelector('[data-quiet="loud"]').click()`); await sleep(500);
+  check("Out loud puts saying back in", (await c.evaluate(`[...document.querySelectorAll(".plan-list li")].some((l) => l.textContent.trim().startsWith("Say"))`)) && JSON.parse(await c.evaluate(`localStorage.getItem("articulate.v1")`)).mode === "speak");
 } finally {
   await c.close();
   server.close();

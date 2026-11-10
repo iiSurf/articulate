@@ -1,6 +1,6 @@
 // The app shell (iiSurf): the band, one screen at a time, the tabs, the looks, and Your colors.
 // Each part plugs its screens in with registerScreen() (PLAN.md, "Screens, and the hooks the tour needs").
-// Addresses: #/words, #/practice/read, #/practice/listen, #/practice/speak, #/progress, #/round/<sound>, #/hear/<sound>, #/colors.
+// Addresses: #/words, #/practice/read, #/practice/listen, #/practice/speak, #/progress, #/round/<sound>, #/hear/<sound>, #/session, #/sound/<sound>, #/colors.
 import { html, raw } from "./html.js";
 import { LOOKS, byId, lookFor } from "./looks.js";
 import { MODES, load, save } from "./store.js";
@@ -96,7 +96,7 @@ function applyLook() {
 
 function where() {
   const [page = "words", sub = ""] = location.hash.replace(/^#\/?/, "").split("/");
-  return { page: ["words", "practice", "progress", "round", "hear", "colors"].includes(page) ? page : "words", sub: decode(sub) };
+  return { page: ["words", "practice", "progress", "round", "hear", "session", "sound", "colors"].includes(page) ? page : "words", sub: decode(sub) };
 }
 
 // A stray % (#/words/50%) would make decodeURIComponent throw and leave a blank app.
@@ -113,7 +113,7 @@ function show() {
   const look = applyLook();
   const { page, sub } = where();
   // Two tabs: Home (your words, and the ways to practice) and Progress. Practice and a word's page belong to Home.
-  const tab = page === "colors" ? "" : page === "round" || page === "hear" ? "progress" : page === "practice" ? "words" : page;
+  const tab = page === "colors" ? "" : page === "round" || page === "hear" ? "progress" : page === "practice" || page === "session" || page === "sound" ? "words" : page;
   const home = page === "words" && !sub; // Home draws its own blue banner, joined to the band
   // Opening Practice from an address picks its way too, so the tip is for that way, not the last one used.
   const tipId = tipFor(page, page === "practice" && MODES.includes(sub) ? sub : state.mode, sub);
@@ -121,8 +121,8 @@ function show() {
   app.innerHTML = String(html`
     <header class="band${home ? " home" : ""}">
       <div class="band-in">
-        ${page === "colors" || page === "round" || page === "hear"
-          ? html`<a class="back" href="${page === "colors" ? "#/words" : "#/progress"}" aria-label="Back">‹</a><h1 class="brand">${{ round: "Say it round", hear: "Which did you hear?", colors: "Your colors" }[page]}</h1>`
+        ${["colors", "round", "hear", "session", "sound"].includes(page)
+          ? html`<a class="back" href="${page === "round" || page === "hear" ? "#/progress" : "#/words"}" aria-label="${page === "session" ? "Stop and go Home" : "Back"}">${page === "session" ? "×" : "‹"}</a><h1 class="brand">${{ round: "Say it round", hear: "Which did you hear?", session: "Five minutes", sound: "How to make it", colors: "Your colors" }[page]}</h1>`
           : html`<h1 class="brand">Articulate</h1><a class="pair" href="#/colors" aria-label="Your language and colors: Ukrainian to English">UA → EN</a>`}
         ${tipId ? html`<button type="button" class="help" id="help" aria-label="Help for this screen">?</button>` : ""}
       </div>
@@ -246,3 +246,6 @@ import("./progress-screen.js");
 import("./round.js");
 // Which did you hear?: the quiet listening game for a sound, also from the Progress tab.
 import("./hear.js");
+// Five minutes (the practice Home starts) and a sound's own page.
+import("./session-screen.js");
+import("./sound-screen.js");

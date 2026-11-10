@@ -46,8 +46,10 @@ try {
   await sleep(900);
 
   await click('[data-board="needs"]');
-  check("Needs work offers Hear the difference for th, next to Practice th", /Hear the difference/.test((await text("section:last-of-type")) ?? "") && !!(await chrome.evaluate(`document.querySelector("[data-round]")`)));
-  await click("[data-hear]");
+  await click('.sound-card[href="#/sound/TH"]');
+  await sleep(500);
+  check("the th's page offers Hear the difference next to Say 5 words", !!(await chrome.evaluate(`document.querySelector('a[href="#/hear/TH"]')`)) && !!(await chrome.evaluate(`document.querySelector('a[href="#/round/TH"]')`)));
+  await click('a[href="#/hear/TH"]');
   check("it opens the game for the th", (await chrome.evaluate("location.hash")) === "#/hear/TH");
   await sleep(300);
   check("the band says Which did you hear?, with a way back, and Progress stays lit", (await text(".band .brand")) === "Which did you hear?" && (await chrome.evaluate(`document.querySelector(".band .back")?.getAttribute("href")`)) === "#/progress" && (await text(".tabs a.on")) === "Progress");
@@ -111,8 +113,9 @@ try {
   await chrome.evaluate(`(() => { const s = JSON.parse(localStorage.getItem("articulate.v1")); s.history = ${JSON.stringify(aboutOnly)}; localStorage.setItem("articulate.v1", JSON.stringify(s)); })()`);
   await chrome.send("Page.reload");
   await sleep(900);
-  await click('[data-board="needs"]');
-  check("the small uh has no pairs, so no Hear the difference, but it still offers a round", !(await chrome.evaluate(`!!document.querySelector("[data-hear]")`)) && !!(await chrome.evaluate(`!!document.querySelector("[data-round]")`)));
+  await chrome.evaluate(`location.hash = "#/sound/AH0"`);
+  await sleep(500);
+  check("the small uh has no pairs, so no Hear the difference, but it still offers a round", !(await chrome.evaluate(`!!document.querySelector('a[href="#/hear/AH0"]')`)) && !!(await chrome.evaluate(`!!document.querySelector('a[href="#/round/AH0"]')`)));
   // The phone can't speak at all: the game says so.
   await chrome.evaluate(`Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true })`);
   await chrome.evaluate(`location.hash = "#/hear/TH"`);

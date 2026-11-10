@@ -11,6 +11,7 @@ import { loadDictionary, lookUpIn } from "./lookup.js";
 import { POSES, panel, sideView } from "./mouth.js";
 import { canSpeak, say } from "./speech.js";
 import { loadTips, soundToTeach } from "./tips.js";
+import { currentWord, keepPlan, planFor } from "../session.js";
 
 // Words to start with when they're not sure: the hard sounds for a Ukrainian speaker (docs/needs.md).
 const STARTERS = ["three", "world", "very", "thirty", "weather", "think"];
@@ -19,6 +20,7 @@ const ICON = {
   mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
   ear: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
   slow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>',
   hush: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-1v-6h3M4 13v4a2 2 0 0 0 2 2h1v-6H4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>',
   puzzle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4a2.5 2.5 0 1 1 5 0h4v4a2.5 2.5 0 1 1 0 5v4H4z" fill="currentColor"/></svg>',
   chev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -45,21 +47,33 @@ registerScreen("words", {
   },
 });
 
+// ---- Home: the five-minute practice up front (js/session.js) ------------------------------------------------
+let planCache = { key: "", plan: undefined };
+const planKey = (ctx, quiet) => JSON.stringify([quiet, currentWord(ctx.state), ctx.state.words.length, Object.values(ctx.state.history).reduce((n, t) => n + t.length, 0)]);
+const cachedPlan = (ctx, quiet) => (planCache.key === planKey(ctx, quiet) ? planCache.plan : undefined);
+const PLAN_ICON = { hear: "ear", look: "eye", say: "mic" };
+
+// The banner's middle: "Ready for 5 minutes", what's in it, and Start. undefined plan: still working it out.
+function planBox(ctx, quiet, plan) {
+  if (!ctx.state.words.length) {
+    return html`<p class="hero-kicker">Start here</p><h2 class="hero-big" id="hero-title">Add a word</h2>
+      <p class="hero-sub">A word you use often, or one people ask you to repeat. Type it below.</p>`;
+  }
+  return html`<p class="hero-kicker">Ready for</p><h2 class="hero-big" id="hero-title">5 minutes</h2>
+    ${plan === undefined ? html`<p class="hero-sub">Getting your practice ready…</p>` : plan ? html`<ol class="plan-list">${plan.preview.map((l) => html`<li><span class="pi">${raw(ICON[PLAN_ICON[l.kind]])}</span><span>${l.text}</span></li>`)}</ol>` : ""}
+    <button type="button" class="btn primary go" id="start" ${plan ? "" : raw("disabled")}>Start</button>
+    ${quiet ? html`<p class="hero-also">Or try the <a href="#/practice/read">puzzles</a>, with no sound at all.</p>` : ""}`;
+}
+
 // ---- Home ------------------------------------------------------------------------------------------------------
 function home(container, ctx, note = "", undo = null) {
   const { words } = ctx.state;
   const quiet = ctx.state.mode !== "speak";
-  const word = ctx.state.current && words.some((w) => w.text === ctx.state.current) ? ctx.state.current : words.at(-1)?.text ?? null;
-  const status = word ? wordStatus(ctx.state, word) : null;
   const hard = hardestSounds(ctx.state, 1)[0] ?? null;
   const starters = STARTERS.filter((w) => !words.some((x) => x.text === w));
-  const sub = !word ? "A word you use often, or one people ask you to repeat."
-    : !status ? "You haven't said it yet."
-    : status.spot ? html`Last time, the <b>${status.spot.letters}</b> ${status.spot.grade === "red" ? "needed work" : "was a little off"}.`
-    : `Last time: ${status.recent} out of 100.`;
   const tip = container.querySelector(":scope > .tip"); // the one-time tip the shell put here (js/tour-ui.js), kept on a redraw
   container.innerHTML = String(html`
-    <section class="hero" aria-labelledby="hero-word">
+    <section class="hero" aria-labelledby="hero-title">
       <div class="hero-in">
         <div class="hero-top">
           <span class="hero-hello" lang="uk">Привіт!</span>
@@ -68,27 +82,15 @@ function home(container, ctx, note = "", undo = null) {
             <button type="button" data-quiet="quiet" aria-pressed="${quiet}">${raw(ICON.hush)}Quiet</button>
           </div>
         </div>
-        <div class="hero-main">
-        <div class="hero-text">
-        <p class="hero-kicker">${word ? "Keep going with" : "Start here"}</p>
-        ${word ? html`<a class="hero-word" id="hero-word" href="#/words/${encodeURIComponent(word)}">${word}</a>` : html`<p class="hero-word" id="hero-word">Add a word</p>`}
-        <p class="hero-sub">${sub}</p>
-        </div>
-        ${!word ? "" : quiet
-          ? html`<div class="hero-actions">
-              <a class="btn primary" href="#/practice/listen">${raw(ICON.ear)}Listen</a>
-              <a class="btn on-band" href="#/practice/read">${raw(ICON.puzzle)}Puzzles</a>
-            </div>`
-          : html`<button type="button" class="mic-btn on-hero" id="say-now" aria-label="Say ${word}">${raw(ICON.mic)}<span class="mic-label">Say it</span></button>`}
-        </div>
+        <div class="plan-box" id="plan" aria-live="polite">${planBox(ctx, quiet, cachedPlan(ctx, quiet))}</div>
       </div>
       ${raw(ctx.lookArt?.() ?? "")}
     </section>
     <div class="home-body">
-    ${hard && POSES[hard.sound] && nameOf(hard.sound) ? html`<a class="card row-card" href="#/round/${hard.sound}">
+    ${hard && POSES[hard.sound] && nameOf(hard.sound) ? html`<a class="card row-card" href="#/sound/${hard.sound}">
       <span class="row-thumb">${raw(thumb(hard.sound))}</span>
       <span class="rc-text"><b>Hardest sound: ${nameOf(hard.sound)}</b><span>${hard.misses} ${hard.misses === 1 ? "miss" : "misses"} · in ${hard.words.slice(0, 2).join(", ")}</span></span>
-      <span class="rc-go">Practice ${raw(ICON.chev)}</span>
+      <span class="rc-go" aria-hidden="true">${raw(ICON.chev)}</span>
     </a>` : ""}
     <section class="words-sec" aria-labelledby="your-words">
       <h2 class="label" id="your-words">Your words</h2>
@@ -109,6 +111,15 @@ function home(container, ctx, note = "", undo = null) {
     </div>`);
 
   if (tip) container.querySelector(".home-body").prepend(tip); // below the banner
+  // The plan depends on the words, the history, and Quiet; when any changed, it's worked out again and drawn in.
+  if (cachedPlan(ctx, quiet) === undefined) {
+    const key = planKey(ctx, quiet);
+    planFor(ctx, names, { quiet, speech: canSpeak() }).then((plan) => {
+      planCache = { key, plan };
+      const box = container.querySelector("#plan");
+      if (box && container.isConnected && planKey(ctx, quiet) === key) box.innerHTML = String(planBox(ctx, quiet, plan));
+    }).catch(() => {});
+  }
 
   const add = async (typed) => {
     const text = normalizeWord(typed);
@@ -139,7 +150,6 @@ function home(container, ctx, note = "", undo = null) {
     ctx.save();
     home(container, ctx, `"${undo.word.text}" is back.`);
   });
-  container.querySelector("#say-now")?.addEventListener("click", () => practice(ctx, word));
   container.onclick = (e) => { // one handler, however many times Home is drawn
     const q = e.target.closest("[data-quiet]");
     if (q) {
@@ -151,6 +161,10 @@ function home(container, ctx, note = "", undo = null) {
     }
     const a = e.target.closest("[data-add]");
     if (a) add(a.dataset.add);
+    if (e.target.closest("#start")) {
+      keepPlan(cachedPlan(ctx, ctx.state.mode !== "speak"));
+      ctx.go("session");
+    }
   };
 }
 
@@ -206,7 +220,7 @@ async function wordPage(container, ctx, word) {
     ${entry ? html`<details class="card how-card">
       <summary><span class="row-thumb">${raw(thumb(key))}</span><span class="rc-text"><b>How to make ${name}</b><span>${sentence(POSES[key]?.say ?? entry.title)}.</span></span><span class="chev" aria-hidden="true">${raw(ICON.chev)}</span></summary>
       ${raw(panel(tips, key, { heading: false }))}
-      <p><a class="btn" href="#/round/${key}">Practice ${name}: 5 words</a></p>
+      <div class="row"><a class="btn primary" href="#/round/${key}">Say 5 words</a><a class="btn" href="#/sound/${key}">All about ${name}</a></div>
     </details>` : ""}
     ${same.length ? html`<section class="card">
       <h2 class="label">Same sound${name ? `: ${name}` : ""}</h2>

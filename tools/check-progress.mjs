@@ -59,7 +59,7 @@ try {
   const firstSpot = await text(".ranks li .spot");
   check("the worst word shows its part, th, with a mark", /✕\s*th/.test(firstSpot ?? ""), firstSpot);
   const hard = await text("section:last-of-type");
-  check("Where you struggle most: the th of think is first", /th as in think/.test(hard ?? "") && /Practice th/.test(hard ?? ""), hard);
+  check("Where you struggle most: the th of think is first, as a card for the sound", /th, as in think/.test(hard ?? "") && (await chrome.evaluate(`document.querySelector(".sound-card")?.getAttribute("href")`)) === "#/sound/TH", hard);
   check("the sound is named in plain words, never IPA", !/[ɪɛæɑəʊɝðθŋʃʧʤɹɾ]/.test((await text("main")) ?? ""));
   await sleep(200);
   await shot("progress-needs-390");
@@ -80,9 +80,9 @@ try {
   await visit(saved({ history }));
   await chrome.evaluate(`document.querySelector('[data-board="needs"]').click()`);
   await sleep(300);
-  await chrome.evaluate(`document.querySelector('[data-round]').click()`);
+  await chrome.evaluate(`document.querySelector('.sound-card').click()`);
   await sleep(300);
-  check("Practice th goes to the round for TH", (await chrome.evaluate("location.hash")) === "#/round/TH", await chrome.evaluate("location.hash"));
+  check("tapping the th card opens the th's own page", (await chrome.evaluate("location.hash")) === "#/sound/TH", await chrome.evaluate("location.hash"));
 
   await visit(saved({ history }));
   await chrome.evaluate(`document.querySelector('[data-board="needs"]').click()`);
@@ -106,7 +106,7 @@ try {
     const bg = (el) => { for (; el; el = el.parentElement) { const c = parse(getComputedStyle(el).backgroundColor); if (c.length < 4 || c[3] > 0.95) { if (c.length < 4 || c[3]) return c; } } return [255, 255, 255]; };
     const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
     const bad = [];
-    for (const sel of [".boards button.on", ".boards button:not(.on)", ".ranks .w", ".ranks .num2", ".ranks .num2 small", ".ranks .up", ".ranks .spot", ".how", ".hard .snd", ".hard .n", ".round .hint", ".round .card .label", ".round .btn", ".hear-choice", ".mouth-seg button", ".mouth-key", ".mouth-tip", ".mouth-front figcaption", ".mouth-title"]) {
+    for (const sel of [".boards button.on", ".boards button:not(.on)", ".ranks .w", ".ranks .num2", ".ranks .num2 small", ".ranks .up", ".ranks .spot", ".how", ".sound-card .rc-text b", ".sound-card .rc-text span", ".act", ".mine b", ".sound-title", ".round .hint", ".round .card .label", ".round .btn", ".hear-choice", ".mouth-seg button", ".mouth-key", ".mouth-tip", ".mouth-front figcaption", ".mouth-title", ".hero-kicker", ".plan-list li", ".quiet button", ".wtile .word-name", ".rc-text b", ".rc-text span", "#start", ".strong-note", ".round-btn", ".mic-btn .mic-label"]) {
       for (const el of document.querySelectorAll(sel)) {
         const fg = parse(getComputedStyle(el).color), r = ratio(fg, bg(el));
         if (r < 4.5) bad.push(sel + " " + r.toFixed(2));
@@ -119,15 +119,15 @@ try {
   for (const [id, dark] of LOOKS) {
     await chrome.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: dark ? "dark" : "light" }] });
     const looks = { day: dark ? "sky" : id, night: dark ? id : "night", followDark: dark };
-    for (const [route, board] of [["progress", "needs"], ["round/TH", null]]) {
+    for (const [route, board] of [["progress", "needs"], ["round/TH", null], ["words", null], ["sound/TH", null], ["words/think", null]]) {
       await visit(saved({ history, looks }));
       await chrome.evaluate(`location.hash = "#/${route}"`);
       await sleep(600);
       if (board) { await chrome.evaluate(`document.querySelector('[data-board="${board}"]').click()`); await sleep(250); }
       const bad = await chrome.evaluate(contrast);
-      check(`${id}: ${route === "progress" ? "the boards" : "the round"} read clearly (4.5 to 1)`, bad.length === 0, bad.join("; "));
+      check(`${id}: ${{ progress: "the boards", "round/TH": "the round", words: "Home", "sound/TH": "a sound's page", "words/think": "a word's page" }[route]} read clearly (4.5 to 1)`, bad.length === 0, bad.join("; "));
       await chrome.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
-      await shot(`look-${id}-${route === "progress" ? "needs" : "round"}`);
+      await shot(`look-${id}-${route.replace("/", "-")}`);
     }
   }
 } catch (err) {
