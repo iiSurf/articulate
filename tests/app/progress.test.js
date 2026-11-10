@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, hearQuestions, milestone, mostImproved, needsWork, ownWordFor, recordTry, roundWords, scoreOf, stars, toneOf, topWords } from "../../js/progress.js";
+import { GOOD_ENOUGH, MAX_TRIES, MAX_WORDS, hardestSounds, hearQuestions, milestone, wordStatus, mostImproved, needsWork, ownWordFor, recordTry, roundWords, scoreOf, stars, toneOf, topWords } from "../../js/progress.js";
 import { fresh, sanitize } from "../../js/store.js";
 
 const tips = JSON.parse(readFileSync(new URL("../../data/tips/uk-en.json", import.meta.url), "utf8"));
@@ -173,4 +173,11 @@ test("Which did you hear?: eight questions from the sound's pairs, their own wor
   assert.deepEqual(hearQuestions(tips, s, "AH0"), [], "a sound with no pairs has no game");
   assert.deepEqual(hearQuestions(tips, s, "XX"), []);
   assert.equal(hearQuestions(tips, fresh(), "UH", 8, rng).length, 8, "three pairs still make eight questions");
+});
+
+test("how a word has been going, for Home: its recent score, its color, and the part that went worst last time", () => {
+  const s = stateWith({ think: [22, 40, 58], world: [92] });
+  assert.deepEqual(wordStatus(s, "think"), { recent: 40, tone: "off", tries: 3, spot: { sound: "TH", grade: "red", letters: "th" } });
+  assert.deepEqual(wordStatus(s, "world"), { recent: 92, tone: "good", tries: 1, spot: null });
+  assert.equal(wordStatus(s, "never"), null);
 });

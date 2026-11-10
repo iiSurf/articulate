@@ -23,7 +23,8 @@
     "check-progress": "node tools/check-progress.mjs",
     "check-round": "node tools/check-round.mjs",
     "check-hear": "node tools/check-hear.mjs",
-    "tips-review": "node tools/tips-review.mjs"
+    "tips-review": "node tools/tips-review.mjs",
+    "check-session": "node tools/check-session.mjs"
   },
   "devDependencies": {
     "onnxruntime-web": "1.31.1"

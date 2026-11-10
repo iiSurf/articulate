@@ -65,6 +65,16 @@ function summarize(word, tries) {
 const all = (state) => Object.entries(state.history).filter(([, t]) => t.length).map(([w, t]) => summarize(w, t));
 const byWord = (a, b) => a.word.localeCompare(b.word);
 
+// How a word has been going, for Home: the average of its last three tries, its color, and the part that went worst
+// last time ({ letters, sound, grade }), or null if it hasn't been tried.
+export function wordStatus(state, word) {
+  const tries = state.history[word];
+  if (!tries?.length) return null;
+  const recent = Math.round(avg(tries.slice(-3).map((t) => t.score)));
+  const worst = [...tries.at(-1).bad].sort((a, b) => (a[1] === "red" ? 0 : 1) - (b[1] === "red" ? 0 : 1))[0];
+  return { recent, tone: toneOf(recent), tries: tries.length, spot: worst ? { sound: worst[0], grade: worst[1], letters: worst[2] } : null };
+}
+
 // Which color a score gets: good from 80, close from 60, a little off from 40, then needs work.
 export const toneOf = (score) => (score >= 80 ? "good" : score >= 60 ? "close" : score >= 40 ? "off" : "work");
 

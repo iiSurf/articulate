@@ -11,7 +11,7 @@
   --mouth-tooth: #F4F1EA; --mouth-tooth-line: #C9C2B6; --mouth-lip: #9E5A56; --mouth-inside: #1A0C10;
 }
 .mouth-panel { display: flex; flex-direction: column; gap: 10px; }
-.mouth-title { margin: 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.mouth-title { margin: 0; font-size: 19px; font-weight: 800; line-height: 1.25; color: var(--ink); }
 .mouth-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--mode-bg); border-radius: 13px; }
 .mouth-seg button { border: 0; background: none; border-radius: 10px; padding: 9px 4px; font-weight: 800; font-size: 15px; line-height: 1.2; color: var(--chip-ink); cursor: pointer; min-width: 0; }
 .mouth-seg button[aria-pressed="true"] { background: var(--mode-on); color: var(--mode-on-ink); }

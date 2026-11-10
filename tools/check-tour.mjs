@@ -87,7 +87,7 @@ try {
   await click(".word-name");
   await until(() => q(".big-word"));
   await sleep(200);
-  check("step 2: on the word page the card points at Hear it and Practice it", (await text(".coach")).includes("hear it") && JSON.stringify(await ringed()) === '["hear","practice"]', JSON.stringify(await ringed()));
+  check("step 2: on the word page the card points at Hear it and Say it", (await text(".coach")).includes("hear it") && JSON.stringify(await ringed()) === '["hear","practice"]', JSON.stringify(await ringed()));
   await shot("3-hear");
   await click("#practice");
   await until(async () => (await stepOf()) === 3);
@@ -125,7 +125,7 @@ try {
   await sleep(300);
 
   // The finish
-  check("the finish says 'You did it!' and names Read, Listen, and Speak", (await text(".coach-title")) === "you did it!" && (await text(".coach")).includes("read: no sound") && (await text(".coach")).includes("speak: out loud"), await text(".coach"));
+  check("the finish says 'You did it!' and names the ways to practice: out loud, quiet, and the hardest sound", (await text(".coach-title")) === "you did it!" && (await text(".coach")).includes("out loud: say your words") && (await text(".coach")).includes("quiet: listen and puzzles"), await text(".coach"));
   await shot("7-done");
   await click("#tour-done");
   await sleep(300);

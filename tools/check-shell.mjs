@@ -32,9 +32,10 @@ try {
   check("turning off the switch keeps the day look in dark mode", (await look()) === "kalyna");
   await c.send("Page.navigate", { url: `${server.url}/#/practice/read` }); await sleep(600);
   check("Read is chosen", (await c.evaluate(`document.querySelector(".modes a.on")?.textContent`)) === "Read");
+  check("there are two tabs, Home and Progress, and Practice belongs to Home", JSON.stringify(await c.evaluate(`[...document.querySelectorAll(".tabs a")].map((a) => a.textContent.trim())`)) === '["Home","Progress"]' && (await c.evaluate(`document.querySelector(".tabs a.on")?.textContent.trim()`)) === "Home");
   await c.send("Page.navigate", { url: `${server.url}/#/progress` }); await sleep(400);
-  await c.evaluate(`document.querySelector('.tabs a[href^="#/practice"]').click()`); await sleep(400);
-  check("the Practice tab goes back to Read", (await c.evaluate("location.hash")) === "#/practice/read");
+  await c.evaluate(`document.querySelector('.tabs a[href="#/words"]').click()`); await sleep(400);
+  check("the Home tab goes Home", (await c.evaluate("location.hash")) === "#/words");
   await c.send("Page.reload"); await sleep(800);
   const saved = JSON.parse(await c.evaluate(`localStorage.getItem("articulate.v1")`));
   check("all of it is still there after a reload", (await look()) === "kalyna" && saved.mode === "read" && saved.looks.followDark === false,

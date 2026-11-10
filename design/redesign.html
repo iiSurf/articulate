@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articulate redesign drafts</title>
+<!--
+  Rough drafts of an easier, better-looking Articulate (iiSurf, November 9), in the Ukrainian blue and yellow they like.
+  Three directions, three screens each, following one practice from start to finish. Made-up words and numbers.
+  Self-contained except the font, which is in fonts/ (Atkinson Hyperlegible Next, open license). After changing the
+  script, run `node tools/bake.mjs design/redesign.html`.
+-->
+<style>
+  @font-face { font-family: "Atkinson Hyperlegible Next"; font-style: normal; font-weight: 200 800; font-display: swap; src: url("../fonts/atkinson-next-latin.woff2") format("woff2"); }
+  :root { --page: #E8ECF2; --page-ink: #0E1E36; --page-muted: #4F5E78;
+    --bg: #F4F7FC; --surface: #FFFFFF; --ink: #0E1E36; --muted: #4F5E78; --line: #DCE4F0; --chip: #E6EEF9; --chip-ink: #0A3F86;
+    --blue: #0057B7; --blue-deep: #0A3F86; --yellow: #FFD500; --yellow-soft: #FFF4B8;
+    --good: #1B7A35; --good-bar: #23843F; --close: #8A6A00; --close-bar: #F2C200; --off: #C2410C; --off-bar: #F07A1E; --work: #B42318; --work-bar: #D92D2D; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--page-ink); font: 17px/1.45 "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .intro { max-width: 1180px; margin: 0 auto; padding: 32px 24px 8px; }
+  .intro h1 { font-size: 32px; line-height: 1.15; margin: 0 0 10px; }
+  .intro p { max-width: 820px; color: var(--page-muted); margin: 0 0 10px; }
+  .hard { max-width: 1180px; margin: 8px auto 0; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .hard div { background: #fff; border-radius: 16px; padding: 14px 16px; } .hard b { display: block; font-size: 18px; margin-bottom: 4px; } .hard span { color: var(--page-muted); font-size: 16px; }
+  .rules { max-width: 1180px; margin: 22px auto 0; padding: 0 24px; } .rules ul { margin: 6px 0 0; padding-left: 20px; color: var(--page-muted); max-width: 900px; } .rules h2 { font-size: 22px; margin: 0; }
+  .option-block { max-width: 1180px; margin: 0 auto; padding: 40px 24px 8px; }
+  .option-head h2 { display: flex; align-items: center; gap: 12px; font-size: 26px; margin: 0 0 6px; }
+  .option-head p { margin: 0 0 18px; color: var(--page-muted); max-width: 860px; }
+  .num { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--blue); color: var(--yellow); font-size: 20px; }
+  .row3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 22px; }
+  .shot { margin: 0; display: flex; flex-direction: column; align-items: center; } .shot figcaption { font-weight: 800; font-size: 18px; margin-bottom: 10px; align-self: flex-start; max-width: 360px; width: 100%; margin-inline: auto; }
+  .foot { max-width: 1180px; margin: 0 auto; padding: 24px 24px 56px; color: var(--page-muted); }
+
+  .phone { width: 100%; max-width: 360px; border-radius: 38px; padding: 10px; background: #12161E; box-shadow: 0 18px 40px rgba(14,30,54,.22); }
+  .screen { position: relative; border-radius: 29px; overflow: hidden; background: var(--bg); color: var(--ink); display: flex; flex-direction: column; height: 760px; }
+  .screen.plain { background: var(--surface); }
+  .body { padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
+  .body.center { align-items: center; text-align: center; }
+  .grow { justify-content: flex-start; } .spacer { flex: 1; }
+  svg { display: block; }
+
+  /* The blue hero at the top of a home screen */
+  .hero { background: var(--blue); color: #fff; padding: 18px 18px 26px; border-radius: 0 0 30px 30px; position: relative; }
+  .hero.tall { padding-bottom: 22px; }
+  .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .brand { font-weight: 800; font-size: 20px; letter-spacing: .2px; }
+  .hello { margin: 18px 0 0; color: var(--yellow); font-weight: 800; font-size: 17px; }
+  .hero-word { font-size: 64px; font-weight: 800; line-height: 1; letter-spacing: -1px; margin-top: 4px; }
+  .hero-big { display: block; font-size: 46px; font-weight: 800; line-height: 1.05; letter-spacing: -.5px; }
+  .hero-sub { display: block; margin: 6px 0 0; color: #DCE8FA; font-size: 16px; } .hero-sub b { color: #fff; }
+  .micwrap.on-hero { position: absolute; right: 18px; bottom: -34px; align-items: center; }
+  .micwrap.on-hero .miclabel { display: none; }
+  .quiet { display: inline-flex; border-radius: 999px; padding: 3px; background: var(--chip); }
+  .quiet.on-blue { background: rgba(255,255,255,.16); }
+  .quiet span { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 800; color: #fff; }
+  .quiet span svg { width: 15px; height: 15px; }
+  .quiet span.on { background: var(--yellow); color: var(--ink); }
+
+  /* The microphone: the one big button */
+  .micwrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .mic { width: 76px; height: 76px; border-radius: 50%; background: var(--yellow); color: var(--blue-deep); display: grid; place-items: center; box-shadow: 0 0 0 7px rgba(255,213,0,.28), 0 8px 18px rgba(10,63,134,.25); }
+  .mic svg { width: 34px; height: 34px; }
+  .micwrap.big .mic { width: 92px; height: 92px; } .micwrap.big .mic svg { width: 40px; height: 40px; }
+  .micwrap.huge .mic { width: 118px; height: 118px; box-shadow: 0 0 0 12px rgba(255,213,0,.25), 0 10px 24px rgba(10,63,134,.25); } .micwrap.huge .mic svg { width: 50px; height: 50px; }
+  .miclabel { font-weight: 800; font-size: 16px; color: var(--ink); }
+  .rb { display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 800; font-size: 14px; color: var(--chip-ink); }
+  .rbi { width: 56px; height: 56px; border-radius: 50%; background: var(--chip); color: var(--blue); display: grid; place-items: center; flex: none; } .rbi svg { width: 26px; height: 26px; }
+  .trio { display: flex; align-items: center; justify-content: center; gap: 22px; margin: 6px 0 4px; }
+
+  /* Headings and words */
+  .h1 { font-size: 30px; margin: 4px 0 0; } .h2 { font-size: 21px; margin: 18px 0 -2px; } .h3 { font-size: 17px; margin: 0 0 8px; text-align: left; }
+  .lead { margin: 0; color: var(--muted); font-size: 18px; font-weight: 700; } .lead-left { margin: 0; font-size: 18px; }
+  .word-xl { font-size: 76px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; margin-top: 18px; }
+  .strong-note { margin: -4px 0 0; color: var(--muted); font-size: 17px; }
+  .prompt { margin: 30px 0 0; font-weight: 800; color: var(--muted); font-size: 18px; }
+  .verdict { margin: 0; font-size: 22px; line-height: 1.3; font-weight: 700; } .verdict.small { font-size: 18px; }
+  .link { margin: 0; display: inline-flex; align-items: center; gap: 4px; font-weight: 800; color: var(--blue); } .link svg { width: 18px; height: 18px; }
+  .parts { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+  .pt { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .pt .l { font-size: 64px; font-weight: 800; line-height: 1; color: var(--g, var(--ink)); }
+  .pt .m { min-width: 42px; height: 26px; border-radius: 13px; background: var(--gb); color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 15px; }
+  .pt.good { --g: var(--good); --gb: var(--good-bar); } .pt.work { --g: var(--work); --gb: var(--work-bar); }
+
+  /* Cards, tiles, chips */
+  .card { background: var(--surface); border-radius: 20px; padding: 14px; box-shadow: 0 1px 0 rgba(14,30,54,.04), 0 6px 18px rgba(14,30,54,.07); width: 100%; text-align: left; }
+  .plain .card { background: var(--bg); box-shadow: none; }
+  .row-card { display: flex; align-items: center; gap: 12px; } .row-card > svg { width: 22px; height: 22px; color: var(--muted); flex: none; }
+  .rc-text { flex: 1; display: flex; flex-direction: column; } .rc-text b { font-size: 18px; } .rc-text span { color: var(--muted); font-size: 15px; }
+  .row-card .meter { width: 74px; flex: none; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+  .body .tiles { margin-top: 0; }
+  .tile { background: var(--surface); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 6px 18px rgba(14,30,54,.06); min-height: 82px; }
+  .tile b { font-size: 21px; overflow-wrap: anywhere; } .tile .new { font-size: 14px; font-weight: 800; color: var(--blue); }
+  .tile.add { border: 2.5px dashed #B7C6DD; background: transparent; box-shadow: none; color: var(--blue); font-weight: 800; flex-direction: row; align-items: center; justify-content: center; gap: 6px; } .tile.add svg { width: 20px; height: 20px; }
+  .meter { display: block; height: 8px; border-radius: 4px; background: var(--chip); overflow: hidden; } .meter i { display: block; height: 100%; border-radius: 4px; }
+  .meter i.good { background: var(--good-bar); } .meter i.off { background: var(--off-bar); } .meter i.close { background: var(--close-bar); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; } .chips span { background: var(--chip); color: var(--chip-ink); border-radius: 999px; padding: 8px 14px; font-weight: 800; }
+  .pill { background: var(--chip); color: var(--chip-ink); border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: 800; } .pill.blue { background: var(--blue); color: #fff; }
+  .thumb { display: block; width: 64px; border-radius: 12px; overflow: hidden; background: #fff; flex: none; } .thumb svg { width: 100%; height: auto; }
+  .thumbwrap { flex: none; }
+  .how { display: flex; flex-direction: column; gap: 8px; } .how p { margin: 0; } .how-head { display: flex; align-items: center; justify-content: space-between; }
+  .fig { margin: 0; border-radius: 14px; overflow: hidden; background: #fff; } .fig svg { width: 100%; height: auto; }
+  .fig.big { box-shadow: 0 6px 18px rgba(14,30,54,.07); }
+
+  /* Header for inner screens */
+  .top { display: flex; align-items: center; gap: 10px; padding: 14px 14px 4px; min-height: 58px; } .top h1 { font-size: 20px; margin: 0; flex: 1; } .top .pill { margin-left: auto; }
+  .iconbtn { width: 42px; height: 42px; border-radius: 50%; background: var(--chip); color: var(--blue-deep); display: grid; place-items: center; flex: none; } .iconbtn svg { width: 22px; height: 22px; }
+  .progress-top .steps { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; } .steps i { height: 8px; border-radius: 4px; background: var(--chip); } .steps i.done { background: var(--blue); } .steps i.now { background: var(--yellow); }
+
+  /* Tabs */
+  .tabbar { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--surface); padding: 8px 8px 14px; border-top: 1px solid var(--line); }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 800; color: var(--muted); padding: 6px 0; border-radius: 14px; }
+  .tabbar span.on { color: var(--blue); background: var(--chip); }
+  .tabbar svg { width: 24px; height: 24px; } .aa { display: block; height: 24px; font-size: 19px; line-height: 24px; font-weight: 900; }
+
+  .after-row { display: flex; align-items: center; justify-content: center; gap: 22px; } .after-row .micwrap { flex-direction: row; gap: 10px; }
+  .side-link { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--blue); font-size: 15px; } .side-link svg { width: 26px; height: 26px; }
+  /* B */
+  .plan { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .plan li { display: flex; align-items: center; gap: 10px; font-size: 17px; color: #E8F0FB; } .plan b { color: #fff; }
+  .pi { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.16); display: grid; place-items: center; flex: none; color: var(--yellow); } .pi svg { width: 20px; height: 20px; }
+  .go { display: flex; justify-content: center; align-items: center; margin-top: 20px; background: var(--yellow); color: var(--ink); font-weight: 800; font-size: 20px; border-radius: 18px; padding: 16px; box-shadow: 0 6px 14px rgba(0,0,0,.15); }
+  .go.wide { width: 100%; margin-top: 4px; }
+  .switch { width: 50px; height: 30px; border-radius: 15px; background: var(--chip); position: relative; flex: none; } .switch::after { content: ""; position: absolute; left: 4px; top: 4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .done-badge { width: 84px; height: 84px; border-radius: 50%; background: var(--yellow); color: var(--blue-deep); display: grid; place-items: center; margin-top: 30px; box-shadow: 0 0 0 10px rgba(255,213,0,.25); } .done-badge svg { width: 44px; height: 44px; }
+  .list-card { display: flex; flex-direction: column; gap: 10px; } .list-card div { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; } .delta { color: var(--muted); } .delta b { color: var(--good); }
+
+  /* C */
+  .sound-hero { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+  .big-thumb { width: 118px; border-radius: 16px; overflow: hidden; background: #fff; flex: none; } .big-thumb svg { width: 100%; height: auto; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--chip); border-radius: 14px; }
+  .seg > span { text-align: center; padding: 9px 4px; border-radius: 11px; font-weight: 800; font-size: 15px; color: var(--chip-ink); } .seg > span.on { background: var(--blue); color: #fff; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .act { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px 14px; border-radius: 20px; background: var(--chip); color: var(--chip-ink); font-size: 17px; line-height: 1.2; } .act svg { width: 30px; height: 30px; } .act.yellow { background: var(--yellow); color: var(--ink); }
+  .streak { margin-top: 16px; color: var(--muted); font-weight: 800; font-size: 18px; } .streak b { color: var(--ink); font-size: 30px; }
+  .play { width: 110px; height: 110px; border-radius: 50%; background: var(--blue); color: var(--yellow); display: grid; place-items: center; margin-top: 10px; box-shadow: 0 0 0 10px rgba(0,87,183,.15); } .play svg { width: 50px; height: 50px; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 6px; }
+  .choices span { border-radius: 20px; padding: 26px 8px; background: var(--chip); color: var(--chip-ink); font-size: 28px; font-weight: 800; } .choices .right { background: var(--good-bar); color: #fff; }
+  @media (max-width: 520px) { .intro, .option-block, .hard, .rules, .foot { padding-left: 16px; padding-right: 16px; } .intro h1 { font-size: 26px; } }
+
+</style>
+</head>
+<body>
+<header class="intro">
+  <h1>Articulate, easier and nicer to look at</h1>
+  <p>Rough drafts in the Ukrainian blue and yellow. <b>The words and numbers are made up.</b> Three directions, each shown as three screens that follow one practice from start to finish. They can be mixed.</p>
+</header>
+<section class="rules"><h2>What makes it hard today</h2></section>
+<div class="hard">
+  <div><b>Every screen looks the same</b><span>A blue band, white cards, small gray capitals, and rows of pale buttons that all look equal. Nothing says "do this next."</span></div>
+  <div><b>One word takes a long trip</b><span>Pick it in Words, go to Practice, choose Read, Listen, or Speak, then Record. The two games are three taps deep, under Progress.</span></div>
+  <div><b>The same thing, twice</b><span>Practice buttons on every word in the list, and another on the word's page. The two routes go to the same place.</span></div>
+  <div><b>Small and crowded at the top</b><span>Most text is 13 to 15 pixels, everything sits in the top half, and the bottom half of the phone is empty.</span></div>
+</div>
+<section class="rules"><h2>In all three</h2><ul>
+  <li><b>One big button per screen</b>, the yellow microphone, in reach of a thumb. Everything else is smaller and quieter.</li>
+  <li><b>Bigger, clearer type</b>: Atkinson Hyperlegible, made to be easy to read, with words at 64 to 76 pixels. No gray capitals.</li>
+  <li><b>Quiet mode instead of Read · Listen · Speak</b>: one switch for "can't talk right now", which you asked for at the start.</li>
+  <li>The mouth pictures, the boards, and the colors on each part all stay. The other six looks would follow the same layout.</li>
+</ul></section>
+<main id="options"><section class="option-block">
+  <div class="option-head"><h2><span class="num">A</span>Word first</h2><p>Your words are the home screen. Tap one and everything for that word is on one screen: hear it, say it, see how to make it. Two tabs instead of three, and no Read · Listen · Speak switch: quiet mode swaps the microphone for listening and puzzles.</p></div>
+  <div class="row3"><figure class="shot"><figcaption>Home</figcaption><div class="phone"><div class="screen "><section class="hero">
+        <div class="hero-top"><span class="brand">Articulate</span><div class="quiet on-blue"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Out loud</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-1v-6h3M4 13v4a2 2 0 0 0 2 2h1v-6H4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"></path></svg>Quiet</span></div></div>
+        <p class="hello">Keep going with</p>
+        <div class="hero-word">think</div>
+        <p class="hero-sub">Last time: <b>th</b> sounded like an s</p>
+        <div class="micwrap on-hero"><span class="mic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span><span class="miclabel">Say it</span></div>
+      </section>
+      <div class="body">
+        <h2 class="h2">Your words</h2>
+        <div class="tiles"><div class="tile"><b>weather</b><span class="meter"><i class="off" style="width:45%"></i></span></div><div class="tile"><b>very</b><span class="meter"><i class="good" style="width:88%"></i></span></div><div class="tile"><b>world</b><span class="meter"><i class="good" style="width:92%"></i></span></div><div class="tile"><b>three</b><span class="meter"><i class="good" style="width:90%"></i></span></div><div class="tile"><b>comfortable</b><span class="new">New</span></div><div class="tile add"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path></svg>Add a word</div></div>
+      </div><nav class="tabbar"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7v9a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z" fill="currentColor"></path></svg>Home</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></figure><figure class="shot"><figcaption>A word</figcaption><div class="phone"><div class="screen "><header class="top"><span class="iconbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><h1></h1><span class="pill">5 tries</span></header>
+      <div class="body center">
+        <div class="word-xl">think</div>
+        <p class="strong-note">Say the <b>i</b> strongest</p>
+        <div class="trio"><span class="rb"><span class="rbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></span>Hear it</span><div class="micwrap big"><span class="mic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span><span class="miclabel">Say it</span></div><span class="rb"><span class="rbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></span>Slowly</span></div>
+        <div class="card row-card"><span class="thumbwrap"><span class="thumb" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36"><svg viewBox="40 86 170 128" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="a2-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></span></span><span class="rc-text"><b>How to make th</b><span>Tongue tip between your teeth</span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <div class="card"><h3 class="h3">Same sound</h3><div class="chips"><span>thank</span><span>thin</span><span>three</span><span>thing</span></div></div>
+      </div><nav class="tabbar"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7v9a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z" fill="currentColor"></path></svg>Home</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></figure><figure class="shot"><figcaption>After a try</figcaption><div class="phone"><div class="screen "><header class="top"><span class="iconbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><h1></h1></header>
+      <div class="body center">
+        <div class="parts xl"><span class="pt work"><span class="l">th</span><span class="m">✕</span></span><span class="pt good"><span class="l">i</span><span class="m">✓</span></span><span class="pt good"><span class="l">n</span><span class="m">✓</span></span><span class="pt good"><span class="l">k</span><span class="m">✓</span></span></div>
+        <p class="verdict">Almost! The <b>th</b> sounded like an <b>s</b>.</p>
+        <div class="card how">
+          <div class="how-head"><b>Make the th</b><span class="pill blue">From <span lang="uk">с</span></span></div>
+          <figure class="fig" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36"><svg viewBox="34 92 190 112" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="a3-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"></path>
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#a3-arrow)"></path>
+  
+  <path d="M87 152.1 L78 154.7" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#a3-arrow)"></path>
+  
+</svg></figure>
+          <p>Say <span lang="uk">с</span>, then slide your tongue tip forward, <b>between your teeth</b>.</p>
+        </div>
+        <div class="after-row"><div class="micwrap "><span class="mic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span><span class="miclabel">Try again</span></div><span class="side-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-4 15-4 18 0-3 5-15 5-18 0z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"></path><path d="M7 12.5c3 1.6 7 1.6 10 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><b>5-word th round</b></span></div>
+      </div><nav class="tabbar"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7v9a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z" fill="currentColor"></path></svg>Home</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></figure></div>
+</section><section class="option-block">
+  <div class="option-head"><h2><span class="num">B</span>Five minutes a day</h2><p>One big button. The app plans a short practice from your words and your hardest sound: listen, say, fix, repeat. You never have to decide what to do next, which helps on a tired day. Words and Progress are still there for when you want them.</p></div>
+  <div class="row3"><figure class="shot"><figcaption>Today</figcaption><div class="phone"><div class="screen blue-top"><section class="hero tall">
+        <div class="hero-top"><span class="brand">Articulate</span></div>
+        <p class="hello">Привіт! Ready for</p>
+        <div class="hero-big">5 minutes</div>
+        <ol class="plan">
+          <li><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></span><span>Hear the difference: <b>think · sink</b></span></li>
+          <li><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span><span>Say <b>think</b> and <b>three</b></span></li>
+          <li><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-4 15-4 18 0-3 5-15 5-18 0z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"></path><path d="M7 12.5c3 1.6 7 1.6 10 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></span><span>Fix the <b>th</b>, step by step</span></li>
+        </ol>
+        <span class="go">Start</span>
+      </section>
+      <div class="body">
+        <div class="card row-card quiet-card"><span class="rbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-1v-6h3M4 13v4a2 2 0 0 0 2 2h1v-6H4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"></path></svg></span><span class="rc-text"><b>Can't talk right now?</b><span>Quiet mode: listening and puzzles only</span></span><span class="switch"></span></div>
+        <div class="card row-card"><span class="rc-text"><b>th is getting better</b><span>think: 22 → 40 this week</span></span><span class="meter"><i class="off" style="width:40%"></i></span></div>
+      </div><nav class="tabbar"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7v9a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z" fill="currentColor"></path></svg>Today</span><span class=""><span class="aa">Aa</span>Words</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></figure><figure class="shot"><figcaption>During practice</figcaption><div class="phone"><div class="screen plain"><header class="top progress-top"><span class="iconbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path></svg></span><span class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="now"></i><i class=""></i><i class=""></i></span></header>
+      <div class="body center grow">
+        <p class="prompt">Say this word</p>
+        <div class="word-xl">three</div>
+        <p class="strong-note">Tongue between your teeth for the <b>th</b></p>
+        <div class="spacer"></div>
+        <div class="micwrap huge"><span class="mic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span><span class="miclabel">Tap, say it, tap again</span></div>
+        <p class="link"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg> Hear it first</p>
+      </div></div></div></figure><figure class="shot"><figcaption>Done</figcaption><div class="phone"><div class="screen plain"><header class="top"><span class="iconbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path></svg></span><h1></h1></header>
+      <div class="body center">
+        <span class="done-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+        <h2 class="h1">Nice work!</h2>
+        <p class="lead">5 minutes, 6 steps</p>
+        <div class="card list-card">
+          <div><span>think</span><span class="delta">22 → <b>75</b></span></div>
+          <div><span>three</span><span class="delta"><b>90</b> ✓</span></div>
+          <div><span>th by ear</span><span class="delta"><b>4 of 5</b> right</span></div>
+        </div>
+        <span class="go wide">Done</span>
+        <p class="link">One more round <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></p>
+      </div></div></div></figure></div>
+</section><section class="option-block">
+  <div class="option-head"><h2><span class="num">C</span>Sounds first</h2><p>Built around the sounds that are hard, with the mouth picture as the star. Each sound has its own page: how to make it, starting from Ukrainian, then a way to say it and a way to hear it. Your words show up under the sounds they need.</p></div>
+  <div class="row3"><figure class="shot"><figcaption>Your sounds</figcaption><div class="phone"><div class="screen "><section class="hero">
+        <div class="hero-top"><span class="brand">Articulate</span><div class="quiet on-blue"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>Out loud</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-1v-6h3M4 13v4a2 2 0 0 0 2 2h1v-6H4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"></path></svg>Quiet</span></div></div>
+        <p class="hello">Work on this one</p>
+        <div class="sound-hero"><span class="big-thumb" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36"><svg viewBox="30 86 190 140" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="c1-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></span><span><span class="hero-big">th</span><span class="hero-sub">in think, three · 6 misses</span></span></div>
+        <span class="go">Practice th</span>
+      </section>
+      <div class="body">
+        <h2 class="h2">Also tricky</h2>
+        <div class="card row-card"><span class="thumb" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36"><svg viewBox="40 86 170 128" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="c10-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 179.3 L57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.99 C140 207.65 112 197.3 98 187.3 L92 181.3 L84 161.3 L64 155.3 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 155.3 L85 153.3 C91 163.3 94 173.3 94 184.3 L84 184.3 C82 173.3 78 164.3 78 155.3 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M96 161.3 C99.7 158.9 106 154.7 118 146.8 C130 138.9 154.7 114.6 168 113.7 C181.3 112.7 192.2 121.4 198 140.8 C203.8 160.2 202.2 215.1 203 230 C197.8 227.8 183.8 221.7 172 217 C160.2 212.3 143 206.6 132 202 C121 197.4 110.8 194.2 106 189.3 C101.2 184.4 104.7 177 103 172.3 C101.3 167.6 97.2 163.1 96 161.3 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 L74 180.3 L73 157.3 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 M70 151.3 C64 150.3 49 151.3 44 151.3 C38 152.3 38 156.3 38 163.3 C38 171.3 50 180.3 57 180.3 C55 188.3 58 207.3 66 221.3 C76 235.3 116 239.65 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></span><span class="rc-text"><b>w</b><span>weather, world</span></span><span class="meter"><i class="off" style="width:50%"></i></span></div><div class="card row-card"><span class="thumb" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36"><svg viewBox="40 86 170 128" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="c11-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 177.1 L65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 218.33 C140 206.55 112 195.1 98 185.1 L92 179.1 L84 159.1 L64 153.1 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 153.1 L85 151.1 C91 161.1 94 171.1 94 182.1 L84 182.1 C82 171.1 78 162.1 78 153.1 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M92 155.1 C94 148.7 97.3 126 104 116.9 C110.7 107.8 117 96.7 132 100.6 C147 104.4 182.2 118.7 194 140.3 C205.8 161.9 201.5 215 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 111.5 192.9 106 187.1 C100.5 181.3 101.3 171.4 99 166.1 C96.7 160.8 93.2 156.9 92 155.1 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 L82 174.1 L80 154.1 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 59 119 57 127 C56 135 57 140 62 140 C68 141 72 140 76 140 M77 148.1 C71 147.1 67 148.1 62 148.1 C56 149.1 56 152.1 56 159.1 C56 167.1 58 174.1 65 174.1 C63 182.1 58 205.1 66 219.1 C76 233.1 116 238.55 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></span><span class="rc-text"><b>ee · i</b><span>sheep, ship</span></span><span class="meter"><i class="close" style="width:70%"></i></span></div><div class="card row-card"><span class="thumb" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36"><svg viewBox="40 86 170 128" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="c12-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 181.5 L57 182.5 C55 190.5 58 209.5 66 223.5 C76 237.5 116 240.75 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 219.65 C140 208.75 112 199.5 98 189.5 L92 183.5 L84 163.5 L64 157.5 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 157.5 L85 155.5 C91 165.5 94 175.5 94 186.5 L84 186.5 C82 175.5 78 166.5 78 157.5 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  
+  <path d="M116 118.5 C118.3 120.4 122.7 128.8 130 129.7 C137.3 130.6 149 120.1 160 123.8 C171 127.4 188.8 133.7 196 151.4 C203.2 169.1 201.8 216.9 203 230 C197.8 227.9 183.8 222.1 172 217.7 C160.2 213.2 143 207.7 132 203.3 C121 198.9 110.7 201.1 106 191.5 C101.3 181.9 102.3 157.7 104 145.5 C105.7 133.3 114 123 116 118.5 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M70 153.5 C64 152.5 49 153.5 44 153.5 C38 154.5 38 158.5 38 165.5 C38 173.5 50 182.5 57 182.5 L74 182.5 L73 159.5 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 42 120 40 128 C39 136 39 141 44 141 C50 142 66 141 70 141 M70 153.5 C64 152.5 49 153.5 44 153.5 C38 154.5 38 158.5 38 165.5 C38 173.5 50 182.5 57 182.5 C55 190.5 58 209.5 66 223.5 C76 237.5 116 240.75 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  
+  
+  
+  
+</svg></span><span class="rc-text"><b>r</b><span>very</span></span><span class="meter"><i class="good" style="width:88%"></i></span></div>
+      </div><nav class="tabbar"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-4 15-4 18 0-3 5-15 5-18 0z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"></path><path d="M7 12.5c3 1.6 7 1.6 10 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg>Sounds</span><span class=""><span class="aa">Aa</span>Words</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></figure><figure class="shot"><figcaption>A sound</figcaption><div class="phone"><div class="screen "><header class="top"><span class="iconbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><h1>th, as in think</h1></header>
+      <div class="body">
+        <div class="seg"><span><span lang="uk">с</span> (<span lang="uk">сам</span>)</span><span class="on">th</span><span>▶ Move</span></div>
+        <figure class="fig big" style="--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36"><svg viewBox="24 58 236 232" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="c2-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"></path></marker></defs>
+  <path d="M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 183.7 L62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300 L300 300 Z" fill="var(--skin)"></path>
+  <path d="M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252 C204 242 200 236 196 232 L170 220.31 C140 209.85 112 201.7 98 191.7 L92 185.7 L84 165.7 L64 159.7 L62 128 L76 110 L94 106 C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98 C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89 C160 88 120 90 96 94 C80 97 66 100 57 102 Z" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 159.7 L85 157.7 C91 167.7 94 177.7 94 188.7 L84 188.7 C82 177.7 78 168.7 78 159.7 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M90 152.1 C92 146.9 92.7 126.2 102 120.9 C111.3 115.7 130.7 116 146 120.6 C161.3 125.1 184.5 130 194 148.3 C203.5 166.5 201.5 216.4 203 230 C197.8 227.7 183.8 221.2 172 216.3 C160.2 211.4 143 205.5 132 200.7 C121 195.8 112 193.7 106 187.1 C100 180.5 98.7 166.9 96 161.1 C93.3 155.3 91 153.6 90 152.1 Z" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"></path>
+  <path d="M70 157.7 C74 155.8 81 151.2 94 146.5 C107 141.9 131.3 129 148 129.9 C164.7 130.7 184.8 135.2 194 151.9 C203.2 168.6 201.5 217 203 230 C197.8 228.1 183.8 222.5 172 218.3 C160.2 214.1 143 208.7 132 204.6 C121 200.5 114.7 199.9 106 193.7 C97.3 187.5 86 173.7 80 167.7 C74 161.7 71.7 159.4 70 157.7 Z" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"></path>
+  <path d="M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"></path>
+  <path d="M67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 L77 114 Z" fill="var(--skin)"></path>
+  <path d="M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 L79 185.7 L79 163.7 Z" fill="var(--skin)"></path>
+  <path d="M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 C60 114 54 117 52 125 C51 133 53 139 58 139 C64 140 71 139 75 139 M76 157.7 C70 156.7 63 157.7 58 157.7 C52 158.7 50 163.7 50 170.7 C50 178.7 55 185.7 62 185.7 C60 193.7 58 211.7 66 225.7 C76 239.7 116 241.85 150 242 C166 248 172 268 176 300" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  <path d="M218 262 C218 210 216 160 200 132 C176 112 130 116 92 148.7 C78 152.7 68 153.7 22 153.7" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#c2-arrow)"></path>
+  
+  <path d="M87 152.1 L78 154.7" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#c2-arrow)"></path>
+  
+</svg></figure>
+        <p class="lead-left">Start from <span lang="uk">с</span>, then slide the tip of your tongue <b>between your teeth</b>. Blow softly.</p>
+        <div class="two"><span class="act yellow"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg><b>Say 5 words</b></span><span class="act"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><b>Hear the difference</b></span></div>
+      </div><nav class="tabbar"><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-4 15-4 18 0-3 5-15 5-18 0z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"></path><path d="M7 12.5c3 1.6 7 1.6 10 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg>Sounds</span><span class=""><span class="aa">Aa</span>Words</span><span class=""><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"></rect><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"></rect><rect x="16" y="3" width="4.5" height="18" rx="1.6"></rect></svg>Progress</span></nav></div></div></figure><figure class="shot"><figcaption>Hear the difference</figcaption><div class="phone"><div class="screen plain"><header class="top"><span class="iconbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path></svg></span><h1>Which did you hear?</h1></header>
+      <div class="body center">
+        <span class="streak"><b>3</b> in a row</span>
+        <span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></span>
+        <p class="lead">Play it again</p>
+        <div class="choices"><span>think</span><span class="right">sink ✓</span></div>
+        <p class="verdict small">Yes, <b>sink</b>. For think, the tongue comes forward.</p>
+        <span class="go wide">Next</span>
+      </div></div></div></figure></div>
+</section></main>
+<footer class="foot"><p><b>Not in these drafts yet:</b> the other six looks, a computer-width layout, and how Fix this part, the boards, and Your colors fit each direction. Most of the screens that change are the teammate's (Read, Listen, Speak), so a redesign needs their OK and their help.</p></footer>
+<script>
+
+// ---- The mouth drawing ------------------------------------------------------------------------------------------
+// mouth(pose) returns an SVG string. A pose says where things are for one sound:
+//   tongue: { tip, blade, body, back, front? }  points [x, y] on the tongue's top surface, front to back
+//   jaw: 0 (teeth together) to 1 (wide open)      lips: "rest" | "spread" | "round" | "closed" | "teeth-on-lip" | "open"
+//   nose: true when air goes through the nose (the soft palate is down)
+//   voice: true for a buzz in the throat           air: "mouth" | "teeth" | "nose" | "puff" | "throat" | null
+// The view box is 300 by 300, facing left. Colors come from CSS custom properties, so every look can set them.
+const R = (n) => Math.round(n * 10) / 10;
+const pt = ([x, y]) => `${R(x)} ${R(y)}`;
+function smooth(pts, move = true) {
+  let d = move ? `M${pt(pts[0])}` : `L${pt(pts[0])}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${pt(c1)} ${pt(c2)} ${pt(p2)}`;
+  }
+  return d;
+}
+const add = ([x, y], [dx, dy]) => [x + dx, y + dy];
+
+function tonguePath(t, jy) {
+  // The front moves with the jaw, the back less. The underside runs from the tip back along the floor of the mouth.
+  const tip = add(t.tip, [0, jy]), blade = add(t.blade, [0, jy * 0.85]), body = add(t.body, [0, jy * 0.5]), back = add(t.back, [0, jy * 0.25]);
+  const front = add(t.front ?? [t.tip[0] + 7, t.tip[1] + 11], [0, jy]);
+  const root = [203, 230];
+  const under = [root, [172, 216 + jy * 0.3], [132, 200 + jy * 0.6], [106, 186 + jy], front, tip];
+  return `${smooth([tip, blade, body, back, root])} ${smooth(under).replace(/^M[^C]*/, "")} Z`;
+}
+
+// The lips for each shape: upper { front, edge, inner }, lower { top, inner, front, bottom }. The lower lip moves with the jaw.
+const LIPS = {
+  rest: (j) => [{ front: [52, 126], edge: [58, 141], inner: [75, 141] }, { top: [58, 147 + j], inner: [76, 147 + j], front: [50, 160 + j], bottom: [62, 176 + j] }],
+  open: (j) => [{ front: [52, 125], edge: [58, 139], inner: [75, 139] }, { top: [58, 150 + j], inner: [76, 150 + j], front: [50, 163 + j], bottom: [62, 178 + j] }],
+  spread: (j) => [{ front: [57, 127], edge: [62, 140], inner: [76, 140] }, { top: [62, 147 + j], inner: [77, 147 + j], front: [56, 158 + j], bottom: [65, 173 + j] }],
+  round: (j) => [{ front: [40, 128], edge: [44, 141], inner: [70, 141] }, { top: [44, 148 + j], inner: [70, 148 + j], front: [38, 160 + j], bottom: [57, 177 + j] }],
+  closed: () => [{ front: [52, 127], edge: [57, 145], inner: [75, 145] }, { top: [57, 145], inner: [75, 145], front: [49, 159], bottom: [61, 176] }],
+  "teeth-on-lip": () => [{ front: [52, 124], edge: [58, 137], inner: [74, 137] }, { top: [72, 148], inner: [83, 152], front: [60, 160], bottom: [64, 177] }],
+};
+function lipsPaths(kind, jy) {
+  const [up, lo] = (LIPS[kind] ?? LIPS.rest)(jy);
+  const upperEdge = `C60 114 ${pt(add(up.front, [2, -8]))} ${pt(up.front)} C${pt(add(up.front, [-1, 8]))} ${pt(add(up.edge, [-5, 0]))} ${pt(up.edge)} C${pt(add(up.edge, [6, 1]))} ${pt(add(up.inner, [-4, 0]))} ${pt(up.inner)}`;
+  const lowerEdge = `M${pt(lo.inner)} C${pt(add(lo.inner, [-6, -1]))} ${pt(add(lo.top, [5, 0]))} ${pt(lo.top)} C${pt(add(lo.top, [-6, 1]))} ${pt(add(lo.front, [0, -7]))} ${pt(lo.front)} C${pt(add(lo.front, [0, 8]))} ${pt(add(lo.bottom, [-7, 0]))} ${pt(lo.bottom)}`;
+  const chin = `C${pt(add(lo.bottom, [-2, 8]))} 58 ${204 + jy} 66 ${218 + jy} C76 ${232 + jy} 116 ${238 + jy * 0.5} 150 242 C166 248 172 268 176 300`;
+  const outline = `M114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 ${upperEdge} ${lowerEdge} ${chin}`;
+  const upper = `M67 112 C60 114 ${pt(add(up.front, [2, -8]))} ${pt(up.front)} C${pt(add(up.front, [-1, 8]))} ${pt(add(up.edge, [-5, 0]))} ${pt(up.edge)} C${pt(add(up.edge, [6, 1]))} ${pt(add(up.inner, [-4, 0]))} ${pt(up.inner)} L77 114 Z`;
+  const lower = `M${pt(lo.inner)} C${pt(add(lo.inner, [-6, -1]))} ${pt(add(lo.top, [5, 0]))} ${pt(lo.top)} C${pt(add(lo.top, [-6, 1]))} ${pt(add(lo.front, [0, -7]))} ${pt(lo.front)} C${pt(add(lo.front, [0, 8]))} ${pt(add(lo.bottom, [-7, 0]))} ${pt(lo.bottom)} L${pt(add(lo.bottom, [17, 0]))} L${pt(add(lo.inner, [3, 6]))} Z`;
+  return { upper, lower, outline, bottom: lo.bottom };
+}
+
+function mouth(pose, { ghost = null, labels = [], arrows = [], idPrefix = "m", crop = "24 58 236 232" } = {}) {
+  const jy = (pose.jaw ?? 0.15) * 22;
+  const nose = !!pose.nose;
+  const skin = `fill="var(--skin)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"`;
+  // The head: the face down the left. The lips are drawn on top of it.
+  const lips0 = lipsPaths(pose.lips ?? "rest", jy);
+  const head = `M300 0 L114 0 C102 26 76 54 46 80 C33 91 37 102 57 102 C64 102 68 106 67 112 L80 116 L82 ${176 + jy} L${pt(lips0.bottom)} C${pt(add(lips0.bottom, [-2, 8]))} 58 ${204 + jy} 66 ${218 + jy} C76 ${232 + jy} 116 ${238 + jy * 0.5} 150 242 C166 248 172 268 176 300 L300 300 Z`;
+  // The air inside: nose, mouth, and throat. The roof of the mouth is the strip of head between the nose and the mouth.
+  const air = [
+    "M57 102 C58 96 62 90 72 86 C100 76 150 70 200 74 C222 77 233 86 235 102 L237 300 L207 300 L205 252",
+    `C204 242 200 236 196 232 L170 ${218 + jy * 0.3} C140 ${206 + jy * 0.5} 112 ${194 + jy} 98 ${184 + jy}`,
+    `L92 ${178 + jy} L84 ${158 + jy} L64 ${152 + jy} L62 128 L76 110 L94 106`,
+    "C98 104 100 101 104 100 C116 96 130 94 150 93 C166 93 178 95 186 98",
+    nose ? "C194 104 199 118 197 132 C201 138 208 135 208 126 C208 114 207 102 205 92 C200 90 196 89 190 89"
+         : "C200 104 212 108 222 108 C228 108 233 106 235 102 C230 93 214 89 190 89",
+    "C160 88 120 90 96 94 C80 97 66 100 57 102 Z",
+  ].join(" ");
+  const upperTooth = "M78 108 L92 107 C94 118 91 134 84 148 L76 147 C73 136 73 120 78 108 Z";
+  const lowerTooth = `M78 ${152 + jy} L85 ${150 + jy} C91 ${160 + jy} 94 ${170 + jy} 94 ${181 + jy} L84 ${181 + jy} C82 ${170 + jy} 78 ${161 + jy} 78 ${152 + jy} Z`;
+  const lips = lips0;
+  const tongue = tonguePath(pose.tongue, jy);
+  const ghostTongue = ghost ? tonguePath(ghost.tongue, (ghost.jaw ?? 0.15) * 22) : "";
+  const tip = add(pose.tongue.tip, [0, jy]);
+  // Where the air goes: a dotted line with an arrowhead.
+  const FLOWS = {
+    mouth: `M218 262 C218 210 216 160 200 132 C176 110 126 112 96 132 C84 140 66 146 22 147`,
+    teeth: `M218 262 C218 210 216 160 200 132 C176 112 130 116 ${R(tip[0] + 22)} ${R(tip[1] - 9)} C${R(tip[0] + 8)} ${R(tip[1] - 5)} ${R(tip[0] - 2)} ${R(tip[1] - 4)} 22 ${R(tip[1] - 4)}`,
+    nose: "M218 262 C218 210 222 150 222 116 C220 96 180 80 120 80 C90 80 64 88 36 96",
+    puff: "M46 146 L20 146 M44 136 L22 128 M44 156 L22 164",
+    throat: `M218 262 C218 210 216 160 200 132 C176 116 130 120 100 136 C86 143 66 148 22 149`,
+  };
+  const flow = pose.air ? FLOWS[pose.air] : "";
+  const buzz = pose.voice ? '<path d="M209 268 l5 -7 l5 7 l5 -7 l5 7 l5 -7" fill="none" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' : "";
+  const marker = `${idPrefix}-arrow`;
+  return `<svg viewBox="${crop}" role="img" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="${marker}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"/></marker></defs>
+  <path d="${head}" fill="var(--skin)"/>
+  <path d="${air}" fill="var(--air)" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="${lowerTooth}" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"/>
+  ${ghost ? `<path d="${ghostTongue}" fill="none" stroke="var(--ghost)" stroke-width="2.5" stroke-dasharray="5 5" opacity=".6"/>` : ""}
+  <path d="${tongue}" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="${upperTooth}" fill="var(--tooth)" stroke="var(--tooth-line)" stroke-width="2"/>
+  <path d="${lips.upper}" fill="var(--skin)"/>
+  <path d="${lips.lower}" fill="var(--skin)"/>
+  <path d="${lips.outline}" fill="none" stroke="var(--skin-line)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  ${flow ? `<path d="${flow}" fill="none" stroke="var(--flow)" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#${marker})"/>` : ""}
+  ${buzz}
+  ${arrows.map(([a, b]) => `<path d="M${pt(a)} L${pt(b)}" stroke="var(--flow)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#${marker})"/>`).join("")}
+  ${labels.map(([n, [x, y]]) => `<g><circle cx="${x}" cy="${y}" r="11" fill="var(--flow)" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="system-ui, sans-serif">${n}</text></g>`).join("")}
+</svg>`;
+}
+
+// ---- Poses: English sounds and the Ukrainian sounds the tips start from -------------------------------------------
+const REST = { tip: [93, 156], blade: [110, 140], body: [150, 124], back: [194, 148] };
+const POSES = {
+  rest: { tongue: REST, jaw: 0.15, lips: "rest" },
+  "th (think)": { tongue: { tip: [70, 150], blade: [94, 140], body: [148, 126], back: [194, 150], front: [80, 160] }, jaw: 0.35, lips: "open", air: "teeth" },
+  "th (this)": { tongue: { tip: [70, 150], blade: [94, 140], body: [148, 126], back: [194, 150], front: [80, 160] }, jaw: 0.35, lips: "open", air: "teeth", voice: true },
+  "с (сам)": { tongue: { tip: [90, 151], blade: [102, 120], body: [146, 120], back: [194, 148], front: [96, 160] }, jaw: 0.05, lips: "spread", air: "teeth" },
+  "з (зуб)": { tongue: { tip: [90, 151], blade: [102, 120], body: [146, 120], back: [194, 148], front: [96, 160] }, jaw: 0.05, lips: "spread", air: "teeth", voice: true },
+  "w (wet)": { tongue: { tip: [96, 158], blade: [118, 144], body: [168, 112], back: [198, 140] }, jaw: 0.15, lips: "round", voice: true, air: "mouth" },
+  "у (ум)": { tongue: { tip: [96, 158], blade: [118, 144], body: [168, 112], back: [198, 140] }, jaw: 0.15, lips: "round", voice: true },
+  "v (very)": { tongue: REST, jaw: 0.05, lips: "teeth-on-lip", air: "teeth", voice: true },
+  "в (вона)": { tongue: REST, jaw: 0.1, lips: "rest", voice: true },
+  "r (red)": { tongue: { tip: [116, 113], blade: [130, 125], body: [160, 121], back: [196, 150], front: [104, 140] }, jaw: 0.25, lips: "round", voice: true, air: "mouth" },
+  "р (рука)": { tongue: { tip: [100, 104], blade: [114, 124], body: [150, 124], back: [196, 150], front: [96, 140] }, jaw: 0.2, lips: "rest", voice: true },
+  "ng (sing)": { tongue: { tip: [93, 158], blade: [120, 140], body: [176, 118], back: [199, 140] }, jaw: 0.2, lips: "rest", nose: true, air: "nose", voice: true },
+  "ee (see)": { tongue: { tip: [92, 154], blade: [104, 116], body: [132, 100], back: [194, 140] }, jaw: 0.05, lips: "spread", voice: true },
+  "i (sit)": { tongue: { tip: [92, 157], blade: [110, 134], body: [148, 120], back: [195, 147] }, jaw: 0.15, lips: "rest", voice: true },
+  "a (cat)": { tongue: { tip: [93, 162], blade: [112, 150], body: [146, 138], back: [196, 154] }, jaw: 0.7, lips: "open", voice: true },
+  "n (no)": { tongue: { tip: [99, 106], blade: [114, 122], body: [150, 124], back: [196, 150], front: [94, 140] }, jaw: 0.15, lips: "rest", nose: true, air: "nose", voice: true },
+  "k (key)": { tongue: { tip: [93, 158], blade: [122, 138], body: [180, 104], back: [200, 130] }, jaw: 0.2, lips: "rest" },
+  "p (pin)": { tongue: REST, jaw: 0.05, lips: "closed", air: "puff" },
+  "h (home)": { tongue: REST, jaw: 0.4, lips: "open", air: "throat" },
+};
+
+// ---- Redesign drafts (design/redesign.html) ----------------------------------------------------------------------
+const I = {
+  mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  ear: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  slow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.5 9h4l5.5-4.5v15L7.5 15h-4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7v9a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z" fill="currentColor"/></svg>',
+  words: '<span class="aa">Aa</span>',
+  bars: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"/><rect x="16" y="3" width="4.5" height="18" rx="1.6"/></svg>',
+  mouth: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-4 15-4 18 0-3 5-15 5-18 0z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M7 12.5c3 1.6 7 1.6 10 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>',
+  hush: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-1v-6h3M4 13v4a2 2 0 0 0 2 2h1v-6H4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>',
+  check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  puzzle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4a2.5 2.5 0 1 1 5 0h4v4a2.5 2.5 0 1 1 0 5v4H4z" fill="currentColor"/></svg>',
+};
+const MOUTH_STYLE = "--skin:#F3D9C6;--skin-line:#8A5A44;--air:#FFFFFF;--tongue:#E06C7C;--tongue-line:#8E2A3B;--tooth:#FFFFFF;--tooth-line:#8A7F75;--flow:#0057B7;--ghost:#0E1E36";
+const TH = POSES["th (think)"], S = POSES["с (сам)"];
+const tipAt = (p) => [p.tongue.tip[0], p.tongue.tip[1] + (p.jaw ?? 0.15) * 22];
+const thMove = (id, crop) => mouth(TH, { idPrefix: id, ghost: S, arrows: [[[tipAt(S)[0] - 3, tipAt(S)[1]], [tipAt(TH)[0] + 8, tipAt(TH)[1] - 3]]], crop });
+const thumb = (pose, id) => `<span class="thumb" style="${MOUTH_STYLE}">${mouth({ ...pose, air: null, voice: false }, { idPrefix: id, crop: "40 86 170 128" })}</span>`;
+const MARK = { good: "✓", close: "≈", off: "!", work: "✕" };
+const parts = (ps, size = "") => `<div class="parts ${size}">${ps.map(([l, g]) => `<span class="pt ${g ?? ""}"><span class="l">${l}</span>${g ? `<span class="m">${MARK[g]}</span>` : ""}</span>`).join("")}</div>`;
+const tabs = (items, on) => `<nav class="tabbar">${items.map(([icon, label]) => `<span class="${label === on ? "on" : ""}">${I[icon]}${label}</span>`).join("")}</nav>`;
+const TABS_A = [["home", "Home"], ["bars", "Progress"]];
+const TABS_B = [["home", "Today"], ["words", "Words"], ["bars", "Progress"]];
+const TABS_C = [["mouth", "Sounds"], ["words", "Words"], ["bars", "Progress"]];
+const quiet = (on = "loud", dark = true) => `<div class="quiet${dark ? " on-blue" : ""}"><span class="${on === "loud" ? "on" : ""}">${I.mic}Out loud</span><span class="${on === "quiet" ? "on" : ""}">${I.hush}Quiet</span></div>`;
+const phone = (inside, cls = "") => `<div class="phone"><div class="screen ${cls}">${inside}</div></div>`;
+const meter = (v, tone) => `<span class="meter"><i class="${tone}" style="width:${v}%"></i></span>`;
+const head = (title, { back = true, close = false, right = "" } = {}) => `<header class="top">${back ? `<span class="iconbtn">${I.back}</span>` : ""}${close ? `<span class="iconbtn">${I.close}</span>` : ""}<h1>${title}</h1>${right}</header>`;
+const mic = (label, cls = "") => `<div class="micwrap ${cls}"><span class="mic">${I.mic}</span><span class="miclabel">${label}</span></div>`;
+const rb = (icon, label) => `<span class="rb"><span class="rbi">${I[icon]}</span>${label}</span>`;
+
+const OPTIONS = [
+  {
+    key: "A", title: "A: Word first", pitch: "Your words are the home screen. Tap one and everything for that word is on one screen: hear it, say it, see how to make it. Two tabs instead of three, and no Read · Listen · Speak switch: quiet mode swaps the microphone for listening and puzzles.",
+    screens: [
+      ["Home", phone(`<section class="hero">
+        <div class="hero-top"><span class="brand">Articulate</span>${quiet("loud")}</div>
+        <p class="hello">Keep going with</p>
+        <div class="hero-word">think</div>
+        <p class="hero-sub">Last time: <b>th</b> sounded like an s</p>
+        ${mic("Say it", "on-hero")}
+      </section>
+      <div class="body">
+        <h2 class="h2">Your words</h2>
+        <div class="tiles">${[["weather", 45, "off"], ["very", 88, "good"], ["world", 92, "good"], ["three", 90, "good"], ["comfortable", null, ""]].map(([w, v, t]) => `<div class="tile"><b>${w}</b>${v === null ? '<span class="new">New</span>' : meter(v, t)}</div>`).join("")}<div class="tile add">${I.plus}Add a word</div></div>
+      </div>${tabs(TABS_A, "Home")}`)],
+      ["A word", phone(`${head("", { right: '<span class="pill">5 tries</span>' })}
+      <div class="body center">
+        <div class="word-xl">think</div>
+        <p class="strong-note">Say the <b>i</b> strongest</p>
+        <div class="trio">${rb("ear", "Hear it")}${mic("Say it", "big")}${rb("slow", "Slowly")}</div>
+        <div class="card row-card"><span class="thumbwrap">${thumb(TH, "a2")}</span><span class="rc-text"><b>How to make th</b><span>Tongue tip between your teeth</span></span>${I.chev}</div>
+        <div class="card"><h3 class="h3">Same sound</h3><div class="chips"><span>thank</span><span>thin</span><span>three</span><span>thing</span></div></div>
+      </div>${tabs(TABS_A, "Home")}`)],
+      ["After a try", phone(`${head("")}
+      <div class="body center">
+        ${parts([["th", "work"], ["i", "good"], ["n", "good"], ["k", "good"]], "xl")}
+        <p class="verdict">Almost! The <b>th</b> sounded like an <b>s</b>.</p>
+        <div class="card how">
+          <div class="how-head"><b>Make the th</b><span class="pill blue">From <span lang="uk">с</span></span></div>
+          <figure class="fig" style="${MOUTH_STYLE}">${thMove("a3", "34 92 190 112")}</figure>
+          <p>Say <span lang="uk">с</span>, then slide your tongue tip forward, <b>between your teeth</b>.</p>
+        </div>
+        <div class="after-row">${mic("Try again")}<span class="side-link">${I.mouth}<b>5-word th round</b></span></div>
+      </div>${tabs(TABS_A, "Home")}`)],
+    ],
+  },
+  {
+    key: "B", title: "B: Five minutes a day", pitch: "One big button. The app plans a short practice from your words and your hardest sound: listen, say, fix, repeat. You never have to decide what to do next, which helps on a tired day. Words and Progress are still there for when you want them.",
+    screens: [
+      ["Today", phone(`<section class="hero tall">
+        <div class="hero-top"><span class="brand">Articulate</span></div>
+        <p class="hello">Привіт! Ready for</p>
+        <div class="hero-big">5 minutes</div>
+        <ol class="plan">
+          <li><span class="pi">${I.ear}</span><span>Hear the difference: <b>think · sink</b></span></li>
+          <li><span class="pi">${I.mic}</span><span>Say <b>think</b> and <b>three</b></span></li>
+          <li><span class="pi">${I.mouth}</span><span>Fix the <b>th</b>, step by step</span></li>
+        </ol>
+        <span class="go">Start</span>
+      </section>
+      <div class="body">
+        <div class="card row-card quiet-card"><span class="rbi">${I.hush}</span><span class="rc-text"><b>Can't talk right now?</b><span>Quiet mode: listening and puzzles only</span></span><span class="switch"></span></div>
+        <div class="card row-card"><span class="rc-text"><b>th is getting better</b><span>think: 22 → 40 this week</span></span>${meter(40, "off")}</div>
+      </div>${tabs(TABS_B, "Today")}`, "blue-top")],
+      ["During practice", phone(`<header class="top progress-top"><span class="iconbtn">${I.close}</span><span class="steps">${[1, 1, 1, 0, 0, 0].map((d, i) => `<i class="${d ? "done" : i === 3 ? "now" : ""}"></i>`).join("")}</span></header>
+      <div class="body center grow">
+        <p class="prompt">Say this word</p>
+        <div class="word-xl">three</div>
+        <p class="strong-note">Tongue between your teeth for the <b>th</b></p>
+        <div class="spacer"></div>
+        ${mic("Tap, say it, tap again", "huge")}
+        <p class="link">${I.ear} Hear it first</p>
+      </div>`, "plain")],
+      ["Done", phone(`<header class="top"><span class="iconbtn">${I.close}</span><h1></h1></header>
+      <div class="body center">
+        <span class="done-badge">${I.check}</span>
+        <h2 class="h1">Nice work!</h2>
+        <p class="lead">5 minutes, 6 steps</p>
+        <div class="card list-card">
+          <div><span>think</span><span class="delta">22 → <b>75</b></span></div>
+          <div><span>three</span><span class="delta"><b>90</b> ✓</span></div>
+          <div><span>th by ear</span><span class="delta"><b>4 of 5</b> right</span></div>
+        </div>
+        <span class="go wide">Done</span>
+        <p class="link">One more round ${I.chev}</p>
+      </div>`, "plain")],
+    ],
+  },
+  {
+    key: "C", title: "C: Sounds first", pitch: "Built around the sounds that are hard, with the mouth picture as the star. Each sound has its own page: how to make it, starting from Ukrainian, then a way to say it and a way to hear it. Your words show up under the sounds they need.",
+    screens: [
+      ["Your sounds", phone(`<section class="hero">
+        <div class="hero-top"><span class="brand">Articulate</span>${quiet("loud")}</div>
+        <p class="hello">Work on this one</p>
+        <div class="sound-hero"><span class="big-thumb" style="${MOUTH_STYLE}">${mouth({ ...TH, air: null }, { idPrefix: "c1", crop: "30 86 190 140" })}</span><span><span class="hero-big">th</span><span class="hero-sub">in think, three · 6 misses</span></span></div>
+        <span class="go">Practice th</span>
+      </section>
+      <div class="body">
+        <h2 class="h2">Also tricky</h2>
+        ${[["w", POSES["w (wet)"], "weather, world", 50, "off"], ["ee · i", POSES["ee (see)"], "sheep, ship", 70, "close"], ["r", POSES["r (red)"], "very", 88, "good"]].map(([s, p, ws, v, t], i) => `<div class="card row-card">${thumb(p, "c1" + i)}<span class="rc-text"><b>${s}</b><span>${ws}</span></span>${meter(v, t)}</div>`).join("")}
+      </div>${tabs(TABS_C, "Sounds")}`)],
+      ["A sound", phone(`${head("th, as in think")}
+      <div class="body">
+        <div class="seg"><span><span lang="uk">с</span> (<span lang="uk">сам</span>)</span><span class="on">th</span><span>▶ Move</span></div>
+        <figure class="fig big" style="${MOUTH_STYLE}">${thMove("c2")}</figure>
+        <p class="lead-left">Start from <span lang="uk">с</span>, then slide the tip of your tongue <b>between your teeth</b>. Blow softly.</p>
+        <div class="two"><span class="act yellow">${I.mic}<b>Say 5 words</b></span><span class="act">${I.ear}<b>Hear the difference</b></span></div>
+      </div>${tabs(TABS_C, "Sounds")}`)],
+      ["Hear the difference", phone(`${head("Which did you hear?", { back: false, close: true })}
+      <div class="body center">
+        <span class="streak"><b>3</b> in a row</span>
+        <span class="play">${I.ear}</span>
+        <p class="lead">Play it again</p>
+        <div class="choices"><span>think</span><span class="right">sink ✓</span></div>
+        <p class="verdict small">Yes, <b>sink</b>. For think, the tongue comes forward.</p>
+        <span class="go wide">Next</span>
+      </div>`, "plain")],
+    ],
+  },
+];
+
+document.getElementById("options").innerHTML = OPTIONS.map((o) => `<section class="option-block">
+  <div class="option-head"><h2><span class="num">${o.key}</span>${o.title.slice(3)}</h2><p>${o.pitch}</p></div>
+  <div class="row3">${o.screens.map(([cap, ph]) => `<figure class="shot"><figcaption>${cap}</figcaption>${ph}</figure>`).join("")}</div>
+</section>`).join("");
+
+</script>
+</body></html>

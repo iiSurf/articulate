@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseCmudict } from "../../js/words/cmudict.js";
-import { fixTip, loadTips, positionOf, segments, soundKey } from "../../js/words/tips.js";
+import { TEACH_ORDER, fixTip, loadTips, positionOf, segments, soundKey, soundToTeach } from "../../js/words/tips.js";
 import { CMU_TO_MODEL } from "../../js/score/phones.js";
 
 const data = JSON.parse(readFileSync(new URL("../../data/tips/uk-en.json", import.meta.url), "utf8"));
@@ -151,4 +151,14 @@ test("the tips load once, and a failed load can be tried again", async () => {
   assert.equal(got.language, "uk");
   await loadTips(() => { calls++; return Promise.resolve({}); });
   assert.equal(calls, 2);
+});
+
+test("the sound a word's page explains: the one that went wrong last time, else the hardest for a Ukrainian speaker", () => {
+  assert.deepEqual([...TEACH_ORDER].sort(), Object.keys(data.sounds).sort(), "every sound with a tip is in the order, once");
+  assert.equal(soundToTeach(data, ["TH", "IH1", "NG", "K"]), "TH");
+  assert.equal(soundToTeach(data, ["W", "EH1", "DH", "ER0"]), "DH", "the th of weather comes before its w");
+  assert.equal(soundToTeach(data, ["W", "EH1", "DH", "ER0"], "W"), "W", "unless the w went wrong last time");
+  assert.equal(soundToTeach(data, ["TH", "IH1", "NG", "K"], "V"), "TH", "a sound the word doesn't have is ignored");
+  assert.equal(soundToTeach(data, ["M", "S"]), null);
+  assert.equal(soundToTeach(data, ["K", "AH1", "M"]), "AH1");
 });

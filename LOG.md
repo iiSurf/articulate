@@ -955,3 +955,75 @@ The pull request for How to make it couldn't merge: the teammate's PR #10 ("Four
 ### Not verified
 
 - Their `UNSURE_MARGIN` with real voices (their note says the same).
+
+## 2026-11-09 (Monday): redesign drafts, easier and nicer to look at
+
+### Plan
+
+iiSurf: the app is hard to use; keep the yellow and blue look, and make it easier and more pleasing. (YouGlish was considered and turned down: not used in any form.) First a walk through every screen as it is, then drafts.
+
+### What's hard today (from screenshots of all nine screens with made-up data)
+
+- Every screen looks the same: a blue band, white cards, small gray capitals, rows of pale buttons of equal weight. Nothing says what to do next.
+- One word takes a long trip: Words, then Practice, then Read · Listen · Speak, then Record. The two games are three taps deep under Progress.
+- Practice buttons on every word in the list and again on the word's page.
+- Small text (13 to 15 pixels for much of it) bunched at the top, the bottom half of the phone empty. The word page also shows sound symbols ("θ ɪ ŋ k"), which the learner was never meant to see.
+
+### Changed
+
+- New `design/redesign.html`: three directions, three phones each, following one practice from start to finish. A: Word first (your words are home; one screen per word with Hear, a big Say button, and How to make it). B: Five minutes a day (one Start button; the app plans listen, say, fix). C: Sounds first (home is the sounds that are hard, each with the mouth picture). All three: one big yellow microphone per screen, bigger type, and a quiet mode switch instead of Read · Listen · Speak.
+- New `fonts/`: Atkinson Hyperlegible Next (the same file MySkate uses, open license, with its license and a README), so the drafts show the real type with no outside request.
+
+### Verified
+
+- Every phone looked at full size; no sideways scroll at 360, 390, or 1280; no screen runs past its bottom. Fixed on the way: three phones per row at 1280, "After a try" in A was too tall, and spacing in B's plan and the Words tab icon.
+
+### Not verified
+
+- Nothing is built. Most of the screens that would change are the teammate's (Read, Listen, Speak), so building any of these needs their OK. The other six looks and a computer-width layout aren't drawn yet.
+
+## 2026-11-09 (Monday): the redesign, phase 1 (the new look, Home, and the word page)
+
+### Plan
+
+iiSurf liked all three drafts and left the choice to me: "best design practices, and what is on the screen to learn the most per page." The pick, written up in PLAN.md ("The redesign"): **B's front door** (one clear thing to do next, best on a tired day), **A's word screens** (hear it, see how to make it, say it, all on one page), **C's sound pages** (the mouth picture with both ways to practice a sound), two tabs. Built in phases, iiSurf's files first; the teammate's screens get the look through the shared styles now and their layout later, with their OK.
+
+### Changed
+
+- **The look, everywhere:** Atkinson Hyperlegible from `fonts/` (`css/fonts.css`), headings in plain sentence case at 19px instead of small gray capitals, bigger buttons, chips, and cards, and the "How to make" heading to match.
+- **Two tabs, Home and Progress** (`js/app.js`). Practice pages and a word's page belong to Home. On Home the band is short and runs into the banner, which carries the look's own stripe.
+- **Home** (`js/words/screens.js`): a banner with "Keep going with think", how it went last time ("Last time, the th needed work"), and one big yellow microphone; an **Out loud / Quiet** switch, which in quiet swaps the microphone for Listen and Puzzles (it sets the same saved mode as before); a card for the hardest sound with its mouth picture, going to its round; Your words as tiles, newest first, with a bar in the color of the recent score; Add, and suggestions. The one-time tip is kept below the banner.
+- **A word's page:** the word large with its strong part underlined ("Say the ea strongest"), Hear it and Slowly on either side of a big Say it, the recent score, a **How to make** card for the word's hardest sound (opens to the picture, from the Ukrainian sound, and a link to its round), words with the same sound to hear, and Remove (moved here from the list; Home shows Undo). **No sound symbols** anymore.
+- New pure helpers with tests: `wordStatus` (js/progress.js) and `soundToTeach` with `TEACH_ORDER` (js/words/tips.js). Tour wording for the new buttons and the finish.
+- Checks: `check-words` (newest first, removing on the word page, no sound symbols, How to make, Same sound, Quiet and Out loud), `check-shell` (two tabs), `check-tour` (the new finish).
+
+### Verified
+
+- `npm test` 133 of 133. All nine browser checks pass, three with the real model, including the whole tour. Pictures looked at for Home, out loud and quiet, a word page closed and open, at 360, 390, and 1280, in Sky, Night flag, Kalyna, and Sunflower, and every other screen with the new shared styles. Fixed on the way: chips lost their style, an empty note left a gap, long words broke mid-word on a computer, the microphone's ring looked muddy on blue, the hardest-sound card didn't name the sound, Home's click handler was added on every redraw, and the tour's tip vanished when Home redrew.
+
+### Not verified
+
+- A real phone. The other looks besides those four (the contrast check covers them for the boards and the round, not yet for Home).
+- Not built yet: the five-minute practice, a sound's page, and the teammate's screens in the new layout (PLAN.md, phases 2 and 3).
+
+## 2026-11-09 (Monday): the redesign, phase 2 (Five minutes, a page for each sound, sound cards)
+
+### Plan
+
+PLAN.md "The redesign", phase 2: B's front door (one Start that plans the practice), C's sound pages, and Progress's sounds as cards. All in iiSurf's files.
+
+### Changed
+
+- **Five minutes.** `js/session.js` (pure, tested) plans one practice: the sound to work on (the hardest so far, else the current word's own hardest sound), then **listen** (3 "which did you hear?" questions from that sound's pairs), **look** (the How to make it picture), **say** (3 words, their own word first, scored by the real model), and a **summary** (each word before and now, and the listening count). Quiet mode: 5 questions and the picture, no saying. A phone that can't speak words: no listening steps. `js/session-screen.js` runs it one step at a time with a progress bar, the big microphone, and "×" to stop; the voice says each question's word by itself; without the sound model it offers the download or "Skip saying words today". Every try goes through `ctx.score`, so the boards move.
+- **Home's banner** is now "Ready for 5 minutes", the three lines of the plan ("Hear the difference: think · sink", "See how to make the th", "Say think, thank, and thin"), and **Start**, which runs exactly the plan shown. Quiet also points to the puzzles. A new learner with no words sees "Add a word".
+- **A sound's page** (`js/sound-screen.js`, `#/sound/TH`): "th, as in think", the misses so far, the picture, **Say 5 words** and **Hear the difference** side by side, your words with that sound (with how each is going), and more words to hear. Home's hardest-sound card, a word's How to make card ("All about th"), and Progress all lead here.
+- **Progress:** "Where you struggle most" is a card for each sound, with its mouth picture, misses, the words it came up in, and a bar.
+- Checks: new `tools/check-session.mjs` (`npm run check-session`, 20 checks with the real model); `check-words`, `check-progress` (the cards, and the seven-looks contrast now also on Home, a sound's page, and a word's page: 35 checks), and `check-hear` (it starts from the sound page now).
+
+### Verified
+
+- `npm test` 143 of 143 (10 new). All ten browser checks pass, four with the real model. Pictures looked at: Home with the plan, a say step after "think" said as "sink", the summary, a sound's page, at 390 and 1280, and Home in Pysanka. Fixed on the way: One more round did nothing (it went to the page it was already on), and the sound page had two back links.
+
+### Not verified
+
+- A real phone, a real voice, and a real microphone (the stand-ins play the Mac's voices). Whether five minutes is really about five minutes. Phase 3 (the teammate's Speak, Read, and Listen in the new layout) is waiting for their OK.
