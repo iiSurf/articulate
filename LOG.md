@@ -955,3 +955,29 @@ The pull request for How to make it couldn't merge: the teammate's PR #10 ("Four
 ### Not verified
 
 - Their `UNSURE_MARGIN` with real voices (their note says the same).
+
+## 2026-11-09 (Monday): redesign drafts, easier and nicer to look at
+
+### Plan
+
+iiSurf: the app is hard to use; keep the yellow and blue look, and make it easier and more pleasing. (YouGlish was considered and turned down: not used in any form.) First a walk through every screen as it is, then drafts.
+
+### What's hard today (from screenshots of all nine screens with made-up data)
+
+- Every screen looks the same: a blue band, white cards, small gray capitals, rows of pale buttons of equal weight. Nothing says what to do next.
+- One word takes a long trip: Words, then Practice, then Read · Listen · Speak, then Record. The two games are three taps deep under Progress.
+- Practice buttons on every word in the list and again on the word's page.
+- Small text (13 to 15 pixels for much of it) bunched at the top, the bottom half of the phone empty. The word page also shows sound symbols ("θ ɪ ŋ k"), which the learner was never meant to see.
+
+### Changed
+
+- New `design/redesign.html`: three directions, three phones each, following one practice from start to finish. A: Word first (your words are home; one screen per word with Hear, a big Say button, and How to make it). B: Five minutes a day (one Start button; the app plans listen, say, fix). C: Sounds first (home is the sounds that are hard, each with the mouth picture). All three: one big yellow microphone per screen, bigger type, and a quiet mode switch instead of Read · Listen · Speak.
+- New `fonts/`: Atkinson Hyperlegible Next (the same file MySkate uses, open license, with its license and a README), so the drafts show the real type with no outside request.
+
+### Verified
+
+- Every phone looked at full size; no sideways scroll at 360, 390, or 1280; no screen runs past its bottom. Fixed on the way: three phones per row at 1280, "After a try" in A was too tall, and spacing in B's plan and the Words tab icon.
+
+### Not verified
+
+- Nothing is built. Most of the screens that would change are the teammate's (Read, Listen, Speak), so building any of these needs their OK. The other six looks and a computer-width layout aren't drawn yet.
