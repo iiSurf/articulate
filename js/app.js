@@ -27,9 +27,18 @@ const ICONS = {
 const MODE_NAMES = { read: "Read", listen: "Listen", speak: "Speak" };
 
 // Plug a screen in by name: "words", "read", "listen", "speak", "fix", "progress".
+// Redraws only if that screen is the one showing, and at most once for several screens plugged in together,
+// so a screen being used (a recording, typed text) isn't wiped.
+let redraw = null;
 export function registerScreen(name, screen) {
   screens.set(name, screen);
-  if (started) show();
+  if (started && name === showing() && !redraw) redraw = queueMicrotask(() => { redraw = null; show(); }) ?? true;
+}
+
+// The name of the screen in the address: "words", "read", "listen", "speak", "progress", or "colors".
+function showing() {
+  const { page, sub } = where();
+  return page === "practice" ? (MODES.includes(sub) ? sub : state.mode) : page;
 }
 
 // What every screen gets from the rest of the app (PLAN.md, "Screens, and the hooks the tour needs").
@@ -86,7 +95,16 @@ function applyLook() {
 
 function where() {
   const [page = "words", sub = ""] = location.hash.replace(/^#\/?/, "").split("/");
-  return { page: ["words", "practice", "progress", "round", "hear", "colors"].includes(page) ? page : "words", sub: decodeURIComponent(sub) };
+  return { page: ["words", "practice", "progress", "round", "hear", "colors"].includes(page) ? page : "words", sub: decode(sub) };
+}
+
+// A stray % (#/words/50%) would make decodeURIComponent throw and leave a blank app.
+export function decode(text) {
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return text;
+  }
 }
 
 function show() {
@@ -205,7 +223,9 @@ function yourColors(main) {
   });
 }
 
-phoneDark.addEventListener("change", show);
+// The phone switching between light and dark: change the look, and keep the screen as it is.
+// Your colors shows which look is on, so it's drawn again.
+phoneDark.addEventListener("change", () => (where().page === "colors" ? show() : applyLook()));
 installMouth(); // the buttons on every "How to make it" picture
 window.addEventListener("hashchange", show);
 show();

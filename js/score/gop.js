@@ -90,7 +90,7 @@ export function gradeOf(score, cuts = CUTS) {
 
 // Scores each sound of a word. word is a list of { cmu, ok } (from targets() in phones.js).
 // Returns, for each sound: its score, its grade, and, when it isn't green, the closest other sound
-// ("" means it sounded left out).
+// ("" means it sounded left out). `closest` is that sound even when it is green.
 export function scoreWord(prep, word, v, cuts = CUTS) {
   const labels = word.map((w) => w.ok);
   const whole = fit(prep, labels);
@@ -103,6 +103,6 @@ export function scoreWord(prep, word, v, cuts = CUTS) {
     }
     const score = whole - best;
     const grade = gradeOf(score, cuts);
-    return { cmu: w.cmu, score, grade, heard: grade === "green" ? null : heard };
+    return { cmu: w.cmu, score, grade, heard: grade === "green" ? null : heard, closest: heard };
   });
 }

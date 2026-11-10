@@ -36,7 +36,7 @@ Adding a dialect means adding a few features to `FEATURES` in `js/score/dialects
 
 ## What's ready
 
-It's a working, tested change in [dialects.patch](dialects.patch). It applies to `main` as of November 1, and with it all 66 tests pass (50 existing and 16 new). To take it, run `git apply docs/dialects.patch` on `nicks-branch`. If `gop.js` or `phones.js` have changed since, try `git apply --3way docs/dialects.patch`. Once it's in, delete the patch and update this section.
+It's a working, tested change in [dialects.patch](dialects.patch). It was built on the four fixes in [fixes.md](fixes.md). It may need `git apply --3way docs/dialects.patch`, since `main` has changed since it was made. If `gop.js` or `phones.js` have changed since, try `git apply --3way docs/dialects.patch`. Once it's in, delete the patch and update this section.
 
 The patch changes four things:
 

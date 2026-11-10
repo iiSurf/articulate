@@ -67,3 +67,14 @@ test("the dictionary loads once, and a failed load can be tried again", async ()
   await loadDictionary(() => { calls++; return Promise.resolve(""); });
   assert.equal(calls, 2);
 });
+
+test("a word with more than one way to say it lists them all", async () => {
+  const { lookUpIn } = await import("../../js/words/lookup.js");
+  const { parseCmudict } = await import("../../js/words/cmudict.js");
+  const dict = parseCmudict("live L IH1 V\nlive(2) L AY1 V\nthink TH IH1 NG K\n");
+  const live = lookUpIn(dict, "live");
+  assert.deepEqual(live.phones, ["L", "IH1", "V"]);
+  assert.deepEqual(live.ways.map((w) => w.phones), [["L", "IH1", "V"], ["L", "AY1", "V"]]);
+  assert.ok(live.ways[1].parts.length >= 3);
+  assert.equal(lookUpIn(dict, "think").ways, undefined);
+});
