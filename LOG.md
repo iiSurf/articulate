@@ -936,3 +936,22 @@ iiSurf picked B (start from the Ukrainian sound and show the move), C (the lips 
 ### Not verified
 
 - **The shapes.** A teacher or speech therapist should check them; the friend's teacher is the obvious person. A real phone, and the move's smoothness on a slow one.
+
+## 2026-11-09 (Monday): main merged into nicks-branch, one conflict in js/app.js
+
+### Plan
+
+The pull request for How to make it couldn't merge: the teammate's PR #10 ("Four fixes in the code") landed on `main` first, and it touched `js/app.js` at the same spot. `js/app.js` is iiSurf's file, so the conflict is settled here (PLAN.md: the owner decides).
+
+### Changed
+
+- Merged `origin/main` into `nicks-branch`. The teammate's four fixes, in iiSurf's files, with their notes in `docs/fixes.md`: every way of saying a word is scored and the best fit kept (`js/words/lookup.js`, `js/score/score.js`); the e and oo vowels are only held at yellow when the model really mixed them up (`UNSURE_MARGIN`, `js/score/gop.js`); a stray % in the address no longer blanks the app (`decode()` in `js/app.js`); and the phone going dark only changes the look instead of redrawing the screen (`js/app.js`, also `registerScreen()` only redraws the screen that's showing).
+- The one conflict: the last lines of `js/app.js`. Kept both: the teammate's new dark-switch listener, and the `installMouth()` line from How to make it.
+
+### Verified
+
+- `npm test` 131 of 131 (with the teammate's 4 new tests). All nine browser checks pass on the merged code, including `check-tips`, `check-tour`, and `check-round` with the real model, so their scoring changes work with the boards, the round, and the pictures.
+
+### Not verified
+
+- Their `UNSURE_MARGIN` with real voices (their note says the same).
