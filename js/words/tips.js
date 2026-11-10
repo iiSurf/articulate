@@ -51,6 +51,19 @@ export function fixTip(data, part, word = "") {
   return { sound: key, title: entry.title, uk: entry.uk ?? null, tip: entry.tip, swap, words, pairs };
 }
 
+// The sounds that are hardest for a Ukrainian speaker, hardest first (docs/needs.md): the order a word's page picks
+// from when it explains one sound.
+export const TEACH_ORDER = ["TH", "DH", "W", "V", "R", "NG", "IH", "IY", "AE", "EH", "UH", "UW", "OW", "AO", "ER", "AH0", "AH1", "AA", "HH", "P", "T", "K"];
+
+// The one sound to explain on a word's page: the one that went wrong last time (lastBad, a tips key), if the word has
+// it; otherwise its hardest sound for a Ukrainian speaker; null if the word has none of the sounds with tips.
+// phones are the dictionary's sounds for the word ("TH", "IH1", ...).
+export function soundToTeach(data, phones, lastBad = null) {
+  const keys = new Set((phones ?? []).map(soundKey).filter((k) => data?.sounds?.[k]));
+  if (lastBad && keys.has(lastBad)) return lastBad;
+  return TEACH_ORDER.find((k) => keys.has(k)) ?? null;
+}
+
 // Splits a sentence into runs of Ukrainian letters and everything else, so a screen can mark the Ukrainian with
 // lang="uk" (a screen reader then reads it in Ukrainian, not in an English voice). [{ text, uk: true | false }]
 export function segments(text) {

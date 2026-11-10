@@ -5,7 +5,7 @@
 
 export const STEPS = [
   { id: "add", on: "added" }, // 1: a word was added in My words
-  { id: "open", on: "practice" }, // 2: Practice it was tapped on the word
+  { id: "open", on: "practice" }, // 2: Say it (the big microphone) was tapped on the word
   { id: "say", on: "said" }, // 3: a try was graded in Speak
   { id: "fix", on: "fixed" }, // 4: Back to the word was tapped in Speak's practice panel
   { id: "again", on: "said" }, // 5: a second try was graded
@@ -67,7 +67,7 @@ export function copy(step, kind) {
       return { text: "Type a word you use often, or one people sometimes ask you to repeat. Then tap <b>Add</b>.", targets: ['[data-tour="add"]'] };
     case 2:
       return kind === "word"
-        ? { text: "Tap <b>Hear it</b> to listen, and <b>Slowly</b> to hear each sound. Then tap <b>Practice it</b>.", targets: ['[data-tour="hear"]', '[data-tour="practice"]'] }
+        ? { text: "Tap <b>Hear it</b> to listen, and <b>Slowly</b> to hear each sound. Then tap the big <b>Say it</b> button.", targets: ['[data-tour="hear"]', '[data-tour="practice"]'] }
         : { text: "Tap your word to open it.", targets: ['[data-tour="word-link"]'] };
     case 3:
       return { text: "Tap <b>Record</b>, say your word, then tap <b>Stop</b>. The first time, Articulate downloads its sound model once (355 MB, Wi-Fi is best).", targets: ['[data-tour="record"]', "#get-model"] };
@@ -78,14 +78,14 @@ export function copy(step, kind) {
     case 5:
       return { text: "Now say it again, and see what changes. Tap <b>Record</b>.", targets: ['[data-tour="record"]'] };
     default:
-      return { title: "You did it!", text: "You practiced your first word. Next time, choose how you want to practice:",
-        list: ["Read: no sound, works anywhere", "Listen: with headphones", "Speak: out loud, with colors"], targets: [] };
+      return { title: "You did it!", text: "You practiced your first word. On Home, choose how you can practice right now:",
+        list: ["Out loud: say your words and see the colors", "Quiet: listen and puzzles, when you can't talk", "Your hardest sound: five words with it, and a picture of how to make it"], targets: [] };
   }
 }
 
 // The one-time tips: one line for each screen the first time it opens. The "?" in the band brings one back.
 export const TIPS = {
-  words: "Add the words you want to work on, or tap one of the suggestions. Tap a word to see how it's said.",
+  words: "This is Home. Add the words you want to work on, then tap one to hear it, see how to make it, and say it. Can't talk right now? Switch to <b>Quiet</b>.",
   read: "<b>Read</b> is practice with no sound, so it works anywhere. Each puzzle is about how English words sound.",
   listen: "<b>Listen</b> works best with headphones. Hear a word, then tap the one you heard.",
   speak: "<b>Speak</b>: say the word, and each part of it turns green, yellow, orange, or red. Tap a part that isn't green to practice it.",

@@ -101,7 +101,8 @@ npm start
 - [js/words/tips.js](js/words/tips.js): `fixTip(data, part, word)` picks what to show for a part that went wrong (the sound, what they said, up to 4 words, up to 2 pairs with their own word first), and `segments()` marks the Ukrainian letters so a screen reader reads them in Ukrainian. Screens get it as `ctx.tips(part, word)`.
 - The tips show in Speak's practice panel: tap a part that isn't green. (That is about 20 lines in `js/practice/speak.js`, which is the teammate's file. iiSurf applied them on November 8 with the teammate's branch fully merged, and the teammate should look over that commit.)
 
-- [js/words/screens.js](js/words/screens.js): My words (add a word you type or a suggested one, remove it with Undo, Practice it), and the word page (its letters with the strong part underlined and silent letters in gray, its sounds, Hear it, Slowly, and Practice it).
+- [js/words/screens.js](js/words/screens.js): Home and the word page, redesigned November 9 (phase 1, PLAN.md "The redesign"). Home: a banner with the word to keep going with and one big microphone, an Out loud / Quiet switch (Quiet offers Listen and Puzzles), the hardest sound, and your words as tiles with Add and suggestions. A word's page: the word large with its strong part underlined and silent letters in gray, Hear it and Slowly beside a big Say it, How to make its hardest sound (the picture), words with the same sound, and Remove with Undo. No sound symbols.
+- [fonts/](fonts/) and [css/fonts.css](css/fonts.css): Atkinson Hyperlegible Next, served from the app itself (open license).
 - [js/words/lookup.js](js/words/lookup.js): `lookUp(word)`, which gives its sounds, the letters for each sound, the stress, and the strong part.
 - [js/words/align.js](js/words/align.js): lines a spelling up with its sounds (w|ea|th|er, kn|igh|t, with silent letters on their own).
 - [js/words/speech.js](js/words/speech.js): says a word with the phone's own voice, normally or slowly.

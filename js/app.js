@@ -20,7 +20,7 @@ let askedAboutModel = false; // the download window opens at most once per visit
 const tour = createTour({ state, save: () => save(state), go: (hash) => { location.hash = hash; }, app });
 
 const ICONS = {
-  words: '<span class="aa" aria-hidden="true">Aa</span>',
+  words: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7v9a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z" fill="currentColor"/></svg>',
   practice: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
   progress: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="3.5" y="12" width="4.5" height="9" rx="1.6"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.6"/><rect x="16" y="3" width="4.5" height="18" rx="1.6"/></svg>',
 };
@@ -81,6 +81,7 @@ function context(param = "") {
     },
     go: (name, param = "") => { location.hash = `#/${name}${param ? `/${encodeURIComponent(param)}` : ""}`; },
     tour: { did: (event) => tour.did(event) }, // the first visit moves on when a screen says what happened
+    lookArt: () => byId(lookFor(state.looks, phoneDark.matches)).art(), // the look's stripe, for Home's banner
   };
 }
 
@@ -111,24 +112,26 @@ function show() {
   started = true;
   const look = applyLook();
   const { page, sub } = where();
-  const tab = page === "colors" ? "" : page === "round" || page === "hear" ? "progress" : page; // a round belongs to Progress
+  // Two tabs: Home (your words, and the ways to practice) and Progress. Practice and a word's page belong to Home.
+  const tab = page === "colors" ? "" : page === "round" || page === "hear" ? "progress" : page === "practice" ? "words" : page;
+  const home = page === "words" && !sub; // Home draws its own blue banner, joined to the band
   // Opening Practice from an address picks its way too, so the tip is for that way, not the last one used.
   const tipId = tipFor(page, page === "practice" && MODES.includes(sub) ? sub : state.mode, sub);
   const tabLink = (id) => (id === "practice" ? `#/practice/${state.mode}` : `#/${id}`);
   app.innerHTML = String(html`
-    <header class="band">
+    <header class="band${home ? " home" : ""}">
       <div class="band-in">
         ${page === "colors" || page === "round" || page === "hear"
           ? html`<a class="back" href="${page === "colors" ? "#/words" : "#/progress"}" aria-label="Back">‹</a><h1 class="brand">${{ round: "Say it round", hear: "Which did you hear?", colors: "Your colors" }[page]}</h1>`
           : html`<h1 class="brand">Articulate</h1><a class="pair" href="#/colors" aria-label="Your language and colors: Ukrainian to English">UA → EN</a>`}
         ${tipId ? html`<button type="button" class="help" id="help" aria-label="Help for this screen">?</button>` : ""}
       </div>
-      ${raw(look.art())}
+      ${home ? "" : raw(look.art())}
     </header>
-    <main class="main" id="main"></main>
+    <main class="main${home ? " home" : ""}" id="main"></main>
     <nav class="tabs" aria-label="Main">
-      ${["words", "practice", "progress"].map((id) => html`<a href="${tabLink(id)}" class="${id === tab ? "on" : ""}"
-        ${id === tab ? raw('aria-current="page"') : ""}>${raw(ICONS[id])}<span>${id[0].toUpperCase() + id.slice(1)}</span></a>`)}
+      ${["words", "progress"].map((id) => html`<a href="${tabLink(id)}" class="${id === tab ? "on" : ""}"
+        ${id === tab ? raw('aria-current="page"') : ""}>${raw(ICONS[id])}<span>${{ words: "Home", progress: "Progress" }[id]}</span></a>`)}
     </nav>`);
   const main = document.getElementById("main");
   if (page === "colors") yourColors(main);
