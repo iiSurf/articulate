@@ -11,7 +11,6 @@ import { panel } from "./words/mouth.js";
 import { canRecord, micProblem, startRecording } from "./practice/recorder.js";
 import { GRADES, MAX_SECONDS, MIN_SECONDS, headline, heardNothing, heardSentence } from "./practice/feedback.js";
 import { openModelDialog, toast } from "./ui/modeldialog.js";
-import { playMove } from "./ui/mouthui.js";
 import { GOOD_ENOUGH, scoreOf, wordStatus, toneOf } from "./progress.js";
 import { play } from "./ui/sounds.js";
 import { celebrate } from "./ui/celebrate.js";
@@ -97,7 +96,6 @@ registerScreen("session", {
         }));
         root.querySelector("#both")?.addEventListener("click", () => say(s.said).then(() => here() && say(s.pair.find((w) => w !== s.said))));
       }
-      if (s.kind === "look") playMove(root.querySelector(".mouth-panel"), { delay: 500 }); // the move plays by itself
       if (s.kind === "say") {
         root.querySelector("#record").addEventListener("click", () => (r.phase === "recording" ? r.recording?.stop() : record(s.word)));
         root.querySelector("#hear-first")?.addEventListener("click", () => say(s.word));

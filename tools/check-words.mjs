@@ -55,6 +55,8 @@ try {
   check("the learner never sees sound symbols on the word page", !/[ɪɛæɑəʊɝðθŋʃʧʤɹɾ]/.test(page.text));
   const how = await c.evaluate(`(() => { const d = document.querySelector(".how-card"); if (!d) return null; d.open = true; return { title: d.querySelector("summary b").textContent, picture: !!d.querySelector(".mouth-panel [data-mouth-fig] svg"), round: d.querySelector('a[href^="#/round/"]')?.getAttribute("href") }; })()`);
   check("How to make it explains the th of weather, with the picture and a round", how?.title === "How to make th" && how.picture && how.round === "#/round/DH", JSON.stringify(how));
+  const moved = await c.evaluate(`(async () => { const seen = new Set(), end = performance.now() + 6200; while (performance.now() < end) { const l = document.querySelector(".how-card [data-mouth-fig] svg")?.getAttribute("aria-label") ?? ""; seen.add(/^Moving/.test(l) ? "moving" : /^Side view: Ukrainian/.test(l) ? "з" : "th"); await new Promise((r) => setTimeout(r, 60)); } return [...seen].sort(); })()`);
+  check("once the card is open, its picture moves by itself, from з to th", JSON.stringify(moved) === '["moving","th","з"]', JSON.stringify(moved));
   check("Same sound offers words with that th to hear", (await c.evaluate(`[...document.querySelectorAll("[data-say]")].map((b) => b.dataset.say)`)).includes("this"));
   await c.evaluate(`document.getElementById("practice").click()`); await sleep(300);
   const saved = JSON.parse(await c.evaluate(`localStorage.getItem("articulate.v1")`));

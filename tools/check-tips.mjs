@@ -73,7 +73,7 @@ try {
         if (c.pair) check(`it offers the pair ${c.pair}`, (await chrome.evaluate(`[...document.querySelectorAll("#fix-tips [data-say-pair]")].map((b) => b.textContent)`)).includes(c.pair));
         const link = await chrome.evaluate(`document.querySelector("#fix-tips [data-round-link]")?.getAttribute("href") ?? null`);
         check("it offers a round for the sound", link === c.round, String(link));
-        const pic = await chrome.evaluate(`(() => { const p = document.querySelector("#fix-tips .mouth-panel"); return p && { said: p.querySelector(".mc-said")?.textContent ?? null, lips: p.querySelectorAll(".mouth-lips").length, move: !!p.querySelector('[data-mouth-show="move"]'), dashed: !!p.querySelector('[stroke-dasharray="5 5"]') }; })()`);
+        const pic = await chrome.evaluate(`(() => { const p = document.querySelector("#fix-tips .mouth-panel"); return p && { said: p.querySelector(".mc-said")?.textContent ?? null, lips: p.querySelectorAll(".mouth-lips").length, move: !!p.querySelector("[data-mouth-pause]") && !p.querySelector("[data-mouth-show]"), dashed: !!p.querySelector(".mouth-strip") }; })()`);
         check(`the picture shows how to make ${c.part}, from the Ukrainian sound, next to what they said (${c.said})`, !!pic && pic.said === `You said: ${c.said}` && pic.move && pic.dashed && (!c.lips || pic.lips === 2), JSON.stringify(pic));
         check("the Ukrainian letters are marked lang=uk", (await chrome.evaluate(`document.querySelectorAll('#fix-tips [lang="uk"]').length`)) >= 1);
         check("the learner never sees IPA in the panel", !/[ɪɛæɑəʊɝðθŋʃʧʤɹɾ]/.test(panel), panel);

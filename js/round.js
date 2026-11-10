@@ -13,7 +13,6 @@ import { canSpeak, say } from "./words/speech.js";
 import { canRecord, micProblem, startRecording } from "./practice/recorder.js";
 import { GRADES, MAX_SECONDS, MIN_SECONDS, headline, heardNothing, heardSentence } from "./practice/feedback.js";
 import { openModelDialog, toast } from "./ui/modeldialog.js";
-import { playMove } from "./ui/mouthui.js";
 import { GOOD_ENOUGH, ownWordFor, roundWords, scoreOf, stars, toneOf } from "./progress.js";
 import { play } from "./ui/sounds.js";
 import { celebrate } from "./ui/celebrate.js";
@@ -52,7 +51,6 @@ registerScreen("round", {
       root.classList.toggle("wide", r.ready && !r.intro && r.i < words.length); // room for the picture on the side
       root.innerHTML = String(!r.ready ? needView() : r.intro ? introView() : r.i >= words.length ? doneView() : wordView());
       if (r.ready && r.intro) {
-        playMove(root.querySelector(".mouth-panel"), { delay: 500 }); // the move plays by itself
         root.querySelector("#begin").addEventListener("click", () => { r.intro = false; draw(); root.querySelector("#record")?.focus(); });
         return;
       }

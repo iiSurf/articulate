@@ -1048,3 +1048,25 @@ iiSurf: (1) the animation of how to make the sound should come at the start of a
 ### Not verified
 
 - How the sounds actually sound on a phone speaker (the check only sees which notes were played), and whether a tap right before Hear it overlaps the voice. A real phone.
+
+## 2026-11-09 (Monday, night): the pictures move by themselves, everywhere
+
+### Plan
+
+iiSurf tried it on their phone: the animation wasn't running, and it should run by itself instead of needing a button. The live site did have the new code (PR #13 merged), so two causes: (1) a phone set to reduce motion (on a Samsung: Accessibility, Visibility enhancements, Remove animations) made the app skip the move and jump from с to th, and (2) only the lesson openings started the move; everywhere else needed "Show the move".
+
+### Changed
+
+- **Every How to make it picture loops by itself** while it's on screen: the Ukrainian sound for a second, the slide, the English sound for two seconds, a quicker slide back, and again (about six seconds a loop). `js/ui/mouthui.js` watches for pictures as screens draw them (a MutationObserver) and only moves the ones on screen (an IntersectionObserver), so a closed card or a picture scrolled away doesn't run.
+- **No buttons needed.** The с / th / Show the move buttons are gone. A label over the picture lights up which sound is showing ("с (сам)", the arrow during the slide, "th (think)"). A small **pause** button in the picture's corner stops it on the English sound (moving content has to be stoppable); Play starts it again. Screen readers are told the picture moves by itself.
+- **It keeps moving with reduce motion on.** The move is the lesson, not decoration, which is the exception the accessibility guidelines make for essential motion. The decorative motion (confetti, the springy presses, the badge pop) still turns off.
+- Fixed on the way: removing the old "start the move" call left a stray `if` in Five minutes that stopped the say steps from recording. The check caught it.
+- Checks: a helper watches a picture for a full loop and notes every state and lit label. `check-session` (loops on the look step), `check-round` (loops at the opening and beside the word, still moves with reduce motion, pause stops it on th, Play starts it), `check-words` (the word page's picture starts moving when its card is opened), `check-tips` and `check-progress` updated, and a new test for the loop's timing.
+
+### Verified
+
+- `npm test` 145 of 145. All ten browser checks pass, four with the real model. Pictures looked at mid-slide and on th, at 390.
+
+### Not verified
+
+- On iiSurf's phone. If a picture still doesn't move there, the next thing to look at is the phone's browser and any battery saver.
